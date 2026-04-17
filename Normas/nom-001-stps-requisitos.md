@@ -1,0 +1,14 @@
+# Registro de requerimientos con periodicidad
+
+Archivo elaborado a partir de los numerales de la NOM-001-STPS-2008 que establecen explícitamente una periodicidad para verificaciones, mantenimientos o programas relacionados con las condiciones de seguridad de edificios, locales, instalaciones y áreas en los centros de trabajo.
+
+> Nota: Sólo se listan los requisitos que indican una frecuencia concreta (por ejemplo, anual, semestral, posterior a evento). Obligaciones de cumplimiento continuo o permanente sin periodo definido (como conservación en condiciones seguras, orden y limpieza permanente, etc.) no se incluyen en esta tabla.
+
+## Requerimientos y periodicidad de verificación
+
+| Numeral NOM-001-STPS-2008 | Requisito a cumplir                                                                                                                         | Periodicidad de verificación / mantenimiento                                                                 |
+|---------------------------|---------------------------------------------------------------------------------------------------------------------------------------------|----------------------------------------------------------------------------------------------------------------|
+| 5.2                       | Realizar verificaciones oculares al centro de trabajo, que pueden hacerse por áreas, para identificar condiciones inseguras y reparar daños encontrados. Registrar resultados en bitácoras, medios magnéticos o actas de la comisión de seguridad e higiene y conservarlos un año. | Cada 12 meses como máximo por cada área del centro de trabajo (verificación anual por área).                   |
+| 5.3                       | Efectuar verificaciones oculares posteriores a la ocurrencia de un evento (sismo, inundación, tornado u otro fenómeno que pueda dañar el centro de trabajo), realizar las adecuaciones o reparaciones necesarias y registrar los resultados, conservando los registros un año. | Después de cada evento que pueda generar daños al centro de trabajo (verificación posterior a cada evento).     |
+| 7.5.1 h)                  | Dar mantenimiento periódico a las puertas de acceso de las escaleras de emergencia exteriores para evitar su deterioro y garantizar su operación. Registrar cada mantenimiento con fecha, tipo de trabajo realizado y nombres/firma de las personas que intervinieron. | Al menos una vez cada 6 meses (mantenimiento semestral mínimo a las puertas de acceso de escaleras de emergencia exteriores). |
+| 8.3                       | Contar con un programa anual de mantenimiento preventivo o correctivo para los sistemas de ventilación artificial, de modo que se encuentren en condiciones de uso. Registrar el contenido del programa y los resultados de su ejecución y conservarlos un año. | Programa de mantenimiento de alcance anual (las actividades del sistema de ventilación deben estar planificadas al menos en un ciclo de un año). |

@@ -1,0 +1,706 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Company {
+  id                  String               @id @default(cuid())
+  name                String
+  rfc                 String?
+  address             String?
+  industry            String?
+  isActive            Boolean              @default(true)
+  createdAt           DateTime             @default(now())
+  updatedAt           DateTime             @updatedAt
+  alerts              Alert[]
+  audits              Audit[]
+  brigades            Brigade[]
+  cmshMeetings        CMSHMeeting[]
+  cmshMembers         CMSHMember[]
+  drills              Drill[]
+  fiveS               FiveS[]
+  incidents           Incident[]
+  maintenances        Maintenance[]
+  requirements        Requirement[]
+  risks               Risk[]
+  program             SHProgram?
+  trainings           Training[]
+  users               User[]
+  suppliers           Supplier[]
+  eppItems            EppItem[]
+  eppAreaRequirements EppAreaRequirement[]
+  chemicals           ChemicalProduct[]
+  hazmatDisposals     HazmatDisposal[]
+}
+
+model User {
+  id                  String          @id @default(cuid())
+  email               String          @unique
+  name                String
+  password            String
+  role                Role            @default(AREA_MANAGER)
+  area                String?
+  isActive            Boolean         @default(true)
+  createdAt           DateTime        @default(now())
+  updatedAt           DateTime        @updatedAt
+  companyId           String
+  activities          Activity[]
+  brigadeMemberships  BrigadeMember[]
+  createdIncidents    Incident[]
+  createdRequirements Requirement[]
+  createdTrainings    Training[]
+  company             Company              @relation(fields: [companyId], references: [id])
+  reviewedDocuments   SupplierDocument[]
+  eppMovements        EppMovement[]
+  createdDisposals    HazmatDisposal[]
+}
+
+model Requirement {
+  id                         String            @id @default(cuid())
+  code                       String
+  name                       String
+  specificRequirement        String
+  legalSource                LegalSource
+  legalBasis                 String?
+  area                       String?
+  status                     RequirementStatus @default(PENDING)
+  dueDate                    DateTime?
+  completedAt                DateTime?
+  responsibleArea            String?
+  notes                      String?
+  createdAt                  DateTime          @default(now())
+  updatedAt                  DateTime          @updatedAt
+  companyId                  String
+  createdById                String
+  normName                   String?
+  normObjective              String?
+  applicabilityJustification String?
+  applicabilityScope         String?
+  activities                 Activity[]
+  evidences                  Evidence[]
+  company                    Company           @relation(fields: [companyId], references: [id])
+  createdBy                  User              @relation(fields: [createdById], references: [id])
+}
+
+model Activity {
+  id             String         @id @default(cuid())
+  description    String
+  dueDate        DateTime
+  completedAt    DateTime?
+  notes          String?
+  createdAt      DateTime       @default(now())
+  requirementId  String
+  userId         String
+  responsible    String         @default("")
+  activityStatus ActivityStatus @default(PENDING)
+  requirement    Requirement    @relation(fields: [requirementId], references: [id], onDelete: Cascade)
+  user           User           @relation(fields: [userId], references: [id])
+  evidences      Evidence[]
+}
+
+model Evidence {
+  id            String       @id @default(cuid())
+  fileName      String
+  fileUrl       String
+  publicId      String
+  fileType      EvidenceType
+  fileSizeKb    Int?
+  uploadedAt    DateTime     @default(now())
+  description   String?
+  requirementId String?
+  activityId    String?
+  incidentId    String?
+  drillId       String?
+  fiveSId       String?
+  auditId       String?
+  activity      Activity?    @relation(fields: [activityId], references: [id], onDelete: Cascade)
+  audit         Audit?       @relation(fields: [auditId], references: [id], onDelete: Cascade)
+  drill         Drill?       @relation(fields: [drillId], references: [id], onDelete: Cascade)
+  fiveS         FiveS?       @relation(fields: [fiveSId], references: [id], onDelete: Cascade)
+  incident      Incident?    @relation(fields: [incidentId], references: [id], onDelete: Cascade)
+  requirement   Requirement? @relation(fields: [requirementId], references: [id], onDelete: Cascade)
+}
+
+model Incident {
+  id               String           @id @default(cuid())
+  folio            String           @unique
+  type             IncidentType
+  severity         IncidentSeverity
+  occurredAt       DateTime
+  area             String
+  description      String
+  injuredName      String?
+  injuredPosition  String?
+  rootCause        String?
+  correctiveAction String?
+  imssReportNo     String?
+  lostDays         Int?             @default(0)
+  isReportedIMSS   Boolean          @default(false)
+  isClosed         Boolean          @default(false)
+  closedAt         DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  companyId        String
+  createdById      String
+  evidences        Evidence[]
+  company          Company          @relation(fields: [companyId], references: [id])
+  createdBy        User             @relation(fields: [createdById], references: [id])
+}
+
+model CMSHMember {
+  id        String    @id @default(cuid())
+  name      String
+  position  String
+  cmshRole  CMSHRole
+  email     String?
+  phone     String?
+  startDate DateTime
+  endDate   DateTime?
+  isActive  Boolean   @default(true)
+  companyId String
+  company   Company   @relation(fields: [companyId], references: [id])
+}
+
+model CMSHMeeting {
+  id          String    @id @default(cuid())
+  meetingDate DateTime
+  location    String
+  agenda      String
+  agreements  String?
+  attendees   String?
+  nextMeeting DateTime?
+  createdAt   DateTime  @default(now())
+  companyId   String
+  company     Company   @relation(fields: [companyId], references: [id])
+}
+
+model Training {
+  id               String    @id @default(cuid())
+  name             String
+  description      String?
+  instructor       String
+  trainingDate     DateTime
+  durationHours    Float
+  location         String?
+  normReference    String?
+  participants     String
+  participantCount Int       @default(0)
+  expirationDate   DateTime?
+  isCompleted      Boolean   @default(true)
+  createdAt        DateTime  @default(now())
+  companyId        String
+  createdById      String
+  company          Company   @relation(fields: [companyId], references: [id])
+  createdBy        User      @relation(fields: [createdById], references: [id])
+}
+
+model Drill {
+  id               String     @id @default(cuid())
+  type             DrillType
+  plannedDate      DateTime
+  executedDate     DateTime?
+  participantCount Int?
+  evacuationTime   Int?
+  observations     String?
+  correctives      String?
+  isCompleted      Boolean    @default(false)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+  companyId        String
+  company          Company    @relation(fields: [companyId], references: [id])
+  evidences        Evidence[]
+}
+
+model FiveS {
+  id            String     @id @default(cuid())
+  area          String
+  auditDate     DateTime
+  seiriScore    Int
+  seitonScore   Int
+  seisoScore    Int
+  seiketsuScore Int
+  shitsuke      Int
+  totalScore    Float      @default(0)
+  observations  String?
+  actionPlan    String?
+  auditorName   String
+  createdAt     DateTime   @default(now())
+  companyId     String
+  evidences     Evidence[]
+  company       Company    @relation(fields: [companyId], references: [id])
+}
+
+model Maintenance {
+  id           String            @id @default(cuid())
+  name         String
+  type         MaintenanceType
+  description  String?
+  frequency    String
+  lastDate     DateTime?
+  nextDate     DateTime
+  status       MaintenanceStatus @default(SCHEDULED)
+  responsible  String
+  completedAt  DateTime?
+  observations String?
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+  companyId    String
+  company      Company           @relation(fields: [companyId], references: [id])
+}
+
+model Risk {
+  id               String    @id @default(cuid())
+  area             String
+  hazard           String
+  riskDescription  String
+  probability      Int
+  severity         Int
+  riskLevel        RiskLevel
+  currentControls  String?
+  proposedControls String?
+  responsible      String?
+  targetDate       DateTime?
+  isControlled     Boolean   @default(false)
+  createdAt        DateTime  @default(now())
+  updatedAt        DateTime  @updatedAt
+  companyId        String
+  company          Company   @relation(fields: [companyId], references: [id])
+}
+
+model Audit {
+  id          String      @id @default(cuid())
+  title       String
+  auditDate   DateTime
+  area        String
+  auditorName String
+  status      AuditStatus @default(PLANNED)
+  checklist   String
+  score       Float?
+  findings    String?
+  correctives String?
+  createdAt   DateTime    @default(now())
+  updatedAt   DateTime    @updatedAt
+  companyId   String
+  company     Company     @relation(fields: [companyId], references: [id])
+  evidences   Evidence[]
+}
+
+model SHProgram {
+  id          String    @id @default(cuid())
+  year        Int
+  objectives  String
+  scope       String?
+  budget      Float?
+  responsible String
+  approvedBy  String?
+  approvedAt  DateTime?
+  notes       String?
+  createdAt   DateTime  @default(now())
+  updatedAt   DateTime  @updatedAt
+  companyId   String    @unique
+  company     Company   @relation(fields: [companyId], references: [id])
+}
+
+model Alert {
+  id          String    @id @default(cuid())
+  type        AlertType
+  title       String
+  description String
+  isRead      Boolean   @default(false)
+  priority    Int       @default(1)
+  relatedId   String?
+  createdAt   DateTime  @default(now())
+  companyId   String
+  company     Company   @relation(fields: [companyId], references: [id])
+}
+
+model Brigade {
+  id           String          @id @default(cuid())
+  type         BrigadeType
+  description  String?
+  objectives   String?
+  meetingPoint String?
+  isActive     Boolean         @default(true)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  companyId    String
+  company      Company         @relation(fields: [companyId], references: [id])
+  members      BrigadeMember[]
+
+  @@unique([companyId, type])
+}
+
+model BrigadeMember {
+  id                  String            @id @default(cuid())
+  memberRole          BrigadeMemberRole @default(MEMBER)
+  employeeName        String
+  employeeArea        String?
+  employeePosition    String?
+  phone               String?
+  startDate           DateTime          @default(now())
+  endDate             DateTime?
+  isActive            Boolean           @default(true)
+  certificationDate   DateTime?
+  certificationExpiry DateTime?
+  notes               String?
+  brigadeId           String
+  userId              String?
+  brigade             Brigade           @relation(fields: [brigadeId], references: [id], onDelete: Cascade)
+  user                User?             @relation(fields: [userId], references: [id])
+}
+
+enum Role {
+  ADMIN
+  SH_SPECIALIST
+  AREA_MANAGER
+  AUDITOR
+  EXECUTIVE
+}
+
+enum RequirementStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  OVERDUE
+  NOT_APPLICABLE
+}
+
+enum LegalSource {
+  NOM
+  IMSS
+  STPS
+  SEMARNAT
+  CIVIL_PROTECTION
+  MUNICIPAL
+  OTHER
+}
+
+enum ActivityStatus {
+  PENDING
+  IN_PROGRESS
+  COMPLETED
+  BLOCKED
+}
+
+enum EvidenceType {
+  PHOTO
+  PDF
+  DOCUMENT
+  VIDEO
+  OTHER
+}
+
+enum IncidentType {
+  ACCIDENT
+  INCIDENT
+  NEAR_MISS
+  OCCUPATIONAL_DISEASE
+}
+
+enum IncidentSeverity {
+  MINOR
+  MODERATE
+  SERIOUS
+  FATAL
+}
+
+enum CMSHRole {
+  PRESIDENT
+  SECRETARY
+  WORKER_REP
+  EMPLOYER_REP
+}
+
+enum DrillType {
+  FIRE
+  EARTHQUAKE
+  CHEMICAL_SPILL
+  MEDICAL_EMERGENCY
+  EVACUATION
+  OTHER
+}
+
+enum MaintenanceStatus {
+  SCHEDULED
+  IN_PROGRESS
+  COMPLETED
+  OVERDUE
+}
+
+enum MaintenanceType {
+  EPP
+  EXTINGUISHER
+  FIRST_AID_KIT
+  ELECTRICAL
+  EQUIPMENT
+  VEHICLE
+  OTHER
+}
+
+enum RiskLevel {
+  LOW
+  MEDIUM
+  HIGH
+  CRITICAL
+}
+
+enum AuditStatus {
+  PLANNED
+  IN_PROGRESS
+  COMPLETED
+}
+
+enum AlertType {
+  REQUIREMENT_OVERDUE
+  REQUIREMENT_DUE_SOON
+  MAINTENANCE_OVERDUE
+  MAINTENANCE_DUE_SOON
+  TRAINING_EXPIRING
+  CMSH_MEETING_MISSING
+  DRILL_PENDING
+}
+
+enum BrigadeType {
+  FIRST_AID
+  EVACUATION
+  FIRE_FIGHTING
+  SEARCH_RESCUE
+}
+
+enum BrigadeMemberRole {
+  COORDINATOR
+  DEPUTY
+  MEMBER
+}
+
+// ── Proveedores ───────────────────────────────────────────────────────────────
+
+enum SupplierStatus {
+  ACTIVE
+  INACTIVE
+  SUSPENDED
+}
+
+enum SupplierDocType {
+  SUA
+  REPSE
+  DC3
+  IMSS_ALTA
+  ACTA_CONSTITUTIVA
+  POLIZA_SEGURO
+  CONTRATO_SERVICIOS
+  OPINION_SAT
+  OTHER
+}
+
+enum SupplierDocStatus {
+  PENDING
+  UPLOADED
+  APPROVED
+  REJECTED
+  EXPIRED
+}
+
+model Supplier {
+  id               String               @id @default(cuid())
+  name             String
+  rfc              String?
+  address          String?
+  city             String?
+  state            String?
+  productsServices String               @db.Text
+  contactName      String?
+  phone            String?
+  email            String?
+  website          String?
+  status           SupplierStatus       @default(ACTIVE)
+  notes            String?              @db.Text
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  companyId        String
+  company          Company              @relation(fields: [companyId], references: [id])
+  accessToken      SupplierAccessToken?
+  documents        SupplierDocument[]
+  hazmatDisposals  HazmatDisposal[]
+  chemicals        ChemicalProduct[]
+}
+
+model SupplierAccessToken {
+  id         String    @id @default(cuid())
+  token      String    @unique @default(cuid())
+  isActive   Boolean   @default(true)
+  createdAt  DateTime  @default(now())
+  lastUsedAt DateTime?
+  supplierId String    @unique
+  supplier   Supplier  @relation(fields: [supplierId], references: [id])
+}
+
+model SupplierDocument {
+  id           String            @id @default(cuid())
+  docType      SupplierDocType
+  status       SupplierDocStatus @default(PENDING)
+  fileUrl      String?
+  publicId     String?
+  fileName     String?
+  uploadedAt   DateTime?
+  expiresAt    DateTime?
+  reviewedAt   DateTime?
+  reviewNotes  String?
+  period       String?
+  supplierId   String
+  supplier     Supplier          @relation(fields: [supplierId], references: [id], onDelete: Cascade)
+  reviewedById String?
+  reviewedBy   User?             @relation(fields: [reviewedById], references: [id])
+  createdAt    DateTime          @default(now())
+  updatedAt    DateTime          @updatedAt
+}
+
+// ── EPP ───────────────────────────────────────────────────────────────────────
+
+enum EppMovementType {
+  ENTRY
+  EXIT
+  ADJUSTMENT
+  RETURN
+}
+
+model EppItem {
+  id               String               @id @default(cuid())
+  name             String
+  category         String
+  description      String?
+  unit             String               @default("pieza")
+  minStock         Int                  @default(0)
+  currentStock     Int                  @default(0)
+  partNumber       String?
+  brand            String?
+  isActive         Boolean              @default(true)
+  createdAt        DateTime             @default(now())
+  updatedAt        DateTime             @updatedAt
+  companyId        String
+  company          Company              @relation(fields: [companyId], references: [id])
+  movements        EppMovement[]
+  areaRequirements EppAreaRequirement[]
+}
+
+model EppMovement {
+  id             String          @id @default(cuid())
+  type           EppMovementType
+  quantity       Int
+  balanceAfter   Int
+  employeeName   String?
+  employeeArea   String?
+  reason         String?
+  date           DateTime        @default(now())
+  createdAt      DateTime        @default(now())
+  eppItemId      String
+  eppItem        EppItem         @relation(fields: [eppItemId], references: [id])
+  registeredById String
+  registeredBy   User            @relation(fields: [registeredById], references: [id])
+}
+
+model EppAreaRequirement {
+  id        String   @id @default(cuid())
+  areaName  String
+  mandatory Boolean  @default(true)
+  notes     String?
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  eppItemId String
+  eppItem   EppItem  @relation(fields: [eppItemId], references: [id])
+  companyId String
+  company   Company  @relation(fields: [companyId], references: [id])
+
+  @@unique([eppItemId, areaName, companyId])
+}
+
+// ── Sustancias Químicas ───────────────────────────────────────────────────────
+
+enum ChemicalFileType {
+  SDS
+  LABEL
+}
+
+enum WasteState {
+  SOLID
+  LIQUID
+  SLUDGE
+  GAS
+}
+
+model ChemicalProduct {
+  id               String           @id @default(cuid())
+  tradeName        String
+  chemicalName     String?
+  casNumber        String?
+  manufacturer     String?
+  supplierId       String?
+  supplier         Supplier?        @relation(fields: [supplierId], references: [id])
+  ghsHazardClasses String[]
+  physicalState    String?
+  storageLocation  String?
+  maxStockKg       Float?
+  isActive         Boolean          @default(true)
+  notes            String?          @db.Text
+  sdsUpdatedAt     DateTime?
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+  companyId        String
+  company          Company          @relation(fields: [companyId], references: [id])
+  files            ChemicalFile[]
+  hazmatDisposals  HazmatDisposal[]
+}
+
+model ChemicalFile {
+  id         String           @id @default(cuid())
+  fileType   ChemicalFileType
+  fileUrl    String
+  publicId   String
+  fileName   String
+  uploadedAt DateTime         @default(now())
+  version    String?
+  productId  String
+  product    ChemicalProduct  @relation(fields: [productId], references: [id], onDelete: Cascade)
+
+  @@unique([productId, fileType])
+}
+
+model HazmatDisposal {
+  id               String           @id @default(cuid())
+  folio            String           @unique
+  disposalDate     DateTime
+  wasteType        String
+  wasteState       WasteState
+  quantityKg       Float
+  manifestNumber   String?
+  transportCompany String?
+  disposalMethod   String?
+  notes            String?          @db.Text
+  supplierId       String?
+  supplier         Supplier?        @relation(fields: [supplierId], references: [id])
+  productId        String?
+  product          ChemicalProduct? @relation(fields: [productId], references: [id])
+  companyId        String
+  company          Company          @relation(fields: [companyId], references: [id])
+  createdById      String
+  createdBy        User             @relation(fields: [createdById], references: [id])
+  evidences        HazmatEvidence[]
+  createdAt        DateTime         @default(now())
+  updatedAt        DateTime         @updatedAt
+}
+
+model HazmatEvidence {
+  id          String         @id @default(cuid())
+  fileUrl     String
+  publicId    String
+  fileName    String
+  fileType    String
+  description String?
+  uploadedAt  DateTime       @default(now())
+  disposalId  String
+  disposal    HazmatDisposal @relation(fields: [disposalId], references: [id], onDelete: Cascade)
+}

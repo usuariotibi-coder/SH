@@ -1,0 +1,240 @@
+{
+  "app": { "name": "SH México", "tagline": "Safety & Hygiene" },
+  "common": {
+    "save": "Save", "cancel": "Cancel", "edit": "Edit", "delete": "Delete",
+    "add": "Add", "close": "Close", "search": "Search", "filter": "Filter",
+    "export": "Export", "loading": "Loading...", "noData": "No records found",
+    "notSpecified": "Not specified", "readOnly": "Read only", "confirm": "Confirm",
+    "back": "Back", "next": "Next", "previous": "Previous", "of": "of",
+    "total": "Total", "actions": "Actions", "status": "Status", "date": "Date",
+    "area": "Area", "responsible": "Responsible", "notes": "Notes", "name": "Name",
+    "description": "Description", "createdAt": "Created at", "updatedAt": "Last updated",
+    "yes": "Yes", "no": "No", "optional": "Optional", "required": "Required",
+    "completed": "Completed", "pending": "Pending", "inProgress": "In progress",
+    "overdue": "Overdue", "notApplicable": "Not applicable",
+    "page": "Page", "records": "records", "new": "New", "register": "Register",
+    "activate": "Activate", "deactivate": "Deactivate"
+  },
+  "nav": {
+    "dashboard": "Dashboard", "requirements": "Requirements", "incidents": "Incidents",
+    "cmsh": "Joint Committee (CMSH)", "brigades": "Emergency Brigades", "training": "Training",
+    "drills": "Drills", "fiveS": "5S Methodology", "maintenance": "Maintenance",
+    "risks": "Risk Management", "audits": "Internal Audits", "program": "SH Program",
+    "calendar": "Calendar", "guide": "Guide", "suppliers": "Suppliers", "epp": "PPE", "chemicals": "Chemicals",
+    "users": "Users", "companies": "Companies",
+    "collapse": "Collapse menu", "expand": "Expand menu"
+  },
+  "auth": {
+    "login": "Sign in", "logout": "Sign out", "email": "Email address",
+    "password": "Password", "loginButton": "Enter",
+    "loginError": "Incorrect email or password", "sessionExpired": "Your session has expired"
+  },
+  "dashboard": {
+    "title": "Executive Dashboard",
+    "kpi": {
+      "complianceRate": "Compliance rate", "incidentsMonth": "Incidents this month",
+      "trainingsCompleted": "Trainings completed", "drillsCompleted": "Drills completed",
+      "fiveSScore": "Average 5S score", "overdueRequirements": "Overdue requirements"
+    },
+    "charts": {
+      "requirementsByStatus": "Requirements by status", "incidentsByMonth": "Incidents by month",
+      "complianceByArea": "Compliance by area", "fiveSByArea": "5S trend by area"
+    },
+    "alerts": { "title": "Alerts", "viewAll": "View in calendar", "noAlerts": "No active alerts" }
+  },
+  "requirements": {
+    "title": "Legal Requirements", "new": "New requirement", "edit": "Edit requirement",
+    "detail": "Requirement detail", "code": "Regulatory code", "name": "Name",
+    "specificRequirement": "Specific requirement", "legalSource": "Legal source",
+    "legalBasis": "Legal basis", "dueDate": "Due date",
+    "responsibleArea": "Responsible area", "status": "Status",
+    "statuses": {
+      "PENDING": "Pending", "IN_PROGRESS": "In progress",
+      "COMPLETED": "Completed", "OVERDUE": "Overdue", "NOT_APPLICABLE": "Not applicable"
+    },
+    "legalSources": {
+      "NOM": "NOM", "IMSS": "IMSS", "STPS": "STPS", "SEMARNAT": "SEMARNAT",
+      "CIVIL_PROTECTION": "Civil Protection", "MUNICIPAL": "Municipal", "OTHER": "Other"
+    },
+    "normInfo": {
+      "sectionTitle": "Norm information", "completed": "Completed", "normName": "Norm name",
+      "normObjective": "Norm objective", "applicabilityJustification": "Applicability justification",
+      "applicabilityScope": "Application scope"
+    },
+    "activities": {
+      "title": "Compliance activities", "add": "+ Add activity", "description": "Description",
+      "responsible": "Responsible", "dueDate": "Due date", "status": "Status",
+      "statuses": {
+        "PENDING": "Pending", "IN_PROGRESS": "In progress",
+        "COMPLETED": "Completed", "BLOCKED": "Blocked"
+      },
+      "progress": "Activity progress", "progressOf": "of", "completedLabel": "completed",
+      "noActivities": "No activities. Add at least one to track progress.",
+      "statusAutomatic": "Status is calculated automatically based on activities.",
+      "deleteConfirm": "Delete this activity?"
+    }
+  },
+  "incidents": {
+    "title": "Incidents & Accidents", "new": "Register incident", "edit": "Edit incident",
+    "folio": "Folio", "type": "Type",
+    "types": {
+      "ACCIDENT": "Accident", "INCIDENT": "Incident",
+      "NEAR_MISS": "Near miss", "OCCUPATIONAL_DISEASE": "Occupational disease"
+    },
+    "severity": "Severity",
+    "severities": { "MINOR": "Minor", "MODERATE": "Moderate", "SERIOUS": "Serious", "FATAL": "Fatal" },
+    "occurredAt": "Occurred at", "rootCause": "Root cause", "correctiveAction": "Corrective action",
+    "lostDays": "Lost days", "imssReport": "IMSS report", "isClosed": "Closed"
+  },
+  "cmsh": {
+    "title": "Joint Safety & Health Committee", "members": "Members", "meetings": "Meeting minutes",
+    "newMember": "Add member", "newMeeting": "Register minutes",
+    "roles": {
+      "PRESIDENT": "President", "SECRETARY": "Secretary",
+      "WORKER_REP": "Worker representative", "EMPLOYER_REP": "Employer representative"
+    }
+  },
+  "brigades": {
+    "title": "Emergency Brigades", "subtitle": "Operational response teams",
+    "normReference": "NOM-002-STPS-2010 / PIPC",
+    "types": {
+      "FIRST_AID": "First aid", "EVACUATION": "Evacuation",
+      "FIRE_FIGHTING": "Fire fighting", "SEARCH_RESCUE": "Search & rescue"
+    },
+    "memberRole": "Brigade role",
+    "memberRoles": { "COORDINATOR": "Brigade leader", "DEPUTY": "Deputy leader", "MEMBER": "Member" },
+    "meetingPoint": "Meeting point", "certification": "Certification",
+    "certificationDate": "Certification date", "certificationExpiry": "Certification expiry",
+    "certStatus": { "valid": "Valid", "expiring": "Expiring soon", "expired": "Expired", "none": "No record" },
+    "membersCount": "members", "addMember": "Add member", "editMember": "Edit member",
+    "noMembers": "No members registered",
+    "coordinatorExists": "This brigade already has a leader assigned",
+    "alsoBelongsTo": "This member also belongs to"
+  },
+  "training": {
+    "title": "Training", "new": "Register training", "instructor": "Instructor",
+    "durationHours": "Duration (hours)", "participants": "Participants",
+    "participantCount": "Number of participants", "normReference": "Reference norm",
+    "expirationDate": "Expiration date", "isCompleted": "Completed"
+  },
+  "drills": {
+    "title": "Drills", "new": "Register drill",
+    "types": {
+      "FIRE": "Fire", "EARTHQUAKE": "Earthquake", "CHEMICAL_SPILL": "Chemical spill",
+      "MEDICAL_EMERGENCY": "Medical emergency", "EVACUATION": "Evacuation", "OTHER": "Other"
+    },
+    "plannedDate": "Planned date", "executedDate": "Executed date",
+    "participantCount": "Participants", "evacuationTime": "Evacuation time",
+    "observations": "Observations", "correctives": "Corrective actions", "isCompleted": "Executed"
+  },
+  "fiveS": {
+    "title": "5S Methodology", "new": "New 5S audit",
+    "seiri": "Seiri (Sort)", "seiton": "Seiton (Set in order)", "seiso": "Seiso (Shine)",
+    "seiketsu": "Seiketsu (Standardize)", "shitsuke": "Shitsuke (Sustain)",
+    "totalScore": "Total score", "auditorName": "Auditor", "actionPlan": "Action plan"
+  },
+  "maintenance": {
+    "title": "Preventive Maintenance", "new": "Register maintenance",
+    "types": {
+      "EPP": "Personal protective equipment", "EXTINGUISHER": "Fire extinguishers",
+      "FIRST_AID_KIT": "First aid kit", "ELECTRICAL": "Electrical installation",
+      "EQUIPMENT": "Equipment / machinery", "VEHICLE": "Vehicle", "OTHER": "Other"
+    },
+    "statuses": {
+      "SCHEDULED": "Scheduled", "IN_PROGRESS": "In progress",
+      "COMPLETED": "Completed", "OVERDUE": "Overdue"
+    },
+    "frequency": "Frequency", "lastDate": "Last maintenance",
+    "nextDate": "Next maintenance", "responsible": "Responsible"
+  },
+  "risks": {
+    "title": "Risk Management", "new": "Register risk", "hazard": "Identified hazard",
+    "probability": "Probability", "severity": "Severity", "riskLevel": "Risk level",
+    "levels": { "LOW": "Low", "MEDIUM": "Medium", "HIGH": "High", "CRITICAL": "Critical" },
+    "currentControls": "Existing controls", "proposedControls": "Proposed controls",
+    "isControlled": "Controlled", "targetDate": "Control target date"
+  },
+  "audits": {
+    "title": "Internal Audits", "new": "New audit", "auditorName": "Auditor", "auditDate": "Audit date",
+    "statuses": { "PLANNED": "Planned", "IN_PROGRESS": "In progress", "COMPLETED": "Completed" },
+    "score": "Score", "findings": "Findings", "correctives": "Corrective actions", "checklist": "Checklist"
+  },
+  "program": {
+    "title": "SH Program", "year": "Year", "objectives": "Objectives", "scope": "Scope",
+    "budget": "Budget", "responsible": "Program responsible",
+    "approvedBy": "Approved by", "approvedAt": "Approval date"
+  },
+  "calendar": {
+    "title": "Event Calendar",
+    "views": { "month": "Month", "week": "Week", "agenda": "Agenda" },
+    "today": "Today", "noEvents": "No events in this period", "viewDetail": "View full detail",
+    "severity": { "overdue": "Overdue", "urgent": "Urgent", "upcoming": "Upcoming", "normal": "Scheduled" },
+    "summary": { "overdue": "Overdue", "urgent": "Urgent", "upcoming": "Upcoming", "completed": "Completed" },
+    "modules": {
+      "requirement": "Requirements", "activity": "Activities", "training": "Training",
+      "drill": "Drills", "maintenance": "Maintenance", "risk": "Risks",
+      "audit": "Audits", "cmsh": "CMSH Meeting", "brigade": "Brigades"
+    }
+  },
+  "users": {
+    "title": "Users", "new": "New user", "edit": "Edit user",
+    "email": "Email address", "name": "Full name", "role": "Role",
+    "roles": {
+      "ADMIN": "Administrator", "SH_SPECIALIST": "SH Specialist",
+      "AREA_MANAGER": "Area manager", "AUDITOR": "Auditor", "EXECUTIVE": "Executive"
+    },
+    "isActive": "Active", "activate": "Activate", "deactivate": "Deactivate",
+    "changePassword": "Change password"
+  },
+  "companies": {
+    "title": "Companies", "new": "New company", "rfc": "Tax ID",
+    "industry": "Industry", "address": "Address", "isActive": "Active"
+  },
+  "errors": {
+    "generic": "An error occurred. Please try again.",
+    "notFound": "Record not found",
+    "unauthorized": "You do not have permission to perform this action",
+    "networkError": "Connection error. Check your internet.",
+    "validationError": "Please fix the errors in the form"
+  },
+  "suppliers": {
+    "title": "Suppliers", "subtitle": "Supplier management and documentation",
+    "new": "New supplier", "newTitle": "New supplier", "editTitle": "Edit supplier",
+    "created": "Supplier created", "updated": "Supplier updated",
+    "notFound": "Supplier not found", "empty": "No suppliers registered",
+    "searchPlaceholder": "Search by name, RFC or contact...", "allStatuses": "All statuses",
+    "status": { "ACTIVE": "Active", "INACTIVE": "Inactive", "SUSPENDED": "Suspended" },
+    "table": { "name": "Name", "rfc": "Tax ID", "contact": "Contact", "documents": "Documents", "status": "Status" },
+    "fields": { "name": "Company name", "rfc": "Tax ID", "contactName": "Contact", "phone": "Phone", "email": "Email", "city": "City", "state": "State", "productsServices": "Products / Services", "status": "Status" },
+    "info": { "title": "General info" },
+    "docs": { "title": "Documents", "complete": "Documents complete", "partial": "Pending documents", "expired": "Expired documents", "rejected": "Rejected documents", "approve": "Approve", "reject": "Reject", "approved": "Document approved", "rejected": "Document rejected", "reviewNotes": "Notes" },
+    "portal": { "title": "Supplier access", "description": "Generate an access link for the supplier to upload their documents.", "generate": "Generate access link", "generated": "Link generated", "regenerate": "Regenerate", "revoke": "Revoke access", "revoked": "Access revoked", "revokeConfirm": "Revoke access for this supplier?", "copy": "Copy", "copied": "Link copied" }
+  },
+  "epp": {
+    "title": "PPE — Personal Protective Equipment", "subtitle": "Inventory, movements and requirements matrix",
+    "newItem": "New item", "newItemTitle": "New PPE item", "editItem": "Edit item",
+    "itemCreated": "Item created", "itemUpdated": "Item updated",
+    "emptyInventory": "No items registered", "emptyMatrix": "No matrix entries",
+    "lowStockAlert": "{{count}} item(s) with low or zero stock", "lowStock": "Low stock",
+    "stock": "Stock", "movement": "Movement", "registerMovement": "Register movement",
+    "movementRegistered": "Movement registered", "history": "View history", "noMovements": "No movements",
+    "addMatrixEntry": "Add to matrix", "addMatrixEntryTitle": "Add matrix entry", "matrixUpdated": "Matrix updated",
+    "mandatory": "Required", "mandatoryLabel": "Mandatory use", "areaName": "Area",
+    "movType": "Type", "quantity": "Quantity", "employeeName": "Employee", "employeeArea": "Employee area", "reason": "Reason",
+    "tabs": { "inventory": "Inventory", "matrix": "PPE Matrix" },
+    "movTypes": { "ENTRY": "Entry", "EXIT": "Exit", "ADJUSTMENT": "Adjustment", "RETURN": "Return" },
+    "fields": { "name": "Name", "category": "Category", "unit": "Unit", "minStock": "Min stock", "currentStock": "Initial stock", "brand": "Brand", "partNumber": "Part number", "eppItem": "PPE item" }
+  },
+  "chemicals": {
+    "title": "Chemical Products", "subtitle": "SDS, labels and hazmat waste management",
+    "newProduct": "New substance", "newProductTitle": "New chemical substance", "editProduct": "Edit substance",
+    "productCreated": "Substance created", "productUpdated": "Substance updated",
+    "emptyProducts": "No substances registered", "emptyDisposals": "No disposals registered",
+    "noSdsAlert": "{{count}} substance(s) missing SDS", "noSds": "No SDS", "label": "Label", "fileUploaded": "File uploaded",
+    "newDisposal": "New disposal", "newDisposalTitle": "New waste disposal", "editDisposal": "Edit disposal",
+    "disposalCreated": "Disposal registered", "disposalUpdated": "Disposal updated",
+    "tabs": { "products": "Substances", "hazmat": "Waste disposal" },
+    "wasteStates": { "SOLID": "Solid", "LIQUID": "Liquid", "SLUDGE": "Sludge", "GAS": "Gas" },
+    "fields": { "tradeName": "Trade name", "chemicalName": "Chemical name", "casNumber": "CAS number", "manufacturer": "Manufacturer", "physicalState": "Physical state", "storageLocation": "Storage location", "maxStockKg": "Max stock (kg)", "ghsHazardClasses": "GHS hazard classes", "disposalDate": "Disposal date", "wasteType": "Waste type", "wasteState": "Waste state", "quantityKg": "Quantity (kg)", "manifestNumber": "Manifest number", "transportCompany": "Transport company", "disposalMethod": "Disposal method", "product": "Related substance", "disposalSupplier": "Disposal company" }
+  }
+}

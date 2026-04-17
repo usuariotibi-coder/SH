@@ -1,0 +1,508 @@
+{
+  "app": { "name": "SH México", "tagline": "Seguridad e Higiene" },
+  "common": {
+    "save": "Guardar",
+    "cancel": "Cancelar",
+    "edit": "Editar",
+    "delete": "Eliminar",
+    "add": "Agregar",
+    "close": "Cerrar",
+    "search": "Buscar",
+    "filter": "Filtrar",
+    "export": "Exportar",
+    "loading": "Cargando...",
+    "noData": "Sin datos registrados",
+    "notSpecified": "No especificado",
+    "readOnly": "Solo lectura",
+    "confirm": "Confirmar",
+    "back": "Regresar",
+    "next": "Siguiente",
+    "previous": "Anterior",
+    "of": "de",
+    "total": "Total",
+    "actions": "Acciones",
+    "status": "Estado",
+    "date": "Fecha",
+    "area": "Área",
+    "responsible": "Responsable",
+    "notes": "Notas",
+    "name": "Nombre",
+    "description": "Descripción",
+    "createdAt": "Fecha de creación",
+    "updatedAt": "Última actualización",
+    "yes": "Sí",
+    "no": "No",
+    "optional": "Opcional",
+    "required": "Requerido",
+    "completed": "Completado",
+    "pending": "Pendiente",
+    "inProgress": "En proceso",
+    "overdue": "Vencido",
+    "notApplicable": "No aplica",
+    "page": "Página",
+    "records": "registros",
+    "new": "Nuevo",
+    "register": "Registrar",
+    "activate": "Activar",
+    "deactivate": "Desactivar"
+  },
+  "nav": {
+    "dashboard": "Dashboard",
+    "requirements": "Requerimientos",
+    "incidents": "Incidentes",
+    "cmsh": "Comisión Mixta (CMSH)",
+    "brigades": "Brigadas",
+    "training": "Capacitación",
+    "drills": "Simulacros",
+    "fiveS": "Metodología 5S",
+    "maintenance": "Mantenimiento",
+    "risks": "Gestión de riesgos",
+    "audits": "Auditorías internas",
+    "program": "Programa SH",
+    "calendar": "Calendario",
+    "guide": "Guía",
+    "suppliers": "Proveedores",
+    "epp": "EPP",
+    "chemicals": "Sustancias Químicas",
+    "users": "Usuarios",
+    "companies": "Empresas",
+    "collapse": "Colapsar menú",
+    "expand": "Expandir menú"
+  },
+  "auth": {
+    "login": "Iniciar sesión",
+    "logout": "Cerrar sesión",
+    "email": "Correo electrónico",
+    "password": "Contraseña",
+    "loginButton": "Entrar",
+    "loginError": "Correo o contraseña incorrectos",
+    "sessionExpired": "Tu sesión ha expirado"
+  },
+  "dashboard": {
+    "title": "Dashboard ejecutivo",
+    "kpi": {
+      "complianceRate": "Cumplimiento normativo",
+      "incidentsMonth": "Incidentes del mes",
+      "trainingsCompleted": "Capacitaciones realizadas",
+      "drillsCompleted": "Simulacros realizados",
+      "fiveSScore": "Puntaje promedio 5S",
+      "overdueRequirements": "Requerimientos vencidos"
+    },
+    "charts": {
+      "requirementsByStatus": "Requerimientos por estado",
+      "incidentsByMonth": "Incidentes por mes",
+      "complianceByArea": "Cumplimiento por área",
+      "fiveSByArea": "Tendencia 5S por área"
+    },
+    "alerts": { "title": "Alertas", "viewAll": "Ver en calendario", "noAlerts": "Sin alertas activas" }
+  },
+  "requirements": {
+    "title": "Requerimientos Legales",
+    "new": "Nuevo requerimiento",
+    "edit": "Editar requerimiento",
+    "detail": "Detalle del requerimiento",
+    "code": "Código normativo",
+    "name": "Nombre",
+    "specificRequirement": "Requerimiento específico",
+    "legalSource": "Fuente legal",
+    "legalBasis": "Base legal",
+    "dueDate": "Fecha compromiso",
+    "responsibleArea": "Área responsable",
+    "status": "Estado",
+    "statuses": {
+      "PENDING": "Pendiente",
+      "IN_PROGRESS": "En proceso",
+      "COMPLETED": "Cumplido",
+      "OVERDUE": "Vencido",
+      "NOT_APPLICABLE": "No aplica"
+    },
+    "legalSources": {
+      "NOM": "NOM", "IMSS": "IMSS", "STPS": "STPS", "SEMARNAT": "SEMARNAT",
+      "CIVIL_PROTECTION": "Protección Civil", "MUNICIPAL": "Municipal", "OTHER": "Otro"
+    },
+    "normInfo": {
+      "sectionTitle": "Información de la norma",
+      "completed": "Completado",
+      "normName": "Nombre de la norma",
+      "normObjective": "Objetivo de la norma",
+      "applicabilityJustification": "Justificación de aplicabilidad",
+      "applicabilityScope": "Alcance de aplicación"
+    },
+    "activities": {
+      "title": "Actividades de cumplimiento",
+      "add": "+ Agregar actividad",
+      "description": "Descripción",
+      "responsible": "Responsable",
+      "dueDate": "Fecha comp.",
+      "status": "Estado",
+      "statuses": {
+        "PENDING": "Pendiente",
+        "IN_PROGRESS": "En proceso",
+        "COMPLETED": "Completada",
+        "BLOCKED": "Bloqueada"
+      },
+      "progress": "Avance de actividades",
+      "progressOf": "de",
+      "completedLabel": "completadas",
+      "noActivities": "Sin actividades. Agrega al menos una para el seguimiento.",
+      "statusAutomatic": "El estado se calcula automáticamente según las actividades.",
+      "deleteConfirm": "¿Eliminar esta actividad?"
+    }
+  },
+  "incidents": {
+    "title": "Incidentes y accidentes",
+    "new": "Registrar incidente",
+    "edit": "Editar incidente",
+    "folio": "Folio",
+    "type": "Tipo",
+    "types": {
+      "ACCIDENT": "Accidente", "INCIDENT": "Incidente",
+      "NEAR_MISS": "Casi accidente", "OCCUPATIONAL_DISEASE": "Enfermedad profesional"
+    },
+    "severity": "Gravedad",
+    "severities": { "MINOR": "Leve", "MODERATE": "Moderado", "SERIOUS": "Grave", "FATAL": "Fatal" },
+    "occurredAt": "Fecha del evento",
+    "rootCause": "Causa raíz",
+    "correctiveAction": "Acción correctiva",
+    "lostDays": "Días perdidos",
+    "imssReport": "Aviso IMSS",
+    "isClosed": "Cerrado"
+  },
+  "cmsh": {
+    "title": "Comisión Mixta de SH",
+    "members": "Integrantes",
+    "meetings": "Actas de reunión",
+    "newMember": "Agregar integrante",
+    "newMeeting": "Registrar acta",
+    "roles": {
+      "PRESIDENT": "Presidente", "SECRETARY": "Secretario",
+      "WORKER_REP": "Rep. trabajadores", "EMPLOYER_REP": "Rep. empresa"
+    }
+  },
+  "brigades": {
+    "title": "Brigadas de emergencia",
+    "subtitle": "Equipos de respuesta operativa",
+    "normReference": "NOM-002-STPS-2010 / PIPC",
+    "types": {
+      "FIRST_AID": "Primeros auxilios",
+      "EVACUATION": "Evacuación",
+      "FIRE_FIGHTING": "Contra incendios",
+      "SEARCH_RESCUE": "Búsqueda y rescate"
+    },
+    "memberRole": "Rol en brigada",
+    "memberRoles": {
+      "COORDINATOR": "Jefe de brigada",
+      "DEPUTY": "Subjefe / Suplente",
+      "MEMBER": "Brigadista"
+    },
+    "meetingPoint": "Punto de reunión",
+    "certification": "Certificación",
+    "certificationDate": "Fecha de certificación",
+    "certificationExpiry": "Vencimiento de certificación",
+    "certStatus": {
+      "valid": "Vigente", "expiring": "Vence pronto", "expired": "Vencida", "none": "Sin registro"
+    },
+    "membersCount": "integrantes",
+    "addMember": "Agregar integrante",
+    "editMember": "Editar integrante",
+    "noMembers": "Sin integrantes registrados",
+    "coordinatorExists": "Esta brigada ya tiene un Jefe asignado",
+    "alsoBelongsTo": "Este integrante también pertenece a"
+  },
+  "training": {
+    "title": "Capacitación",
+    "new": "Registrar capacitación",
+    "instructor": "Instructor",
+    "durationHours": "Duración (horas)",
+    "participants": "Participantes",
+    "participantCount": "Número de participantes",
+    "normReference": "Norma de referencia",
+    "expirationDate": "Fecha de vencimiento",
+    "isCompleted": "Realizada"
+  },
+  "drills": {
+    "title": "Simulacros",
+    "new": "Registrar simulacro",
+    "types": {
+      "FIRE": "Incendio", "EARTHQUAKE": "Sismo", "CHEMICAL_SPILL": "Derrame químico",
+      "MEDICAL_EMERGENCY": "Emergencia médica", "EVACUATION": "Evacuación", "OTHER": "Otro"
+    },
+    "plannedDate": "Fecha planeada",
+    "executedDate": "Fecha ejecutada",
+    "participantCount": "Participantes",
+    "evacuationTime": "Tiempo de evacuación",
+    "observations": "Observaciones",
+    "correctives": "Acciones correctivas",
+    "isCompleted": "Ejecutado"
+  },
+  "fiveS": {
+    "title": "Metodología 5S",
+    "new": "Nueva auditoría 5S",
+    "seiri": "Seiri (Clasificar)",
+    "seiton": "Seiton (Ordenar)",
+    "seiso": "Seiso (Limpiar)",
+    "seiketsu": "Seiketsu (Estandarizar)",
+    "shitsuke": "Shitsuke (Disciplina)",
+    "totalScore": "Puntaje total",
+    "auditorName": "Auditor",
+    "actionPlan": "Plan de acción"
+  },
+  "maintenance": {
+    "title": "Mantenimiento preventivo",
+    "new": "Registrar mantenimiento",
+    "types": {
+      "EPP": "Equipo de protección personal", "EXTINGUISHER": "Extintores",
+      "FIRST_AID_KIT": "Botiquín", "ELECTRICAL": "Instalación eléctrica",
+      "EQUIPMENT": "Equipo / maquinaria", "VEHICLE": "Vehículo", "OTHER": "Otro"
+    },
+    "statuses": {
+      "SCHEDULED": "Programado", "IN_PROGRESS": "En proceso",
+      "COMPLETED": "Completado", "OVERDUE": "Vencido"
+    },
+    "frequency": "Frecuencia",
+    "lastDate": "Último mantenimiento",
+    "nextDate": "Próximo mantenimiento",
+    "responsible": "Responsable"
+  },
+  "risks": {
+    "title": "Gestión de riesgos",
+    "new": "Registrar riesgo",
+    "hazard": "Peligro identificado",
+    "probability": "Probabilidad",
+    "severity": "Severidad",
+    "riskLevel": "Nivel de riesgo",
+    "levels": { "LOW": "Bajo", "MEDIUM": "Medio", "HIGH": "Alto", "CRITICAL": "Crítico" },
+    "currentControls": "Controles existentes",
+    "proposedControls": "Controles propuestos",
+    "isControlled": "Controlado",
+    "targetDate": "Fecha compromiso de control"
+  },
+  "audits": {
+    "title": "Auditorías internas",
+    "new": "Nueva auditoría",
+    "auditorName": "Auditor",
+    "auditDate": "Fecha de auditoría",
+    "statuses": { "PLANNED": "Planeada", "IN_PROGRESS": "En proceso", "COMPLETED": "Completada" },
+    "score": "Puntuación",
+    "findings": "Hallazgos",
+    "correctives": "Acciones correctivas",
+    "checklist": "Lista de verificación"
+  },
+  "program": {
+    "title": "Programa de SH",
+    "year": "Año",
+    "objectives": "Objetivos",
+    "scope": "Alcance",
+    "budget": "Presupuesto",
+    "responsible": "Responsable del programa",
+    "approvedBy": "Aprobado por",
+    "approvedAt": "Fecha de aprobación"
+  },
+  "calendar": {
+    "title": "Calendario de eventos",
+    "views": { "month": "Mes", "week": "Semana", "agenda": "Agenda" },
+    "today": "Hoy",
+    "noEvents": "Sin eventos en este período",
+    "viewDetail": "Ver detalle completo",
+    "severity": { "overdue": "Vencido", "urgent": "Urgente", "upcoming": "Próximo", "normal": "Programado" },
+    "summary": { "overdue": "Vencidos", "urgent": "Urgentes", "upcoming": "Próximos", "completed": "Completados" },
+    "modules": {
+      "requirement": "Requerimientos", "activity": "Actividades", "training": "Capacitaciones",
+      "drill": "Simulacros", "maintenance": "Mantenimiento", "risk": "Riesgos",
+      "audit": "Auditorías", "cmsh": "Reunión CMSH", "brigade": "Brigadas"
+    }
+  },
+  "users": {
+    "title": "Usuarios",
+    "new": "Nuevo usuario",
+    "edit": "Editar usuario",
+    "email": "Correo electrónico",
+    "name": "Nombre completo",
+    "role": "Rol",
+    "roles": {
+      "ADMIN": "Administrador", "SH_SPECIALIST": "Especialista SH",
+      "AREA_MANAGER": "Responsable de área", "AUDITOR": "Auditor", "EXECUTIVE": "Dirección"
+    },
+    "isActive": "Activo",
+    "activate": "Activar",
+    "deactivate": "Desactivar",
+    "changePassword": "Cambiar contraseña"
+  },
+  "companies": {
+    "title": "Empresas",
+    "new": "Nueva empresa",
+    "rfc": "RFC",
+    "industry": "Industria",
+    "address": "Dirección",
+    "isActive": "Activa"
+  },
+  "errors": {
+    "generic": "Ocurrió un error. Intenta nuevamente.",
+    "notFound": "Registro no encontrado",
+    "unauthorized": "No tienes permiso para realizar esta acción",
+    "networkError": "Error de conexión. Verifica tu internet.",
+    "validationError": "Por favor corrige los errores en el formulario"
+  },
+  "suppliers": {
+    "title": "Proveedores",
+    "subtitle": "Gestión de proveedores y documentación",
+    "new": "Nuevo proveedor",
+    "newTitle": "Nuevo proveedor",
+    "editTitle": "Editar proveedor",
+    "created": "Proveedor creado",
+    "updated": "Proveedor actualizado",
+    "notFound": "Proveedor no encontrado",
+    "empty": "No hay proveedores registrados",
+    "searchPlaceholder": "Buscar por nombre, RFC o contacto...",
+    "allStatuses": "Todos los estados",
+    "status": {
+      "ACTIVE": "Activo",
+      "INACTIVE": "Inactivo",
+      "SUSPENDED": "Suspendido"
+    },
+    "table": {
+      "name": "Nombre",
+      "rfc": "RFC",
+      "contact": "Contacto",
+      "documents": "Documentos",
+      "status": "Estado"
+    },
+    "fields": {
+      "name": "Razón social",
+      "rfc": "RFC",
+      "contactName": "Contacto",
+      "phone": "Teléfono",
+      "email": "Correo",
+      "city": "Ciudad",
+      "state": "Estado",
+      "productsServices": "Productos / Servicios",
+      "status": "Estado"
+    },
+    "info": {
+      "title": "Información general"
+    },
+    "docs": {
+      "title": "Documentos",
+      "complete": "Documentos completos",
+      "partial": "Documentos pendientes",
+      "expired": "Documentos vencidos",
+      "rejected": "Documentos rechazados",
+      "approve": "Aprobar",
+      "reject": "Rechazar",
+      "approved": "Documento aprobado",
+      "rejected": "Documento rechazado",
+      "reviewNotes": "Observaciones"
+    },
+    "portal": {
+      "title": "Acceso del proveedor",
+      "description": "Genera un enlace de acceso para que el proveedor suba sus documentos directamente.",
+      "generate": "Generar enlace de acceso",
+      "generated": "Enlace generado",
+      "regenerate": "Regenerar",
+      "revoke": "Revocar acceso",
+      "revoked": "Acceso revocado",
+      "revokeConfirm": "¿Revocar el acceso de este proveedor?",
+      "copy": "Copiar",
+      "copied": "Enlace copiado"
+    }
+  },
+  "epp": {
+    "title": "EPP — Equipo de Protección Personal",
+    "subtitle": "Inventario, movimientos y matriz de requerimientos",
+    "newItem": "Nuevo artículo",
+    "newItemTitle": "Nuevo artículo EPP",
+    "editItem": "Editar artículo",
+    "itemCreated": "Artículo creado",
+    "itemUpdated": "Artículo actualizado",
+    "emptyInventory": "No hay artículos registrados",
+    "emptyMatrix": "No hay entradas en la matriz",
+    "lowStockAlert": "{{count}} artículo(s) con stock bajo o agotado",
+    "lowStock": "Stock bajo",
+    "stock": "Stock",
+    "movement": "Movimiento",
+    "registerMovement": "Registrar movimiento",
+    "movementRegistered": "Movimiento registrado",
+    "history": "Ver historial",
+    "noMovements": "Sin movimientos",
+    "addMatrixEntry": "Agregar a matriz",
+    "addMatrixEntryTitle": "Agregar entrada a matriz",
+    "matrixUpdated": "Matriz actualizada",
+    "mandatory": "Obligatorio",
+    "mandatoryLabel": "Uso obligatorio",
+    "areaName": "Área",
+    "movType": "Tipo",
+    "quantity": "Cantidad",
+    "employeeName": "Empleado",
+    "employeeArea": "Área del empleado",
+    "reason": "Motivo",
+    "tabs": {
+      "inventory": "Inventario",
+      "matrix": "Matriz EPP"
+    },
+    "movTypes": {
+      "ENTRY": "Entrada",
+      "EXIT": "Salida",
+      "ADJUSTMENT": "Ajuste",
+      "RETURN": "Devolución"
+    },
+    "fields": {
+      "name": "Nombre",
+      "category": "Categoría",
+      "unit": "Unidad",
+      "minStock": "Stock mínimo",
+      "currentStock": "Stock inicial",
+      "brand": "Marca",
+      "partNumber": "Núm. de parte",
+      "eppItem": "Artículo EPP"
+    }
+  },
+  "chemicals": {
+    "title": "Sustancias Químicas",
+    "subtitle": "Gestión de SDS, etiquetas y disposición de residuos",
+    "newProduct": "Nueva sustancia",
+    "newProductTitle": "Nueva sustancia química",
+    "editProduct": "Editar sustancia",
+    "productCreated": "Sustancia creada",
+    "productUpdated": "Sustancia actualizada",
+    "emptyProducts": "No hay sustancias registradas",
+    "emptyDisposals": "No hay disposiciones registradas",
+    "noSdsAlert": "{{count}} sustancia(s) sin SDS cargado",
+    "noSds": "Sin SDS",
+    "label": "Etiqueta",
+    "fileUploaded": "Archivo cargado",
+    "newDisposal": "Nueva disposición",
+    "newDisposalTitle": "Nueva disposición de residuos",
+    "editDisposal": "Editar disposición",
+    "disposalCreated": "Disposición registrada",
+    "disposalUpdated": "Disposición actualizada",
+    "tabs": {
+      "products": "Sustancias",
+      "hazmat": "Disposición de residuos"
+    },
+    "wasteStates": {
+      "SOLID": "Sólido",
+      "LIQUID": "Líquido",
+      "SLUDGE": "Lodo",
+      "GAS": "Gas"
+    },
+    "fields": {
+      "tradeName": "Nombre comercial",
+      "chemicalName": "Nombre químico",
+      "casNumber": "Número CAS",
+      "manufacturer": "Fabricante",
+      "physicalState": "Estado físico",
+      "storageLocation": "Ubicación de almacenamiento",
+      "maxStockKg": "Stock máximo (kg)",
+      "ghsHazardClasses": "Clases de peligro GHS",
+      "disposalDate": "Fecha de disposición",
+      "wasteType": "Tipo de residuo",
+      "wasteState": "Estado del residuo",
+      "quantityKg": "Cantidad (kg)",
+      "manifestNumber": "Núm. de manifiesto",
+      "transportCompany": "Empresa transportista",
+      "disposalMethod": "Método de disposición",
+      "product": "Sustancia relacionada",
+      "disposalSupplier": "Empresa de disposición"
+    }
+  }
+}
