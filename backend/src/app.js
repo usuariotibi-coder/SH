@@ -45,15 +45,6 @@ app.use('/api/chemicals', require('./routes/chemical.routes'));
 app.use('/api/hazmat', require('./routes/hazmat.routes'));
 app.use('/api/portal', require('./routes/portal.routes'));
 
-// Serve frontend in production
-if (process.env.NODE_ENV === 'production') {
-  const path = require('path');
-  app.use(express.static(path.join(__dirname, '../../frontend/dist')));
-  app.get('*', (req, res) => {
-    res.sendFile(path.join(__dirname, '../../frontend/dist/index.html'));
-  });
-}
-
 // Error handler
 app.use(errorHandler);
 
