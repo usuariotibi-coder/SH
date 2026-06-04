@@ -83,7 +83,7 @@ export default function LoginPage() {
           </form>
 
           <p className="text-xs text-center text-[var(--color-text-muted)] mt-6">
-            Demo: admin@shmexicoapp.com / Admin1234!
+            Demo: admin@sh-app.mx / Admin1234!
           </p>
         </div>
       </div>

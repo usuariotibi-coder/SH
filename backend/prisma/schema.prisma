@@ -33,6 +33,7 @@ model Company {
   suppliers           Supplier[]
   eppItems            EppItem[]
   eppAreaRequirements EppAreaRequirement[]
+  eppLots             EppLot[]
   chemicals           ChemicalProduct[]
   hazmatDisposals     HazmatDisposal[]
 }
@@ -575,6 +576,7 @@ model EppItem {
   description      String?
   unit             String               @default("pieza")
   minStock         Int                  @default(0)
+  maxStock         Int                  @default(0)
   currentStock     Int                  @default(0)
   partNumber       String?
   brand            String?
@@ -585,6 +587,7 @@ model EppItem {
   company          Company              @relation(fields: [companyId], references: [id])
   movements        EppMovement[]
   areaRequirements EppAreaRequirement[]
+  lots             EppLot[]
 }
 
 model EppMovement {
@@ -594,6 +597,9 @@ model EppMovement {
   balanceAfter   Int
   employeeName   String?
   employeeArea   String?
+  frequency      String?
+  supplier       String?
+  price          Float?
   reason         String?
   date           DateTime        @default(now())
   createdAt      DateTime        @default(now())
@@ -604,18 +610,32 @@ model EppMovement {
 }
 
 model EppAreaRequirement {
+  id              String   @id @default(cuid())
+  areaName        String
+  mandatory       Boolean  @default(true)
+  notes           String?
+  userCount       Int      @default(1)
+  changeFrequency String?
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+  eppItemId       String
+  eppItem         EppItem  @relation(fields: [eppItemId], references: [id])
+  companyId       String
+  company         Company  @relation(fields: [companyId], references: [id])
+
+  @@unique([eppItemId, areaName, companyId])
+}
+
+model EppLot {
   id        String   @id @default(cuid())
-  areaName  String
-  mandatory Boolean  @default(true)
-  notes     String?
+  quantity  Int
+  remaining Int
+  unitPrice Float    @default(0)
   createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
   eppItemId String
   eppItem   EppItem  @relation(fields: [eppItemId], references: [id])
   companyId String
   company   Company  @relation(fields: [companyId], references: [id])
-
-  @@unique([eppItemId, areaName, companyId])
 }
 
 // ── Sustancias Químicas ───────────────────────────────────────────────────────

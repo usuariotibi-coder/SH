@@ -19,6 +19,7 @@ router.put('/:id', requireRole('ADMIN', 'MANAGER'), ctrl.updateItem);
 router.delete('/:id', requireRole('ADMIN'), ctrl.deleteItem);
 
 // Movement routes
+router.post('/bulk-movements', ctrl.bulkMovements);
 router.post('/:id/movements', ctrl.createMovement);
 
 module.exports = router;

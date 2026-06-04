@@ -1,12 +1,18 @@
-import { useState, useEffect, useCallback } from 'react';
-import { Plus, AlertTriangle, TrendingDown } from 'lucide-react';
+import { useState, useEffect, useCallback, useRef } from 'react';
+import { Plus, AlertTriangle, TrendingDown, Pencil, Trash2, ChevronDown, ChevronRight, ArrowDownToLine, ArrowUpFromLine, Download, Upload, CheckCircle, XCircle } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
-import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import { formatDate } from '../../utils/formatDate';
 import usePermissions from '../../hooks/usePermissions';
 import api from '../../api/axios.config';
+
+const FREQ_OPTIONS = [
+  { value: '1',  label: '1 mes' },
+  { value: '3',  label: '3 meses' },
+  { value: '6',  label: '6 meses' },
+  { value: '12', label: '12 meses' },
+];
 
 const MOVEMENT_TYPE_COLORS = {
   ENTRY:      'bg-green-100 text-green-800',
@@ -15,31 +21,46 @@ const MOVEMENT_TYPE_COLORS = {
   RETURN:     'bg-blue-100 text-blue-800',
 };
 
-const EMPTY_ITEM = { name: '', category: '', description: '', unit: 'pieza', minStock: 0, currentStock: 0, partNumber: '', brand: '' };
-const EMPTY_MOV = { type: 'EXIT', quantity: 1, employeeName: '', employeeArea: '', reason: '' };
-const EMPTY_MATRIX = { areaName: '', mandatory: true, notes: '' };
+const EMPTY_ITEM   = { name: '', category: '', description: '', unit: 'pieza', minStock: 0, maxStock: 0, currentStock: 0, partNumber: '', brand: '' };
+const EMPTY_ENTRY = { eppItemId: '', quantity: 1, supplier: '', price: '' };
+const EMPTY_EXIT  = { eppItemId: '', quantity: 1, puesto: '', solicitante: '' };
+const EMPTY_MATRIX = { eppItemId: '', areaName: '', mandatory: true, notes: '', userCount: 1, changeFrequency: '' };
+
+const INP = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500';
 
 export default function EppPage() {
   const { t } = useTranslation();
   const { canWrite } = usePermissions();
-  const [tab, setTab] = useState('inventory');
-  const [items, setItems] = useState([]);
+
+  const [tab, setTab]       = useState('inventory');
+  const [items, setItems]   = useState([]);
   const [matrix, setMatrix] = useState({});
   const [loading, setLoading] = useState(true);
 
+  // Item modal
   const [showItemModal, setShowItemModal] = useState(false);
-  const [editItem, setEditItem] = useState(null);
-  const [itemForm, setItemForm] = useState(EMPTY_ITEM);
+  const [editItem, setEditItem]           = useState(null);
+  const [itemForm, setItemForm]           = useState(EMPTY_ITEM);
 
-  const [showMovModal, setShowMovModal] = useState(null); // item id
-  const [movForm, setMovForm] = useState(EMPTY_MOV);
+  // Entradas / Salidas modal  (movModalType = 'ENTRY' | 'EXIT' | null)
+  const [movModalType, setMovModalType] = useState(null);
+  const [movTab, setMovTab]             = useState('manual'); // 'manual' | 'csv'
+  const [entryForm, setEntryForm]       = useState(EMPTY_ENTRY);
+  const [exitForm,  setExitForm]        = useState(EMPTY_EXIT);
+  const [csvRows,   setCsvRows]         = useState([]);   // parsed rows preview
+  const [csvErrors, setCsvErrors]       = useState([]);   // import result errors
+  const [csvSuccess, setCsvSuccess]     = useState(null); // import result count
+  const fileInputRef = useRef(null);
 
+  // Matrix modal
   const [showMatrixModal, setShowMatrixModal] = useState(false);
-  const [matrixItems, setMatrixItems] = useState([]);
-  const [matrixForm, setMatrixForm] = useState({ eppItemId: '', ...EMPTY_MATRIX });
+  const [editMatrixEntry, setEditMatrixEntry] = useState(null);
+  const [matrixForm, setMatrixForm]           = useState(EMPTY_MATRIX);
 
-  const [saving, setSaving] = useState(false);
+  const [saving, setSaving]           = useState(false);
   const [expandedItem, setExpandedItem] = useState(null);
+
+  // ── Data loaders ─────────────────────────────────────────────────────────────
 
   const loadItems = useCallback(async () => {
     try {
@@ -60,6 +81,8 @@ export default function EppPage() {
     Promise.all([loadItems(), loadMatrix()]).finally(() => setLoading(false));
   }, [loadItems, loadMatrix]);
 
+  // ── Handlers ─────────────────────────────────────────────────────────────────
+
   const handleSaveItem = async (e) => {
     e.preventDefault();
     setSaving(true);
@@ -79,15 +102,98 @@ export default function EppPage() {
     finally { setSaving(false); }
   };
 
-  const handleMovement = async (e) => {
+  const openMovModal = (type) => {
+    setMovModalType(type);
+    setMovTab('manual');
+    setEntryForm(EMPTY_ENTRY);
+    setExitForm(EMPTY_EXIT);
+    setCsvRows([]);
+    setCsvErrors([]);
+    setCsvSuccess(null);
+  };
+
+  const closeMovModal = () => {
+    setMovModalType(null);
+    setCsvRows([]);
+    setCsvErrors([]);
+    setCsvSuccess(null);
+    if (fileInputRef.current) fileInputRef.current.value = '';
+  };
+
+  const handleManualMovement = async (e) => {
     e.preventDefault();
+    const form = movModalType === 'ENTRY' ? entryForm : exitForm;
+    if (!form.eppItemId) return toast.error('Selecciona un artículo EPP');
     setSaving(true);
     try {
-      await api.post(`/epp/${showMovModal}/movements`, movForm);
-      toast.success(t('epp.movementRegistered'));
-      setShowMovModal(null);
-      setMovForm(EMPTY_MOV);
+      const payload = movModalType === 'ENTRY'
+        ? { type: 'ENTRY', quantity: form.quantity, supplier: form.supplier, price: form.price || undefined }
+        : { type: 'EXIT',  quantity: form.quantity, employeeName: form.solicitante, employeeArea: form.puesto };
+      await api.post(`/epp/${form.eppItemId}/movements`, payload);
+      toast.success(movModalType === 'ENTRY' ? 'Entrada registrada' : 'Salida registrada');
+      closeMovModal();
       loadItems();
+    } catch (err) { toast.error(err.response?.data?.message || t('common.saveError')); }
+    finally { setSaving(false); }
+  };
+
+  // ── CSV helpers ──────────────────────────────────────────────────────────────
+
+  const downloadTemplate = () => {
+    const isEntry = movModalType === 'ENTRY';
+    const headers = isEntry
+      ? 'Articulo,Cantidad,Proveedor,Precio'
+      : 'Articulo,Cantidad,Puesto,Solicitante';
+    const example = isEntry
+      ? `${items[0]?.name || 'Casco de seguridad'},10,Proveedor Ejemplo,250.00`
+      : `${items[0]?.name || 'Casco de seguridad'},2,Operador,Juan Pérez`;
+    const csv  = `${headers}\n${example}\n`;
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url  = URL.createObjectURL(blob);
+    const a    = document.createElement('a');
+    a.href     = url;
+    a.download = isEntry ? 'plantilla_entradas_epp.csv' : 'plantilla_salidas_epp.csv';
+    a.click();
+    URL.revokeObjectURL(url);
+  };
+
+  const parseCSV = (text) => {
+    const lines = text.trim().split(/\r?\n/);
+    if (lines.length < 2) return [];
+    const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+    return lines.slice(1).filter(l => l.trim()).map(line => {
+      const vals = line.split(',').map(v => v.trim());
+      return Object.fromEntries(headers.map((h, i) => [h, vals[i] || '']));
+    });
+  };
+
+  const handleFileChange = (e) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (ev) => {
+      const rows = parseCSV(ev.target.result);
+      setCsvRows(rows);
+      setCsvErrors([]);
+      setCsvSuccess(null);
+    };
+    reader.readAsText(file, 'UTF-8');
+  };
+
+  const handleBulkImport = async () => {
+    if (!csvRows.length) return toast.error('Carga un archivo CSV primero');
+    setSaving(true);
+    setCsvErrors([]);
+    setCsvSuccess(null);
+    try {
+      const res = await api.post('/epp/bulk-movements', { type: movModalType, movements: csvRows });
+      setCsvSuccess(res.data.success);
+      setCsvErrors(res.data.errors || []);
+      if (res.data.success > 0) {
+        toast.success(`${res.data.success} movimiento(s) registrado(s)`);
+        loadItems();
+      }
+      if (res.data.errors?.length) toast.error(`${res.data.errors.length} fila(s) con error`);
     } catch (err) { toast.error(err.response?.data?.message || t('common.saveError')); }
     finally { setSaving(false); }
   };
@@ -99,8 +205,10 @@ export default function EppPage() {
       await api.post('/epp/matrix', matrixForm);
       toast.success(t('epp.matrixUpdated'));
       setShowMatrixModal(false);
-      setMatrixForm({ eppItemId: '', ...EMPTY_MATRIX });
+      setEditMatrixEntry(null);
+      setMatrixForm(EMPTY_MATRIX);
       loadMatrix();
+      loadItems();
     } catch (err) { toast.error(err.response?.data?.message || t('common.saveError')); }
     finally { setSaving(false); }
   };
@@ -111,36 +219,67 @@ export default function EppPage() {
       await api.delete(`/epp/matrix/${entryId}`);
       toast.success(t('common.deleted'));
       loadMatrix();
+      loadItems();
     } catch { toast.error(t('common.saveError')); }
   };
 
-  const f = (setter) => (k, v) => setter(p => ({ ...p, [k]: v }));
-  const fi = f(setItemForm);
-  const fm = f(setMovForm);
-  const fmx = f(setMatrixForm);
+  const openAddMatrix = () => {
+    setEditMatrixEntry(null);
+    setMatrixForm(EMPTY_MATRIX);
+    setShowMatrixModal(true);
+  };
+
+  const openEditMatrix = (entry) => {
+    setEditMatrixEntry(entry);
+    setMatrixForm({
+      eppItemId:       entry.eppItem?.id || '',
+      areaName:        entry.areaName,
+      mandatory:       entry.mandatory,
+      notes:           entry.notes || '',
+      userCount:       entry.userCount ?? 1,
+      changeFrequency: entry.changeFrequency || '',
+    });
+    setShowMatrixModal(true);
+  };
+
+  const openEditItem = (item) => {
+    setEditItem(item);
+    setItemForm({
+      name:        item.name,
+      category:    item.category,
+      description: item.description || '',
+      unit:        item.unit,
+      minStock:    item.minStock,
+      maxStock:    item.maxStock || 0,
+      partNumber:  item.partNumber || '',
+      brand:       item.brand || '',
+    });
+    setShowItemModal(true);
+  };
 
   const lowStockCount = items.filter(i => i.isLowStock).length;
 
+  // ── Render ────────────────────────────────────────────────────────────────────
+
   return (
     <div className="p-6 space-y-6">
+
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
           <h1 className="text-2xl font-bold text-gray-900">{t('epp.title')}</h1>
           <p className="text-sm text-gray-500 mt-1">{t('epp.subtitle')}</p>
         </div>
         {canWrite() && (
-          <div className="flex gap-2">
-            {tab === 'inventory' && (
-              <Button onClick={() => { setEditItem(null); setItemForm(EMPTY_ITEM); setShowItemModal(true); }} className="flex items-center gap-2">
-                <Plus size={16} />{t('epp.newItem')}
-              </Button>
-            )}
-            {tab === 'matrix' && (
-              <Button onClick={() => { setMatrixItems(items); setShowMatrixModal(true); }} className="flex items-center gap-2">
-                <Plus size={16} />{t('epp.addMatrixEntry')}
-              </Button>
-            )}
-          </div>
+          tab === 'inventory' ? (
+            <Button onClick={() => { setEditItem(null); setItemForm(EMPTY_ITEM); setShowItemModal(true); }} className="flex items-center gap-2">
+              <Plus size={16} />{t('epp.newItem')}
+            </Button>
+          ) : (
+            <Button onClick={openAddMatrix} className="flex items-center gap-2">
+              <Plus size={16} />{t('epp.addMatrixEntry')}
+            </Button>
+          )
         )}
       </div>
 
@@ -152,104 +291,219 @@ export default function EppPage() {
         </div>
       )}
 
-      {/* Tabs */}
-      <div className="flex border-b border-gray-200">
-        {['inventory', 'matrix'].map(t2 => (
-          <button
-            key={t2}
-            onClick={() => setTab(t2)}
-            className={`px-6 py-3 text-sm font-medium border-b-2 -mb-px transition-colors ${tab === t2 ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
-          >
-            {t(`epp.tabs.${t2}`)}
-          </button>
-        ))}
-      </div>
-
-      {loading ? (
-        <div className="p-8 text-center text-gray-400">{t('common.loading')}</div>
-      ) : tab === 'inventory' ? (
-        /* Inventory tab */
-        <div className="space-y-3">
-          {items.length === 0 ? (
-            <Card className="p-8 text-center text-gray-400">{t('epp.emptyInventory')}</Card>
-          ) : items.map(item => (
-            <Card key={item.id} className={`p-4 ${item.isLowStock ? 'border-l-4 border-l-orange-400' : ''}`}>
-              <div className="flex items-center justify-between">
-                <div className="flex-1">
-                  <div className="flex items-center gap-2">
-                    <span className="font-medium text-gray-900">{item.name}</span>
-                    <span className="text-xs px-2 py-0.5 bg-blue-100 text-blue-700 rounded-full">{item.category}</span>
-                    {item.isLowStock && <span className="flex items-center gap-1 text-xs px-2 py-0.5 bg-orange-100 text-orange-700 rounded-full"><TrendingDown size={11} />{t('epp.lowStock')}</span>}
-                  </div>
-                  <div className="flex items-center gap-4 mt-1 text-sm text-gray-600">
-                    <span>{t('epp.stock')}: <strong className={item.isLowStock ? 'text-orange-600' : 'text-gray-900'}>{item.currentStock}</strong> / min: {item.minStock} {item.unit}</span>
-                    {item.brand && <span>{item.brand}</span>}
-                  </div>
-                </div>
-                <div className="flex items-center gap-2">
-                  {canWrite() && (
-                    <>
-                      <Button size="sm" variant="secondary" onClick={() => setShowMovModal(item.id)}>{t('epp.movement')}</Button>
-                      <Button size="sm" variant="ghost" onClick={() => { setEditItem(item); setItemForm({ name: item.name, category: item.category, description: item.description || '', unit: item.unit, minStock: item.minStock, partNumber: item.partNumber || '', brand: item.brand || '' }); setShowItemModal(true); }}>{t('common.edit')}</Button>
-                    </>
-                  )}
-                  <button onClick={() => setExpandedItem(expandedItem === item.id ? null : item.id)} className="text-xs text-blue-600 hover:underline">
-                    {expandedItem === item.id ? t('common.hide') : t('epp.history')}
-                  </button>
-                </div>
-              </div>
-
-              {/* Movement history */}
-              {expandedItem === item.id && (
-                <div className="mt-3 border-t border-gray-100 pt-3">
-                  {item.movements?.length === 0 ? (
-                    <p className="text-xs text-gray-400">{t('epp.noMovements')}</p>
-                  ) : (
-                    <div className="space-y-1.5">
-                      {item.movements?.map(mov => (
-                        <div key={mov.id} className="flex items-center gap-3 text-xs text-gray-600">
-                          <span className={`px-1.5 py-0.5 rounded text-xs font-medium ${MOVEMENT_TYPE_COLORS[mov.type]}`}>{mov.type}</span>
-                          <span>{mov.quantity} {item.unit}</span>
-                          <span className="text-gray-400">→ saldo: {mov.balanceAfter}</span>
-                          {mov.employeeName && <span>{mov.employeeName}</span>}
-                          <span className="text-gray-400 ml-auto">{formatDate(mov.date)}</span>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-            </Card>
+      {/* Tabs + Entradas / Salidas */}
+      <div className="flex items-center justify-between border-b border-gray-200">
+        <div className="flex">
+          {['inventory', 'matrix'].map(t2 => (
+            <button
+              key={t2}
+              onClick={() => setTab(t2)}
+              className={`px-6 py-3 text-sm font-medium border-b-2 -mb-px transition-colors ${
+                tab === t2
+                  ? 'border-blue-600 text-blue-600'
+                  : 'border-transparent text-gray-500 hover:text-gray-700'
+              }`}
+            >
+              {t(`epp.tabs.${t2}`)}
+            </button>
           ))}
         </div>
+        <div className="flex gap-2 pb-2">
+          <button
+            onClick={() => openMovModal('ENTRY')}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-green-600 text-white rounded-lg hover:bg-green-700 transition-colors"
+          >
+            <ArrowDownToLine size={14} /> Entradas
+          </button>
+          <button
+            onClick={() => openMovModal('EXIT')}
+            className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+          >
+            <ArrowUpFromLine size={14} /> Salidas
+          </button>
+        </div>
+      </div>
+
+      {/* Tab content */}
+      {loading ? (
+        <div className="p-8 text-center text-gray-400">{t('common.loading')}</div>
+
+      ) : tab === 'inventory' ? (
+
+        /* ── Inventario ── */
+        <div className="rounded-xl border border-gray-200 overflow-hidden">
+          {items.length === 0 ? (
+            <div className="p-8 text-center text-gray-400">{t('epp.emptyInventory')}</div>
+          ) : (
+            <table className="w-full text-sm">
+              <thead className="bg-gray-50 border-b border-gray-200">
+                <tr>
+                  <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">Descripción</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Usuarios</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Máx</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Mín</th>
+                  <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">Stock</th>
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Valor FIFO</th>
+                  <th className="px-4 py-3 w-20" />
+                </tr>
+              </thead>
+              <tbody>
+                {items.map(item => (
+                  <>
+                    <tr
+                      key={item.id}
+                      className={`border-b border-gray-100 hover:bg-gray-50 transition-colors ${item.isLowStock ? 'bg-orange-50' : ''}`}
+                    >
+                      <td className="px-4 py-3">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-medium text-gray-900">{item.name}</span>
+                          <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded-full">{item.category}</span>
+                          {item.isLowStock && (
+                            <span className="flex items-center gap-0.5 text-xs px-1.5 py-0.5 bg-orange-100 text-orange-700 rounded-full">
+                              <TrendingDown size={10} /> Bajo stock
+                            </span>
+                          )}
+                        </div>
+                        {item.description && <p className="text-xs text-gray-400 mt-0.5">{item.description}</p>}
+                      </td>
+                      <td className="px-4 py-3 text-center text-gray-700">{item.totalUsers ?? 0}</td>
+                      <td className="px-4 py-3 text-center text-gray-700">{item.maxStock ?? 0}</td>
+                      <td className="px-4 py-3 text-center text-gray-700">{item.minStock}</td>
+                      <td className="px-4 py-3 text-center">
+                        <span className={`font-semibold ${item.isLowStock ? 'text-orange-600' : 'text-gray-900'}`}>
+                          {item.currentStock}
+                        </span>
+                        <span className="text-xs text-gray-400 ml-1">{item.unit}</span>
+                      </td>
+                      <td className="px-4 py-3 text-right">
+                        {item.inventoryValue > 0
+                          ? <span className="font-medium text-gray-800">${item.inventoryValue.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}</span>
+                          : <span className="text-gray-400">—</span>}
+                      </td>
+                      <td className="px-4 py-3">
+                        <div className="flex items-center justify-end gap-1">
+                          {canWrite() && (
+                            <button
+                              onClick={() => openEditItem(item)}
+                              className="p-1.5 rounded text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                              title={t('common.edit')}
+                            >
+                              <Pencil size={14} />
+                            </button>
+                          )}
+                          <button
+                            onClick={() => setExpandedItem(expandedItem === item.id ? null : item.id)}
+                            className="p-1.5 rounded text-gray-400 hover:text-gray-600 hover:bg-gray-100 transition-colors"
+                            title="Historial de movimientos"
+                          >
+                            {expandedItem === item.id ? <ChevronDown size={14} /> : <ChevronRight size={14} />}
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+
+                    {expandedItem === item.id && (
+                      <tr key={`${item.id}-hist`}>
+                        <td colSpan={7} className="px-6 py-3 bg-gray-50 border-b border-gray-100">
+                          <p className="text-xs font-semibold text-gray-500 mb-2 uppercase tracking-wider">Historial de movimientos</p>
+                          {!item.movements?.length ? (
+                            <p className="text-xs text-gray-400">{t('epp.noMovements')}</p>
+                          ) : (
+                            <div className="space-y-1.5">
+                              {item.movements.map(mov => (
+                                <div key={mov.id} className="flex items-center gap-3 text-xs text-gray-600 flex-wrap">
+                                  <span className={`px-1.5 py-0.5 rounded font-medium ${MOVEMENT_TYPE_COLORS[mov.type]}`}>{mov.type}</span>
+                                  <span>{mov.quantity} {item.unit}</span>
+                                  <span className="text-gray-400">→ saldo: {mov.balanceAfter}</span>
+                                  {mov.employeeName && <span className="font-medium">{mov.employeeName}</span>}
+                                  {mov.employeeArea  && <span className="text-gray-500">{mov.employeeArea}</span>}
+                                  {mov.supplier      && <span className="text-gray-500">Prov: {mov.supplier}</span>}
+                                  {mov.price         && <span className="text-green-700 font-medium">${Number(mov.price).toLocaleString('es-MX', { minimumFractionDigits: 2 })}/u</span>}
+                                  <span className="text-gray-400 ml-auto">{formatDate(mov.date)}</span>
+                                </div>
+                              ))}
+                            </div>
+                          )}
+                        </td>
+                      </tr>
+                    )}
+                  </>
+                ))}
+              </tbody>
+            </table>
+          )}
+        </div>
+
       ) : (
-        /* Matrix tab */
+
+        /* ── Matriz EPP ── */
         <div className="space-y-4">
           {Object.keys(matrix).length === 0 ? (
-            <Card className="p-8 text-center text-gray-400">{t('epp.emptyMatrix')}</Card>
+            <div className="p-8 text-center text-gray-400 border border-dashed border-gray-300 rounded-xl">
+              {t('epp.emptyMatrix')}
+            </div>
           ) : Object.entries(matrix).map(([area, entries]) => (
-            <Card key={area} className="p-4">
-              <h3 className="font-semibold text-gray-900 mb-3">{area}</h3>
-              <div className="space-y-2">
-                {entries.map(entry => (
-                  <div key={entry.id} className="flex items-center justify-between text-sm">
-                    <div className="flex items-center gap-2">
-                      <span className="text-gray-700">{entry.eppItem?.name}</span>
-                      {entry.mandatory && <span className="px-1.5 py-0.5 text-xs bg-red-100 text-red-700 rounded">{t('epp.mandatory')}</span>}
-                      {entry.notes && <span className="text-xs text-gray-500">{entry.notes}</span>}
-                    </div>
-                    {canWrite() && (
-                      <button onClick={() => deleteMatrixEntry(entry.id)} className="text-xs text-red-600 hover:underline">{t('common.delete')}</button>
-                    )}
-                  </div>
-                ))}
+            <div key={area} className="rounded-xl border border-gray-200 overflow-hidden">
+              <div className="bg-gray-50 px-4 py-3 border-b border-gray-200">
+                <h3 className="font-semibold text-gray-900">{area}</h3>
               </div>
-            </Card>
+              <table className="w-full text-sm">
+                <thead>
+                  <tr className="border-b border-gray-100 text-xs text-gray-500 font-semibold uppercase tracking-wider bg-white">
+                    <th className="px-4 py-2 text-left">EPP</th>
+                    <th className="px-4 py-2 text-center">Usuarios</th>
+                    <th className="px-4 py-2 text-center">Frecuencia cambio</th>
+                    <th className="px-4 py-2 text-center">Obligatorio</th>
+                    <th className="px-4 py-2 text-left">Notas</th>
+                    {canWrite() && <th className="px-4 py-2 w-20" />}
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-gray-100">
+                  {entries.map(entry => (
+                    <tr key={entry.id} className="hover:bg-gray-50 transition-colors">
+                      <td className="px-4 py-2.5 font-medium text-gray-800">{entry.eppItem?.name}</td>
+                      <td className="px-4 py-2.5 text-center text-gray-600">{entry.userCount ?? 1}</td>
+                      <td className="px-4 py-2.5 text-center text-gray-600">
+                        {entry.changeFrequency
+                          ? `${entry.changeFrequency} mes${entry.changeFrequency !== '1' ? 'es' : ''}`
+                          : '—'}
+                      </td>
+                      <td className="px-4 py-2.5 text-center">
+                        {entry.mandatory
+                          ? <span className="px-1.5 py-0.5 text-xs bg-red-100 text-red-700 rounded">{t('epp.mandatory')}</span>
+                          : <span className="text-gray-400">—</span>}
+                      </td>
+                      <td className="px-4 py-2.5 text-gray-500 text-xs">{entry.notes || '—'}</td>
+                      {canWrite() && (
+                        <td className="px-4 py-2.5">
+                          <div className="flex items-center gap-1 justify-end">
+                            <button
+                              onClick={() => openEditMatrix(entry)}
+                              className="p-1.5 rounded text-gray-400 hover:text-blue-600 hover:bg-blue-50 transition-colors"
+                              title={t('common.edit')}
+                            >
+                              <Pencil size={13} />
+                            </button>
+                            <button
+                              onClick={() => deleteMatrixEntry(entry.id)}
+                              className="p-1.5 rounded text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors"
+                              title={t('common.delete')}
+                            >
+                              <Trash2 size={13} />
+                            </button>
+                          </div>
+                        </td>
+                      )}
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
           ))}
         </div>
       )}
 
-      {/* Item Modal */}
+      {/* ── Modal: Artículo EPP ── */}
       {showItemModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
@@ -261,117 +515,311 @@ export default function EppPage() {
               <div className="grid grid-cols-2 gap-3">
                 <div className="col-span-2">
                   <label className="block text-sm font-medium text-gray-700 mb-1">{t('epp.fields.name')} *</label>
-                  <input required className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={itemForm.name} onChange={e => fi('name', e.target.value)} />
+                  <input required className={INP} value={itemForm.name} onChange={e => setItemForm(p => ({ ...p, name: e.target.value }))} />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">{t('epp.fields.category')} *</label>
-                  <input required className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={itemForm.category} onChange={e => fi('category', e.target.value)} />
+                  <input required className={INP} value={itemForm.category} onChange={e => setItemForm(p => ({ ...p, category: e.target.value }))} />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">{t('epp.fields.unit')}</label>
-                  <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={itemForm.unit} onChange={e => fi('unit', e.target.value)} />
+                  <input className={INP} value={itemForm.unit} onChange={e => setItemForm(p => ({ ...p, unit: e.target.value }))} />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('epp.fields.minStock')}</label>
-                  <input type="number" min="0" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={itemForm.minStock} onChange={e => fi('minStock', e.target.value)} />
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Stock mínimo</label>
+                  <input type="number" min="0" className={INP} value={itemForm.minStock} onChange={e => setItemForm(p => ({ ...p, minStock: e.target.value }))} />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Stock máximo</label>
+                  <input type="number" min="0" className={INP} value={itemForm.maxStock} onChange={e => setItemForm(p => ({ ...p, maxStock: e.target.value }))} />
                 </div>
                 {!editItem && (
                   <div>
                     <label className="block text-sm font-medium text-gray-700 mb-1">{t('epp.fields.currentStock')}</label>
-                    <input type="number" min="0" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={itemForm.currentStock} onChange={e => fi('currentStock', e.target.value)} />
+                    <input type="number" min="0" className={INP} value={itemForm.currentStock} onChange={e => setItemForm(p => ({ ...p, currentStock: e.target.value }))} />
                   </div>
                 )}
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">{t('epp.fields.brand')}</label>
-                  <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={itemForm.brand} onChange={e => fi('brand', e.target.value)} />
+                  <input className={INP} value={itemForm.brand} onChange={e => setItemForm(p => ({ ...p, brand: e.target.value }))} />
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">{t('epp.fields.partNumber')}</label>
-                  <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={itemForm.partNumber} onChange={e => fi('partNumber', e.target.value)} />
+                  <input className={INP} value={itemForm.partNumber} onChange={e => setItemForm(p => ({ ...p, partNumber: e.target.value }))} />
                 </div>
               </div>
               <div className="flex justify-end gap-3 pt-2 border-t">
                 <button type="button" onClick={() => setShowItemModal(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">{t('common.cancel')}</button>
-                <button type="submit" disabled={saving} className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">{saving ? t('common.saving') : t('common.save')}</button>
+                <button type="submit" disabled={saving} className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                  {saving ? t('common.saving') : t('common.save')}
+                </button>
               </div>
             </form>
           </div>
         </div>
       )}
 
-      {/* Movement Modal */}
-      {showMovModal && (
+      {/* ── Modal: Entradas / Salidas ── */}
+      {movModalType && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
-          <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
-            <div className="flex items-center justify-between p-5 border-b">
-              <h2 className="text-lg font-semibold">{t('epp.registerMovement')}</h2>
-              <button onClick={() => setShowMovModal(null)} className="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg">
+
+            {/* Header */}
+            <div className={`flex items-center justify-between p-5 border-b rounded-t-xl ${movModalType === 'ENTRY' ? 'bg-green-50' : 'bg-red-50'}`}>
+              <div className="flex items-center gap-2">
+                {movModalType === 'ENTRY'
+                  ? <ArrowDownToLine size={18} className="text-green-700" />
+                  : <ArrowUpFromLine size={18} className="text-red-700" />}
+                <h2 className="text-lg font-semibold">
+                  {movModalType === 'ENTRY' ? 'Registrar entrada de EPP' : 'Registrar salida de EPP'}
+                </h2>
+              </div>
+              <button onClick={closeMovModal} className="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
             </div>
-            <form onSubmit={handleMovement} className="p-5 space-y-4">
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('epp.movType')} *</label>
-                  <select required className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={movForm.type} onChange={e => fm('type', e.target.value)}>
-                    {['ENTRY', 'EXIT', 'ADJUSTMENT', 'RETURN'].map(v => <option key={v} value={v}>{t(`epp.movTypes.${v}`)}</option>)}
-                  </select>
+
+            {/* Sub-tabs */}
+            <div className="flex border-b border-gray-200 px-5 pt-3">
+              {['manual', 'csv'].map(tb => (
+                <button
+                  key={tb}
+                  onClick={() => { setMovTab(tb); setCsvRows([]); setCsvErrors([]); setCsvSuccess(null); if(fileInputRef.current) fileInputRef.current.value=''; }}
+                  className={`px-4 py-2 text-sm font-medium border-b-2 -mb-px mr-2 transition-colors ${movTab === tb ? 'border-blue-600 text-blue-600' : 'border-transparent text-gray-500 hover:text-gray-700'}`}
+                >
+                  {tb === 'manual' ? 'Registro manual' : 'Importar CSV'}
+                </button>
+              ))}
+            </div>
+
+            <div className="p-5">
+              {movTab === 'manual' ? (
+
+                /* ── Manual form ── */
+                <form onSubmit={handleManualMovement} className="space-y-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Artículo EPP *</label>
+                    <select
+                      required className={INP}
+                      value={movModalType === 'ENTRY' ? entryForm.eppItemId : exitForm.eppItemId}
+                      onChange={e => movModalType === 'ENTRY'
+                        ? setEntryForm(p => ({ ...p, eppItemId: e.target.value }))
+                        : setExitForm(p => ({ ...p, eppItemId: e.target.value }))}
+                    >
+                      <option value="">Selecciona un artículo...</option>
+                      {items.map(i => <option key={i.id} value={i.id}>{i.name} — stock: {i.currentStock} {i.unit}</option>)}
+                    </select>
+                  </div>
+
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="col-span-2">
+                      <label className="block text-sm font-medium text-gray-700 mb-1">Cantidad *</label>
+                      <input required type="number" min="1" className={INP}
+                        value={movModalType === 'ENTRY' ? entryForm.quantity : exitForm.quantity}
+                        onChange={e => movModalType === 'ENTRY'
+                          ? setEntryForm(p => ({ ...p, quantity: e.target.value }))
+                          : setExitForm(p => ({ ...p, quantity: e.target.value }))} />
+                    </div>
+
+                    {movModalType === 'ENTRY' ? (
+                      <>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Proveedor</label>
+                          <input className={INP} value={entryForm.supplier} onChange={e => setEntryForm(p => ({ ...p, supplier: e.target.value }))} />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Precio unitario</label>
+                          <input type="number" min="0" step="0.01" className={INP} value={entryForm.price} onChange={e => setEntryForm(p => ({ ...p, price: e.target.value }))} />
+                        </div>
+                      </>
+                    ) : (
+                      <>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Puesto</label>
+                          <input className={INP} value={exitForm.puesto} onChange={e => setExitForm(p => ({ ...p, puesto: e.target.value }))} />
+                        </div>
+                        <div>
+                          <label className="block text-sm font-medium text-gray-700 mb-1">Solicitante</label>
+                          <input className={INP} value={exitForm.solicitante} onChange={e => setExitForm(p => ({ ...p, solicitante: e.target.value }))} />
+                        </div>
+                      </>
+                    )}
+                  </div>
+
+                  <div className="flex justify-end gap-3 pt-2 border-t">
+                    <button type="button" onClick={closeMovModal} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">{t('common.cancel')}</button>
+                    <button type="submit" disabled={saving}
+                      className={`px-4 py-2 text-sm text-white rounded-lg disabled:opacity-50 ${movModalType === 'ENTRY' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}>
+                      {saving ? t('common.saving') : movModalType === 'ENTRY' ? 'Registrar entrada' : 'Registrar salida'}
+                    </button>
+                  </div>
+                </form>
+
+              ) : (
+
+                /* ── CSV import ── */
+                <div className="space-y-4">
+                  {/* Download template */}
+                  <div className="flex items-center justify-between p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <div>
+                      <p className="text-sm font-medium text-blue-800">Plantilla CSV</p>
+                      <p className="text-xs text-blue-600 mt-0.5">
+                        Columnas: {movModalType === 'ENTRY'
+                          ? 'Articulo, Cantidad, Proveedor, Precio'
+                          : 'Articulo, Cantidad, Puesto, Solicitante'}
+                        <span className="ml-1 text-blue-400">(fecha automática)</span>
+                      </p>
+                    </div>
+                    <button onClick={downloadTemplate}
+                      className="flex items-center gap-1.5 px-3 py-1.5 text-sm font-medium text-blue-700 bg-white border border-blue-300 rounded-lg hover:bg-blue-50 transition-colors">
+                      <Download size={14} /> Descargar
+                    </button>
+                  </div>
+
+                  {/* File upload */}
+                  <div>
+                    <label className="block text-sm font-medium text-gray-700 mb-2">Seleccionar archivo CSV</label>
+                    <div className="flex items-center gap-3">
+                      <label className="flex items-center gap-2 px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 cursor-pointer transition-colors">
+                        <Upload size={14} />
+                        Cargar archivo
+                        <input ref={fileInputRef} type="file" accept=".csv" className="hidden" onChange={handleFileChange} />
+                      </label>
+                      {csvRows.length > 0 && (
+                        <span className="text-sm text-gray-600">{csvRows.length} fila(s) detectada(s)</span>
+                      )}
+                    </div>
+                  </div>
+
+                  {/* Preview */}
+                  {csvRows.length > 0 && (
+                    <div className="rounded-lg border border-gray-200 overflow-hidden">
+                      <div className="bg-gray-50 px-3 py-2 text-xs font-semibold text-gray-500 uppercase tracking-wider">Vista previa</div>
+                      <div className="overflow-x-auto max-h-40 overflow-y-auto">
+                        <table className="w-full text-xs">
+                          <thead className="bg-gray-50">
+                            <tr>{Object.keys(csvRows[0]).map(h => <th key={h} className="px-3 py-1.5 text-left text-gray-500 font-medium">{h}</th>)}</tr>
+                          </thead>
+                          <tbody className="divide-y divide-gray-100">
+                            {csvRows.slice(0, 5).map((row, i) => (
+                              <tr key={i}>{Object.values(row).map((v, j) => <td key={j} className="px-3 py-1.5 text-gray-700">{v}</td>)}</tr>
+                            ))}
+                          </tbody>
+                        </table>
+                        {csvRows.length > 5 && <p className="text-xs text-gray-400 px-3 py-1.5">… y {csvRows.length - 5} fila(s) más</p>}
+                      </div>
+                    </div>
+                  )}
+
+                  {/* Results */}
+                  {(csvSuccess !== null || csvErrors.length > 0) && (
+                    <div className="space-y-2">
+                      {csvSuccess > 0 && (
+                        <div className="flex items-center gap-2 text-sm text-green-700 bg-green-50 border border-green-200 rounded-lg px-3 py-2">
+                          <CheckCircle size={14} /> {csvSuccess} movimiento(s) registrado(s) correctamente
+                        </div>
+                      )}
+                      {csvErrors.map((err, i) => (
+                        <div key={i} className="flex items-start gap-2 text-sm text-red-700 bg-red-50 border border-red-200 rounded-lg px-3 py-2">
+                          <XCircle size={14} className="mt-0.5 shrink-0" /> {err}
+                        </div>
+                      ))}
+                    </div>
+                  )}
+
+                  <div className="flex justify-end gap-3 pt-2 border-t">
+                    <button type="button" onClick={closeMovModal} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">{t('common.cancel')}</button>
+                    <button
+                      onClick={handleBulkImport}
+                      disabled={saving || csvRows.length === 0}
+                      className={`px-4 py-2 text-sm text-white rounded-lg disabled:opacity-50 ${movModalType === 'ENTRY' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}
+                    >
+                      {saving ? 'Importando...' : `Importar ${csvRows.length} fila(s)`}
+                    </button>
+                  </div>
                 </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('epp.quantity')} *</label>
-                  <input required type="number" min="1" className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={movForm.quantity} onChange={e => fm('quantity', e.target.value)} />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('epp.employeeName')}</label>
-                  <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={movForm.employeeName} onChange={e => fm('employeeName', e.target.value)} />
-                </div>
-                <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('epp.employeeArea')}</label>
-                  <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={movForm.employeeArea} onChange={e => fm('employeeArea', e.target.value)} />
-                </div>
-                <div className="col-span-2">
-                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('epp.reason')}</label>
-                  <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={movForm.reason} onChange={e => fm('reason', e.target.value)} />
-                </div>
-              </div>
-              <div className="flex justify-end gap-3 pt-2 border-t">
-                <button type="button" onClick={() => setShowMovModal(null)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">{t('common.cancel')}</button>
-                <button type="submit" disabled={saving} className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">{saving ? t('common.saving') : t('common.save')}</button>
-              </div>
-            </form>
+              )}
+            </div>
           </div>
         </div>
       )}
 
-      {/* Matrix Modal */}
+      {/* ── Modal: Matriz EPP ── */}
       {showMatrixModal && (
         <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
           <div className="bg-white rounded-xl shadow-xl w-full max-w-md">
             <div className="flex items-center justify-between p-5 border-b">
-              <h2 className="text-lg font-semibold">{t('epp.addMatrixEntryTitle')}</h2>
+              <h2 className="text-lg font-semibold">
+                {editMatrixEntry ? 'Editar requerimiento' : t('epp.addMatrixEntryTitle')}
+              </h2>
               <button onClick={() => setShowMatrixModal(false)} className="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
             </div>
             <form onSubmit={handleMatrixEntry} className="p-5 space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">{t('epp.fields.eppItem')} *</label>
-                <select required className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={matrixForm.eppItemId} onChange={e => fmx('eppItemId', e.target.value)}>
+                <select
+                  required
+                  className={INP}
+                  value={matrixForm.eppItemId}
+                  onChange={e => setMatrixForm(p => ({ ...p, eppItemId: e.target.value }))}
+                  disabled={!!editMatrixEntry}
+                >
                   <option value="">{t('common.select')}</option>
-                  {matrixItems.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
+                  {items.map(i => <option key={i.id} value={i.id}>{i.name}</option>)}
                 </select>
               </div>
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">{t('epp.areaName')} *</label>
-                <input required className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={matrixForm.areaName} onChange={e => fmx('areaName', e.target.value)} />
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('epp.areaName')} / Puesto *</label>
+                <input
+                  required
+                  className={INP}
+                  value={matrixForm.areaName}
+                  onChange={e => setMatrixForm(p => ({ ...p, areaName: e.target.value }))}
+                  disabled={!!editMatrixEntry}
+                />
+              </div>
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Usuarios (personal)</label>
+                  <input
+                    type="number" min="1"
+                    className={INP}
+                    value={matrixForm.userCount}
+                    onChange={e => setMatrixForm(p => ({ ...p, userCount: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Frecuencia de cambio</label>
+                  <select
+                    className={INP}
+                    value={matrixForm.changeFrequency}
+                    onChange={e => setMatrixForm(p => ({ ...p, changeFrequency: e.target.value }))}
+                  >
+                    <option value="">Sin especificar</option>
+                    {FREQ_OPTIONS.map(o => <option key={o.value} value={o.value}>{o.label}</option>)}
+                  </select>
+                </div>
               </div>
               <div className="flex items-center gap-2">
-                <input type="checkbox" id="mandatory" checked={matrixForm.mandatory} onChange={e => fmx('mandatory', e.target.checked)} className="rounded" />
+                <input
+                  type="checkbox" id="mandatory"
+                  checked={matrixForm.mandatory}
+                  onChange={e => setMatrixForm(p => ({ ...p, mandatory: e.target.checked }))}
+                  className="rounded"
+                />
                 <label htmlFor="mandatory" className="text-sm text-gray-700">{t('epp.mandatoryLabel')}</label>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">{t('common.notes')}</label>
-                <input className="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500" value={matrixForm.notes} onChange={e => fmx('notes', e.target.value)} />
+                <input
+                  className={INP}
+                  value={matrixForm.notes}
+                  onChange={e => setMatrixForm(p => ({ ...p, notes: e.target.value }))}
+                />
               </div>
               <div className="flex justify-end gap-3 pt-2 border-t">
                 <button type="button" onClick={() => setShowMatrixModal(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">{t('common.cancel')}</button>
-                <button type="submit" disabled={saving} className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">{saving ? t('common.saving') : t('common.save')}</button>
+                <button type="submit" disabled={saving} className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
+                  {saving ? t('common.saving') : t('common.save')}
+                </button>
               </div>
             </form>
           </div>

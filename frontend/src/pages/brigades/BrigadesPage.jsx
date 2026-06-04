@@ -12,20 +12,18 @@ import api from '../../api/axios.config';
 
 // ── Constantes ────────────────────────────────────────────────────────────────
 
-const BRIGADE_ORDER = ['FIRST_AID', 'EVACUATION', 'FIRE_FIGHTING', 'SEARCH_RESCUE'];
+const BRIGADE_ORDER = ['FIRST_AID', 'EVACUATION', 'FIRE_FIGHTING'];
 
 const BRIGADE_ICONS = {
   FIRST_AID:     '🚑',
   EVACUATION:    '🚶',
   FIRE_FIGHTING: '🔥',
-  SEARCH_RESCUE: '🔍',
 };
 
 const MEMBER_ROLE_ORDER = { COORDINATOR: 0, DEPUTY: 1, MEMBER: 2 };
 
 const EMPTY_MEMBER_FORM = {
-  employeeName: '', employeeArea: '', employeePosition: '',
-  phone: '', memberRole: 'MEMBER',
+  employeeName: '', memberRole: 'MEMBER',
   certificationDate: '', certificationExpiry: '', notes: '',
 };
 
@@ -122,9 +120,6 @@ export default function BrigadesPage() {
     setEditMemberId(member.id);
     setMemberForm({
       employeeName:        member.employeeName || '',
-      employeeArea:        member.employeeArea || '',
-      employeePosition:    member.employeePosition || '',
-      phone:               member.phone || '',
       memberRole:          member.memberRole || 'MEMBER',
       certificationDate:   member.certificationDate ? member.certificationDate.slice(0, 10) : '',
       certificationExpiry: member.certificationExpiry ? member.certificationExpiry.slice(0, 10) : '',
@@ -300,10 +295,8 @@ export default function BrigadesPage() {
                             style={{ borderColor: 'var(--color-border)', background: 'var(--color-bg)', color: 'var(--color-text-muted)' }}>
                           <th className="px-3 py-2 text-left">{t('brigades.memberRole')}</th>
                           <th className="px-3 py-2 text-left">{t('common.name')}</th>
-                          <th className="px-3 py-2 text-left">Puesto</th>
-                          <th className="px-3 py-2 text-left">{t('common.area')}</th>
-                          <th className="px-3 py-2 text-left">Teléfono</th>
-                          <th className="px-3 py-2 text-left">{t('brigades.certification')}</th>
+                          <th className="px-3 py-2 text-left">Fecha del curso</th>
+                          <th className="px-3 py-2 text-left">Vigencia</th>
                           {canEdit && <th className="px-3 py-2 w-20" />}
                         </tr>
                       </thead>
@@ -313,9 +306,9 @@ export default function BrigadesPage() {
                               style={{ borderColor: 'var(--color-border)' }}>
                             <td className="px-3 py-2.5"><RoleBadge role={member.memberRole} t={t} /></td>
                             <td className="px-3 py-2.5 font-medium">{member.employeeName}</td>
-                            <td className="px-3 py-2.5 text-[var(--color-text-muted)]">{member.employeePosition || '—'}</td>
-                            <td className="px-3 py-2.5 text-[var(--color-text-muted)]">{member.employeeArea || '—'}</td>
-                            <td className="px-3 py-2.5 text-[var(--color-text-muted)]">{member.phone || '—'}</td>
+                            <td className="px-3 py-2.5 text-[var(--color-text-muted)]">
+                              {member.certificationDate ? formatDate(member.certificationDate) : '—'}
+                            </td>
                             <td className="px-3 py-2.5"><CertBadge expiryDate={member.certificationExpiry} t={t} /></td>
                             {canEdit && (
                               <td className="px-3 py-2.5">
@@ -378,30 +371,6 @@ export default function BrigadesPage() {
           </div>
 
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="block text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Puesto de trabajo</label>
-              <input type="text" value={memberForm.employeePosition}
-                onChange={e => setMemberForm(f => ({ ...f, employeePosition: e.target.value }))}
-                className="w-full px-3 py-2 border rounded-[var(--radius-sm)] text-sm"
-                style={{ borderColor: 'var(--color-border)' }} />
-            </div>
-            <div className="space-y-1">
-              <label className="block text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>{t('common.area')}</label>
-              <input type="text" value={memberForm.employeeArea}
-                onChange={e => setMemberForm(f => ({ ...f, employeeArea: e.target.value }))}
-                className="w-full px-3 py-2 border rounded-[var(--radius-sm)] text-sm"
-                style={{ borderColor: 'var(--color-border)' }} />
-            </div>
-          </div>
-
-          <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1">
-              <label className="block text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>Teléfono</label>
-              <input type="text" value={memberForm.phone}
-                onChange={e => setMemberForm(f => ({ ...f, phone: e.target.value }))}
-                className="w-full px-3 py-2 border rounded-[var(--radius-sm)] text-sm"
-                style={{ borderColor: 'var(--color-border)' }} />
-            </div>
             <div className="space-y-1">
               <label className="block text-sm font-medium" style={{ color: 'var(--color-text-primary)' }}>
                 {t('brigades.memberRole')} <span className="text-red-500">*</span>
