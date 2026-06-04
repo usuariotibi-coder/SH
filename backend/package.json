@@ -4,7 +4,6 @@
   "description": "Backend para App de Seguridad e Higiene México",
   "main": "server.js",
   "scripts": {
-    "postinstall": "prisma generate",
     "start": "node server.js",
     "dev": "nodemon server.js",
     "db:migrate": "prisma migrate dev",
