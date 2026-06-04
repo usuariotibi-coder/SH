@@ -56,6 +56,45 @@ const getKPIs = async (req, res, next) => {
       _sum: { lostDays: true },
     });
 
+    // ── EPP metrics ──────────────────────────────────────────────────────────
+    const [eppItems, eppLots] = await Promise.all([
+      prisma.eppItem.findMany({
+        where: { companyId, isActive: true },
+        select: { id: true, currentStock: true, minStock: true, maxStock: true },
+      }),
+      prisma.eppLot.findMany({
+        where: { companyId },
+        orderBy: { createdAt: 'desc' },
+      }),
+    ]);
+
+    // 1. Valor inventario actual (FIFO)
+    const eppCurrentValue = eppLots
+      .filter(l => l.remaining > 0)
+      .reduce((sum, l) => sum + l.remaining * l.unitPrice, 0);
+
+    // Last known price per item (most recent lot)
+    const lastPrice = {};
+    for (const lot of eppLots) {
+      if (lastPrice[lot.eppItemId] === undefined) lastPrice[lot.eppItemId] = lot.unitPrice;
+    }
+
+    // 2. Valor inventario completo (all items at maxStock × last price)
+    const eppFullValue = eppItems.reduce((sum, item) => {
+      if (!item.maxStock) return sum;
+      return sum + item.maxStock * (lastPrice[item.id] || 0);
+    }, 0);
+
+    // 3 & 4. Items below minStock that need purchasing (up to maxStock)
+    const needsBuying = eppItems.filter(i => i.maxStock > 0 && i.currentStock < i.minStock);
+    const eppUnitsToBuy = needsBuying.reduce((sum, i) => sum + Math.max(0, i.maxStock - i.currentStock), 0);
+    const eppBuyCost   = needsBuying.reduce((sum, i) => {
+      const units = Math.max(0, i.maxStock - i.currentStock);
+      return sum + units * (lastPrice[i.id] || 0);
+    }, 0);
+
+    const round2 = (n) => Math.round(n * 100) / 100;
+
     res.json({
       complianceRate,
       totalRequirements: totalReqs,
@@ -75,6 +114,11 @@ const getKPIs = async (req, res, next) => {
       suppliersDocExpired,
       eppLowStock,
       chemicalsNoSds,
+      eppCurrentValue:  round2(eppCurrentValue),
+      eppFullValue:     round2(eppFullValue),
+      eppUnitsToBuy,
+      eppBuyCost:       round2(eppBuyCost),
+      eppItemsBelowMin: needsBuying.length,
     });
   } catch (err) { next(err); }
 };

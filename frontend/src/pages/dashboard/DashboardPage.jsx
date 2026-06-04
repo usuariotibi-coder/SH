@@ -4,7 +4,7 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, LineChart, Line,
 } from 'recharts';
-import { FileText, AlertTriangle, GraduationCap, Siren, ShieldCheck, Bell } from 'lucide-react';
+import { FileText, AlertTriangle, GraduationCap, Siren, ShieldCheck, Bell, HardHat, TrendingUp, ShoppingCart, DollarSign } from 'lucide-react';
 import { KPICard } from '../../components/ui/Card';
 import Card from '../../components/ui/Card';
 import AlertsPanel from '../../components/shared/AlertsPanel';
@@ -121,6 +121,58 @@ export default function DashboardPage() {
           iconColor="text-orange-600"
           borderColor={alerts.length > 5 ? 'border-l-red-500' : 'border-l-orange-500'}
         />
+      </div>
+
+      {/* EPP Inventory KPIs */}
+      <div>
+        <div className="flex items-center gap-2 mb-3">
+          <HardHat size={18} className="text-[var(--color-primary)]" />
+          <h2 className="text-sm font-semibold uppercase tracking-wider text-[var(--color-text-muted)]">Inventario EPP</h2>
+        </div>
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+          <KPICard
+            title="Valor inventario actual"
+            value={kpis?.eppCurrentValue > 0
+              ? `$${kpis.eppCurrentValue.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+              : '$0.00'}
+            subtitle="Stock disponible × costo FIFO"
+            icon={DollarSign}
+            iconBg="bg-green-50"
+            iconColor="text-green-600"
+            borderColor="border-l-green-500"
+          />
+          <KPICard
+            title="Valor inventario completo"
+            value={kpis?.eppFullValue > 0
+              ? `$${kpis.eppFullValue.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+              : '$0.00'}
+            subtitle="Todos los artículos a stock máximo"
+            icon={TrendingUp}
+            iconBg="bg-blue-50"
+            iconColor="text-blue-600"
+            borderColor="border-l-blue-500"
+          />
+          <KPICard
+            title="Unidades a comprar"
+            value={kpis?.eppUnitsToBuy ?? 0}
+            subtitle={`${kpis?.eppItemsBelowMin ?? 0} artículos bajo mínimo`}
+            icon={ShoppingCart}
+            iconBg="bg-orange-50"
+            iconColor="text-orange-600"
+            borderColor={kpis?.eppUnitsToBuy > 0 ? 'border-l-orange-500' : 'border-l-green-500'}
+          />
+          <KPICard
+            title="Costo estimado de compra"
+            value={kpis?.eppBuyCost > 0
+              ? `$${kpis.eppBuyCost.toLocaleString('es-MX', { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
+              : '$0.00'}
+            subtitle="Para cubrir máximos de artículos bajo mínimo"
+            icon={DollarSign}
+            iconBg="bg-purple-50"
+            iconColor="text-purple-600"
+            borderColor={kpis?.eppBuyCost > 0 ? 'border-l-purple-500' : 'border-l-green-500'}
+          />
+        </div>
       </div>
 
       {/* Charts */}
