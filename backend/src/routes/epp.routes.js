@@ -2,9 +2,15 @@ const express = require('express');
 const router = express.Router();
 const { authenticate } = require('../middleware/auth.middleware');
 const { requireRole } = require('../middleware/role.middleware');
-const ctrl = require('../controllers/epp.controller');
+const ctrl      = require('../controllers/epp.controller');
+const loansCtrl = require('../controllers/epp-loans.controller');
 
 router.use(authenticate);
+
+// Loan routes (before /:id to avoid conflicts)
+router.get('/loans',              loansCtrl.getLoans);
+router.post('/loans',             loansCtrl.createLoan);
+router.put('/loans/:id/return',   loansCtrl.returnLoan);
 
 // Matrix routes (before /:id to avoid conflicts)
 router.get('/matrix', ctrl.getMatrix);

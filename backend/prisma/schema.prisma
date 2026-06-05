@@ -34,6 +34,7 @@ model Company {
   eppItems            EppItem[]
   eppAreaRequirements EppAreaRequirement[]
   eppLots             EppLot[]
+  eppLoans            EppLoan[]
   chemicals           ChemicalProduct[]
   hazmatDisposals     HazmatDisposal[]
 }
@@ -463,6 +464,7 @@ enum AlertType {
   TRAINING_EXPIRING
   CMSH_MEETING_MISSING
   DRILL_PENDING
+  EPP_LOAN
 }
 
 enum BrigadeType {
@@ -588,6 +590,7 @@ model EppItem {
   movements        EppMovement[]
   areaRequirements EppAreaRequirement[]
   lots             EppLot[]
+  loanItems        EppLoanItem[]
 }
 
 model EppMovement {
@@ -624,6 +627,30 @@ model EppAreaRequirement {
   company         Company  @relation(fields: [companyId], references: [id])
 
   @@unique([eppItemId, areaName, companyId])
+}
+
+model EppLoan {
+  id           String        @id @default(cuid())
+  employeeName String
+  employeeArea String?
+  loanDate     DateTime      @default(now())
+  returnedAt   DateTime?
+  isReturned   Boolean       @default(false)
+  notes        String?
+  companyId    String
+  company      Company       @relation(fields: [companyId], references: [id])
+  items        EppLoanItem[]
+  createdAt    DateTime      @default(now())
+  updatedAt    DateTime      @updatedAt
+}
+
+model EppLoanItem {
+  id        String   @id @default(cuid())
+  quantity  Int      @default(1)
+  loanId    String
+  loan      EppLoan  @relation(fields: [loanId], references: [id], onDelete: Cascade)
+  eppItemId String
+  eppItem   EppItem  @relation(fields: [eppItemId], references: [id])
 }
 
 model EppLot {

@@ -1,5 +1,5 @@
 import { useState, useEffect, useCallback, useRef } from 'react';
-import { Plus, AlertTriangle, TrendingDown, Pencil, Trash2, ChevronDown, ChevronRight, ArrowDownToLine, ArrowUpFromLine, Download, Upload, CheckCircle, XCircle } from 'lucide-react';
+import { Plus, AlertTriangle, TrendingDown, Pencil, Trash2, ChevronDown, ChevronRight, ArrowDownToLine, ArrowUpFromLine, Download, Upload, CheckCircle, XCircle, PackageCheck, Undo2 } from 'lucide-react';
 import toast from 'react-hot-toast';
 import { useTranslation } from 'react-i18next';
 import Button from '../../components/ui/Button';
@@ -25,6 +25,7 @@ const EMPTY_ITEM   = { name: '', category: '', description: '', unit: 'pieza', m
 const EMPTY_ENTRY = { eppItemId: '', quantity: 1, supplier: '', price: '' };
 const EMPTY_EXIT  = { eppItemId: '', quantity: 1, puesto: '', solicitante: '' };
 const EMPTY_MATRIX = { eppItemId: '', areaName: '', mandatory: true, notes: '', userCount: 1, changeFrequency: '' };
+const EMPTY_LOAN_ITEM = { eppItemId: '', quantity: 1 };
 
 const INP = 'w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-blue-500';
 
@@ -35,7 +36,13 @@ export default function EppPage() {
   const [tab, setTab]       = useState('inventory');
   const [items, setItems]   = useState([]);
   const [matrix, setMatrix] = useState({});
+  const [loans, setLoans]   = useState([]);
   const [loading, setLoading] = useState(true);
+
+  // Loan modal
+  const [showLoanModal, setShowLoanModal]   = useState(false);
+  const [loanForm, setLoanForm]             = useState({ employeeName: '', employeeArea: '', notes: '', items: [{ ...EMPTY_LOAN_ITEM }] });
+  const [loanSaving, setLoanSaving]         = useState(false);
 
   // Item modal
   const [showItemModal, setShowItemModal] = useState(false);
@@ -76,10 +83,17 @@ export default function EppPage() {
     } catch { toast.error(t('common.loadError')); }
   }, [t]);
 
+  const loadLoans = useCallback(async () => {
+    try {
+      const res = await api.get('/epp/loans?active=true');
+      setLoans(res.data);
+    } catch { toast.error(t('common.loadError')); }
+  }, [t]);
+
   useEffect(() => {
     setLoading(true);
-    Promise.all([loadItems(), loadMatrix()]).finally(() => setLoading(false));
-  }, [loadItems, loadMatrix]);
+    Promise.all([loadItems(), loadMatrix(), loadLoans()]).finally(() => setLoading(false));
+  }, [loadItems, loadMatrix, loadLoans]);
 
   // ── Handlers ─────────────────────────────────────────────────────────────────
 
@@ -223,6 +237,45 @@ export default function EppPage() {
     } catch { toast.error(t('common.saveError')); }
   };
 
+  // ── Loan handlers ────────────────────────────────────────────────────────
+
+  const handleCreateLoan = async (e) => {
+    e.preventDefault();
+    const validItems = loanForm.items.filter(i => i.eppItemId && Number(i.quantity) > 0);
+    if (!loanForm.employeeName) return toast.error('Nombre del solicitante requerido');
+    if (!validItems.length) return toast.error('Agrega al menos un artículo');
+    setLoanSaving(true);
+    try {
+      await api.post('/epp/loans', { ...loanForm, items: validItems });
+      toast.success('Préstamo registrado y alerta generada');
+      setShowLoanModal(false);
+      setLoanForm({ employeeName: '', employeeArea: '', notes: '', items: [{ ...EMPTY_LOAN_ITEM }] });
+      loadLoans();
+    } catch (err) { toast.error(err.response?.data?.message || t('common.saveError')); }
+    finally { setLoanSaving(false); }
+  };
+
+  const handleReturnLoan = async (loanId, personName) => {
+    if (!confirm(`¿Marcar como devuelto el préstamo de ${personName}?`)) return;
+    try {
+      await api.put(`/epp/loans/${loanId}/return`);
+      toast.success('Préstamo marcado como devuelto');
+      loadLoans();
+    } catch (err) { toast.error(err.response?.data?.message || t('common.saveError')); }
+  };
+
+  const addLoanItem = () =>
+    setLoanForm(p => ({ ...p, items: [...p.items, { ...EMPTY_LOAN_ITEM }] }));
+
+  const removeLoanItem = (idx) =>
+    setLoanForm(p => ({ ...p, items: p.items.filter((_, i) => i !== idx) }));
+
+  const updateLoanItem = (idx, field, val) =>
+    setLoanForm(p => ({
+      ...p,
+      items: p.items.map((item, i) => i === idx ? { ...item, [field]: val } : item),
+    }));
+
   const openAddMatrix = () => {
     setEditMatrixEntry(null);
     setMatrixForm(EMPTY_MATRIX);
@@ -270,16 +323,20 @@ export default function EppPage() {
           <h1 className="text-2xl font-bold text-gray-900">{t('epp.title')}</h1>
           <p className="text-sm text-gray-500 mt-1">{t('epp.subtitle')}</p>
         </div>
-        {canWrite() && (
-          tab === 'inventory' ? (
-            <Button onClick={() => { setEditItem(null); setItemForm(EMPTY_ITEM); setShowItemModal(true); }} className="flex items-center gap-2">
-              <Plus size={16} />{t('epp.newItem')}
-            </Button>
-          ) : (
-            <Button onClick={openAddMatrix} className="flex items-center gap-2">
-              <Plus size={16} />{t('epp.addMatrixEntry')}
-            </Button>
-          )
+        {canWrite() && tab === 'inventory' && (
+          <Button onClick={() => { setEditItem(null); setItemForm(EMPTY_ITEM); setShowItemModal(true); }} className="flex items-center gap-2">
+            <Plus size={16} />{t('epp.newItem')}
+          </Button>
+        )}
+        {canWrite() && tab === 'matrix' && (
+          <Button onClick={openAddMatrix} className="flex items-center gap-2">
+            <Plus size={16} />{t('epp.addMatrixEntry')}
+          </Button>
+        )}
+        {tab === 'loans' && (
+          <Button onClick={() => setShowLoanModal(true)} className="flex items-center gap-2">
+            <Plus size={16} /> Nuevo préstamo
+          </Button>
         )}
       </div>
 
@@ -294,17 +351,26 @@ export default function EppPage() {
       {/* Tabs + Entradas / Salidas */}
       <div className="flex items-center justify-between border-b border-gray-200">
         <div className="flex">
-          {['inventory', 'matrix'].map(t2 => (
+          {[
+            { key: 'inventory', label: t('epp.tabs.inventory') },
+            { key: 'matrix',    label: t('epp.tabs.matrix') },
+            { key: 'loans',     label: 'Préstamo' },
+          ].map(({ key, label }) => (
             <button
-              key={t2}
-              onClick={() => setTab(t2)}
+              key={key}
+              onClick={() => setTab(key)}
               className={`px-6 py-3 text-sm font-medium border-b-2 -mb-px transition-colors ${
-                tab === t2
+                tab === key
                   ? 'border-blue-600 text-blue-600'
                   : 'border-transparent text-gray-500 hover:text-gray-700'
               }`}
             >
-              {t(`epp.tabs.${t2}`)}
+              {label}
+              {key === 'loans' && loans.length > 0 && (
+                <span className="ml-1.5 text-xs bg-blue-100 text-blue-700 px-1.5 py-0.5 rounded-full">
+                  {loans.length}
+                </span>
+              )}
             </button>
           ))}
         </div>
@@ -434,7 +500,7 @@ export default function EppPage() {
           )}
         </div>
 
-      ) : (
+      ) : tab === 'matrix' ? (
 
         /* ── Matriz EPP ── */
         <div className="space-y-4">
@@ -501,7 +567,69 @@ export default function EppPage() {
             </div>
           ))}
         </div>
-      )}
+
+      ) : tab === 'loans' ? (
+
+        /* ── Préstamo tab ── */
+        <div className="space-y-4">
+          {loans.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-16 text-gray-400 border border-dashed border-gray-300 rounded-xl gap-3">
+              <PackageCheck size={40} className="text-gray-300" />
+              <p className="text-sm">No hay préstamos activos</p>
+            </div>
+          ) : loans.map(loan => (
+            <div key={loan.id} className="rounded-xl border border-gray-200 overflow-hidden bg-white">
+              {/* Loan header */}
+              <div className="flex items-center justify-between px-5 py-3 bg-blue-50 border-b border-blue-100">
+                <div className="flex items-center gap-3">
+                  <PackageCheck size={18} className="text-blue-600" />
+                  <div>
+                    <p className="font-semibold text-gray-900 text-sm">{loan.employeeName}</p>
+                    {loan.employeeArea && <p className="text-xs text-gray-500">{loan.employeeArea}</p>}
+                  </div>
+                </div>
+                <div className="flex items-center gap-4">
+                  <div className="text-right">
+                    <p className="text-xs text-gray-500">Fecha de préstamo</p>
+                    <p className="text-sm font-medium text-gray-800">{formatDate(loan.loanDate)}</p>
+                  </div>
+                  <button
+                    onClick={() => handleReturnLoan(loan.id, loan.employeeName)}
+                    className="flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors"
+                  >
+                    <Undo2 size={13} /> Devolver
+                  </button>
+                </div>
+              </div>
+              {/* Items */}
+              <div className="px-5 py-3">
+                <table className="w-full text-sm">
+                  <thead>
+                    <tr className="text-xs text-gray-400 font-semibold uppercase tracking-wider border-b border-gray-100">
+                      <th className="pb-2 text-left">Artículo</th>
+                      <th className="pb-2 text-center w-24">Cantidad</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-50">
+                    {loan.items.map(item => (
+                      <tr key={item.id}>
+                        <td className="py-2 text-gray-800">{item.eppItem.name}</td>
+                        <td className="py-2 text-center text-gray-600">
+                          {item.quantity} <span className="text-gray-400">{item.eppItem.unit}</span>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+                {loan.notes && (
+                  <p className="mt-2 text-xs text-gray-500 italic">Nota: {loan.notes}</p>
+                )}
+              </div>
+            </div>
+          ))}
+        </div>
+
+      ) : null }
 
       {/* ── Modal: Artículo EPP ── */}
       {showItemModal && (
@@ -819,6 +947,117 @@ export default function EppPage() {
                 <button type="button" onClick={() => setShowMatrixModal(false)} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">{t('common.cancel')}</button>
                 <button type="submit" disabled={saving} className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50">
                   {saving ? t('common.saving') : t('common.save')}
+                </button>
+              </div>
+            </form>
+          </div>
+        </div>
+      )}
+
+      {/* ── Modal: Nuevo Préstamo ── */}
+      {showLoanModal && (
+        <div className="fixed inset-0 bg-black/40 flex items-center justify-center z-50 p-4">
+          <div className="bg-white rounded-xl shadow-xl w-full max-w-lg max-h-[90vh] flex flex-col">
+            <div className="flex items-center justify-between p-5 border-b flex-shrink-0">
+              <div className="flex items-center gap-2">
+                <PackageCheck size={18} className="text-blue-600" />
+                <h2 className="text-lg font-semibold">Nuevo préstamo EPP</h2>
+              </div>
+              <button onClick={() => setShowLoanModal(false)} className="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
+            </div>
+
+            <form onSubmit={handleCreateLoan} className="p-5 space-y-4 overflow-y-auto flex-1">
+              {/* Solicitante */}
+              <div className="grid grid-cols-2 gap-3">
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+                  <input
+                    required className={INP} placeholder="Nombre completo"
+                    value={loanForm.employeeName}
+                    onChange={e => setLoanForm(p => ({ ...p, employeeName: e.target.value }))}
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Área / Puesto</label>
+                  <input
+                    className={INP} placeholder="Área o puesto"
+                    value={loanForm.employeeArea}
+                    onChange={e => setLoanForm(p => ({ ...p, employeeArea: e.target.value }))}
+                  />
+                </div>
+              </div>
+
+              {/* Artículos */}
+              <div>
+                <div className="flex items-center justify-between mb-2">
+                  <label className="block text-sm font-medium text-gray-700">Artículos en préstamo *</label>
+                  <button
+                    type="button" onClick={addLoanItem}
+                    className="text-xs text-blue-600 hover:underline flex items-center gap-1"
+                  >
+                    <Plus size={12} /> Agregar artículo
+                  </button>
+                </div>
+                <div className="space-y-2">
+                  {loanForm.items.map((item, idx) => (
+                    <div key={idx} className="flex items-center gap-2">
+                      <select
+                        className={`${INP} flex-1`}
+                        value={item.eppItemId}
+                        onChange={e => updateLoanItem(idx, 'eppItemId', e.target.value)}
+                      >
+                        <option value="">Selecciona artículo...</option>
+                        {items.map(i => (
+                          <option key={i.id} value={i.id}>{i.name}</option>
+                        ))}
+                      </select>
+                      <input
+                        type="number" min="1"
+                        className={`${INP} w-20`}
+                        value={item.quantity}
+                        onChange={e => updateLoanItem(idx, 'quantity', e.target.value)}
+                      />
+                      {loanForm.items.length > 1 && (
+                        <button
+                          type="button" onClick={() => removeLoanItem(idx)}
+                          className="p-1.5 rounded text-gray-400 hover:text-red-600 hover:bg-red-50 transition-colors flex-shrink-0"
+                        >
+                          <Trash2 size={14} />
+                        </button>
+                      )}
+                    </div>
+                  ))}
+                </div>
+              </div>
+
+              {/* Notas */}
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-1">Notas</label>
+                <input
+                  className={INP} placeholder="Observaciones (opcional)"
+                  value={loanForm.notes}
+                  onChange={e => setLoanForm(p => ({ ...p, notes: e.target.value }))}
+                />
+              </div>
+
+              {/* Info alerta */}
+              <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
+                <AlertTriangle size={14} className="mt-0.5 flex-shrink-0" />
+                Se generará una alerta indicando los artículos en préstamo y la fecha de entrega.
+              </div>
+
+              <div className="flex justify-end gap-3 pt-2 border-t">
+                <button
+                  type="button" onClick={() => setShowLoanModal(false)}
+                  className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
+                >
+                  Cancelar
+                </button>
+                <button
+                  type="submit" disabled={loanSaving}
+                  className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
+                >
+                  {loanSaving ? 'Guardando...' : 'Registrar préstamo'}
                 </button>
               </div>
             </form>
