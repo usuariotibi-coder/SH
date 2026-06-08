@@ -1002,7 +1002,7 @@ export default function EppPage() {
                   {loanForm.items.map((item, idx) => (
                     <div key={idx} className="flex items-center gap-2">
                       <select
-                        className={`${INP} flex-1`}
+                        className={`${INP} flex-1 min-w-0`}
                         value={item.eppItemId}
                         onChange={e => updateLoanItem(idx, 'eppItemId', e.target.value)}
                       >
@@ -1013,7 +1013,7 @@ export default function EppPage() {
                       </select>
                       <input
                         type="number" min="1"
-                        className={`${INP} w-20`}
+                        className={`${INP} !w-16 flex-shrink-0`}
                         value={item.quantity}
                         onChange={e => updateLoanItem(idx, 'quantity', e.target.value)}
                       />
