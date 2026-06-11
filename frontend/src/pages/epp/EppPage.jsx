@@ -423,7 +423,6 @@ export default function EppPage() {
                       <td className="px-4 py-3">
                         <div className="flex items-center gap-2 flex-wrap">
                           <span className="font-medium text-gray-900">{item.name}</span>
-                          <span className="text-xs px-1.5 py-0.5 bg-blue-100 text-blue-700 rounded-full">{item.category}</span>
                           {item.isLowStock && (
                             <span className="flex items-center gap-0.5 text-xs px-1.5 py-0.5 bg-orange-100 text-orange-700 rounded-full">
                               <TrendingDown size={10} /> Bajo stock

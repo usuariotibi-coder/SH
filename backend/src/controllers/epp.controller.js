@@ -69,7 +69,7 @@ const getItems = async (req, res, next) => {
 
     const annotated = items.map(item => ({
       ...item,
-      isLowStock:     item.currentStock <= item.minStock,
+      isLowStock:     item.minStock > 0 && item.currentStock <= item.minStock,
       totalUsers:     item.areaRequirements.reduce((s, r) => s + (r.userCount || 1), 0),
       inventoryValue: Math.round((fifoValue[item.id] || 0) * 100) / 100,
     }));
@@ -102,7 +102,7 @@ const getItem = async (req, res, next) => {
     if (!item) return res.status(404).json({ message: 'Artículo EPP no encontrado' });
 
     const inventoryValue = lots.reduce((s, l) => s + l.remaining * l.unitPrice, 0);
-    res.json({ ...item, isLowStock: item.currentStock <= item.minStock, inventoryValue: Math.round(inventoryValue * 100) / 100 });
+    res.json({ ...item, isLowStock: item.minStock > 0 && item.currentStock <= item.minStock, inventoryValue: Math.round(inventoryValue * 100) / 100 });
   } catch (err) { next(err); }
 };
 
