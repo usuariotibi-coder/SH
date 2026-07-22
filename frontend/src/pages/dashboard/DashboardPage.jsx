@@ -4,16 +4,13 @@ import {
   BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer,
   PieChart, Pie, Cell, Legend, LineChart, Line,
 } from 'recharts';
-import { FileText, AlertTriangle, GraduationCap, Siren, ShieldCheck, Bell, HardHat, TrendingUp, ShoppingCart, DollarSign } from 'lucide-react';
+import { AlertTriangle, GraduationCap, Siren, ShieldCheck, Bell, HardHat, TrendingUp, ShoppingCart, DollarSign } from 'lucide-react';
 import { KPICard } from '../../components/ui/Card';
 import Card from '../../components/ui/Card';
 import AlertsPanel from '../../components/shared/AlertsPanel';
 import usePageHeader from '../../hooks/usePageHeader';
 import api from '../../api/axios.config';
 import toast from 'react-hot-toast';
-
-const PIE_COLORS = { PENDING: '#fbbf24', IN_PROGRESS: '#60a5fa', COMPLETED: '#34d399', OVERDUE: '#f87171', NOT_APPLICABLE: '#94a3b8' };
-const PIE_LABELS = { PENDING: 'Pendiente', IN_PROGRESS: 'En proceso', COMPLETED: 'Cumplido', OVERDUE: 'Vencido', NOT_APPLICABLE: 'No aplica' };
 
 export default function DashboardPage() {
   const { t } = useTranslation();
@@ -51,15 +48,6 @@ export default function DashboardPage() {
 
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
-        <KPICard
-          title="Cumplimiento normativo"
-          value={`${kpis?.complianceRate || 0}%`}
-          subtitle={`${kpis?.completedRequirements} de ${kpis?.totalRequirements} requerimientos`}
-          icon={ShieldCheck}
-          iconBg="bg-green-50"
-          iconColor="text-green-600"
-          borderColor={kpis?.complianceRate >= 80 ? 'border-l-green-500' : kpis?.complianceRate >= 50 ? 'border-l-yellow-500' : 'border-l-red-500'}
-        />
         <KPICard
           title="Incidentes este mes"
           value={kpis?.incidentsMonth || 0}
@@ -104,15 +92,6 @@ export default function DashboardPage() {
           iconBg="bg-purple-50"
           iconColor="text-purple-600"
           borderColor={kpis?.avgFiveS >= 80 ? 'border-l-green-500' : 'border-l-yellow-500'}
-        />
-        <KPICard
-          title="Requerimientos vencidos"
-          value={kpis?.overdueRequirements || 0}
-          subtitle="Requieren atención inmediata"
-          icon={FileText}
-          iconBg="bg-red-50"
-          iconColor="text-red-600"
-          borderColor={kpis?.overdueRequirements > 0 ? 'border-l-red-500' : 'border-l-green-500'}
         />
         <KPICard
           title="Alertas activas"
@@ -179,26 +158,6 @@ export default function DashboardPage() {
 
       {/* Charts */}
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-        {/* Donut requerimientos */}
-        <Card>
-          <h3 className="text-base font-semibold font-display mb-4">Estado de Requerimientos</h3>
-          <ResponsiveContainer width="100%" height={260}>
-            <PieChart>
-              <Pie
-                data={charts?.requirementsByStatus?.map(r => ({ name: PIE_LABELS[r.status], value: r.count, status: r.status })) || []}
-                cx="50%" cy="50%" innerRadius={60} outerRadius={100}
-                dataKey="value"
-              >
-                {charts?.requirementsByStatus?.map((r, i) => (
-                  <Cell key={i} fill={PIE_COLORS[r.status] || '#94a3b8'} />
-                ))}
-              </Pie>
-              <Tooltip />
-              <Legend />
-            </PieChart>
-          </ResponsiveContainer>
-        </Card>
-
         {/* Incidentes por mes */}
         <Card>
           <h3 className="text-base font-semibold font-display mb-4">Incidentes por Mes (últimos 12)</h3>
@@ -209,20 +168,6 @@ export default function DashboardPage() {
               <YAxis tick={{ fontSize: 11 }} />
               <Tooltip />
               <Bar dataKey="count" fill="#e8622a" radius={[4, 4, 0, 0]} name="Incidentes" />
-            </BarChart>
-          </ResponsiveContainer>
-        </Card>
-
-        {/* Cumplimiento por área */}
-        <Card>
-          <h3 className="text-base font-semibold font-display mb-4">Cumplimiento por Área</h3>
-          <ResponsiveContainer width="100%" height={260}>
-            <BarChart data={charts?.areaCompliance || []} layout="vertical">
-              <CartesianGrid strokeDasharray="3 3" stroke="#f1f5f9" />
-              <XAxis type="number" domain={[0, 100]} tick={{ fontSize: 11 }} unit="%" />
-              <YAxis dataKey="area" type="category" tick={{ fontSize: 11 }} width={80} />
-              <Tooltip formatter={(v) => `${v}%`} />
-              <Bar dataKey="rate" fill="#1a4a6b" radius={[0, 4, 4, 0]} name="Cumplimiento %" />
             </BarChart>
           </ResponsiveContainer>
         </Card>

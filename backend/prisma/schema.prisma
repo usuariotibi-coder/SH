@@ -17,20 +17,14 @@ model Company {
   createdAt           DateTime             @default(now())
   updatedAt           DateTime             @updatedAt
   alerts              Alert[]
-  audits              Audit[]
   brigades            Brigade[]
   cmshMeetings        CMSHMeeting[]
   cmshMembers         CMSHMember[]
   drills              Drill[]
   fiveS               FiveS[]
   incidents           Incident[]
-  maintenances        Maintenance[]
-  requirements        Requirement[]
-  risks               Risk[]
-  program             SHProgram?
   trainings           Training[]
   users               User[]
-  suppliers           Supplier[]
   eppItems            EppItem[]
   eppAreaRequirements EppAreaRequirement[]
   eppLots             EppLot[]
@@ -38,90 +32,38 @@ model Company {
 }
 
 model User {
-  id                  String          @id @default(cuid())
-  email               String          @unique
-  name                String
-  password            String
-  role                Role            @default(AREA_MANAGER)
-  area                String?
-  isActive            Boolean         @default(true)
-  createdAt           DateTime        @default(now())
-  updatedAt           DateTime        @updatedAt
-  companyId           String
-  activities          Activity[]
-  brigadeMemberships  BrigadeMember[]
-  createdIncidents    Incident[]
-  createdRequirements Requirement[]
-  createdTrainings    Training[]
-  company             Company              @relation(fields: [companyId], references: [id])
-  reviewedDocuments   SupplierDocument[]
-  eppMovements        EppMovement[]
-}
-
-model Requirement {
-  id                         String            @id @default(cuid())
-  code                       String
-  name                       String
-  specificRequirement        String
-  legalSource                LegalSource
-  legalBasis                 String?
-  area                       String?
-  status                     RequirementStatus @default(PENDING)
-  dueDate                    DateTime?
-  completedAt                DateTime?
-  responsibleArea            String?
-  notes                      String?
-  createdAt                  DateTime          @default(now())
-  updatedAt                  DateTime          @updatedAt
-  companyId                  String
-  createdById                String
-  normName                   String?
-  normObjective              String?
-  applicabilityJustification String?
-  applicabilityScope         String?
-  activities                 Activity[]
-  evidences                  Evidence[]
-  company                    Company           @relation(fields: [companyId], references: [id])
-  createdBy                  User              @relation(fields: [createdById], references: [id])
-}
-
-model Activity {
-  id             String         @id @default(cuid())
-  description    String
-  dueDate        DateTime
-  completedAt    DateTime?
-  notes          String?
-  createdAt      DateTime       @default(now())
-  requirementId  String
-  userId         String
-  responsible    String         @default("")
-  activityStatus ActivityStatus @default(PENDING)
-  requirement    Requirement    @relation(fields: [requirementId], references: [id], onDelete: Cascade)
-  user           User           @relation(fields: [userId], references: [id])
-  evidences      Evidence[]
+  id                 String          @id @default(cuid())
+  email              String          @unique
+  name               String
+  password           String
+  role               Role            @default(AREA_MANAGER)
+  area               String?
+  isActive           Boolean         @default(true)
+  createdAt          DateTime        @default(now())
+  updatedAt          DateTime        @updatedAt
+  companyId          String
+  brigadeMemberships BrigadeMember[]
+  createdIncidents   Incident[]
+  createdTrainings   Training[]
+  company            Company         @relation(fields: [companyId], references: [id])
+  eppMovements       EppMovement[]
 }
 
 model Evidence {
-  id            String       @id @default(cuid())
-  fileName      String
-  fileUrl       String
-  publicId      String
-  fileType      EvidenceType
-  fileSizeKb    Int?
-  uploadedAt    DateTime     @default(now())
-  description   String?
-  requirementId String?
-  activityId    String?
-  incidentId    String?
-  drillId       String?
-  fiveSId       String?
-  auditId       String?
-  activity      Activity?    @relation(fields: [activityId], references: [id], onDelete: Cascade)
-  audit         Audit?       @relation(fields: [auditId], references: [id], onDelete: Cascade)
-  drill         Drill?       @relation(fields: [drillId], references: [id], onDelete: Cascade)
-  fiveS         FiveS?       @relation(fields: [fiveSId], references: [id], onDelete: Cascade)
-  incident      Incident?    @relation(fields: [incidentId], references: [id], onDelete: Cascade)
-  requirement   Requirement? @relation(fields: [requirementId], references: [id], onDelete: Cascade)
+  id          String       @id @default(cuid())
+  fileName    String
+  fileUrl     String
+  publicId    String
+  fileType    EvidenceType
+  fileSizeKb  Int?
+  uploadedAt  DateTime     @default(now())
+  description String?
+  incidentId  String?
+  drillId     String?
+  fiveSId     String?
+  drill       Drill?       @relation(fields: [drillId], references: [id], onDelete: Cascade)
+  fiveS       FiveS?       @relation(fields: [fiveSId], references: [id], onDelete: Cascade)
+  incident    Incident?    @relation(fields: [incidentId], references: [id], onDelete: Cascade)
 }
 
 model Incident {
@@ -248,77 +190,6 @@ model FiveS {
   company            Company    @relation(fields: [companyId], references: [id])
 }
 
-model Maintenance {
-  id           String            @id @default(cuid())
-  name         String
-  type         MaintenanceType
-  description  String?
-  frequency    String
-  lastDate     DateTime?
-  nextDate     DateTime
-  status       MaintenanceStatus @default(SCHEDULED)
-  responsible  String
-  completedAt  DateTime?
-  observations String?
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
-  companyId    String
-  company      Company           @relation(fields: [companyId], references: [id])
-}
-
-model Risk {
-  id               String    @id @default(cuid())
-  area             String
-  hazard           String
-  riskDescription  String
-  probability      Int
-  severity         Int
-  riskLevel        RiskLevel
-  currentControls  String?
-  proposedControls String?
-  responsible      String?
-  targetDate       DateTime?
-  isControlled     Boolean   @default(false)
-  createdAt        DateTime  @default(now())
-  updatedAt        DateTime  @updatedAt
-  companyId        String
-  company          Company   @relation(fields: [companyId], references: [id])
-}
-
-model Audit {
-  id          String      @id @default(cuid())
-  title       String
-  auditDate   DateTime
-  area        String
-  auditorName String
-  status      AuditStatus @default(PLANNED)
-  checklist   String
-  score       Float?
-  findings    String?
-  correctives String?
-  createdAt   DateTime    @default(now())
-  updatedAt   DateTime    @updatedAt
-  companyId   String
-  company     Company     @relation(fields: [companyId], references: [id])
-  evidences   Evidence[]
-}
-
-model SHProgram {
-  id          String    @id @default(cuid())
-  year        Int
-  objectives  String
-  scope       String?
-  budget      Float?
-  responsible String
-  approvedBy  String?
-  approvedAt  DateTime?
-  notes       String?
-  createdAt   DateTime  @default(now())
-  updatedAt   DateTime  @updatedAt
-  companyId   String    @unique
-  company     Company   @relation(fields: [companyId], references: [id])
-}
-
 model Alert {
   id          String    @id @default(cuid())
   type        AlertType
@@ -375,31 +246,6 @@ enum Role {
   EXECUTIVE
 }
 
-enum RequirementStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
-  OVERDUE
-  NOT_APPLICABLE
-}
-
-enum LegalSource {
-  NOM
-  IMSS
-  STPS
-  SEMARNAT
-  CIVIL_PROTECTION
-  MUNICIPAL
-  OTHER
-}
-
-enum ActivityStatus {
-  PENDING
-  IN_PROGRESS
-  COMPLETED
-  BLOCKED
-}
-
 enum EvidenceType {
   PHOTO
   PDF
@@ -438,41 +284,7 @@ enum DrillType {
   OTHER
 }
 
-enum MaintenanceStatus {
-  SCHEDULED
-  IN_PROGRESS
-  COMPLETED
-  OVERDUE
-}
-
-enum MaintenanceType {
-  EPP
-  EXTINGUISHER
-  FIRST_AID_KIT
-  ELECTRICAL
-  EQUIPMENT
-  VEHICLE
-  OTHER
-}
-
-enum RiskLevel {
-  LOW
-  MEDIUM
-  HIGH
-  CRITICAL
-}
-
-enum AuditStatus {
-  PLANNED
-  IN_PROGRESS
-  COMPLETED
-}
-
 enum AlertType {
-  REQUIREMENT_OVERDUE
-  REQUIREMENT_DUE_SOON
-  MAINTENANCE_OVERDUE
-  MAINTENANCE_DUE_SOON
   TRAINING_EXPIRING
   CMSH_MEETING_MISSING
   DRILL_PENDING
@@ -490,86 +302,6 @@ enum BrigadeMemberRole {
   COORDINATOR
   DEPUTY
   MEMBER
-}
-
-// ── Proveedores ───────────────────────────────────────────────────────────────
-
-enum SupplierStatus {
-  ACTIVE
-  INACTIVE
-  SUSPENDED
-}
-
-enum SupplierDocType {
-  SUA
-  REPSE
-  DC3
-  IMSS_ALTA
-  ACTA_CONSTITUTIVA
-  POLIZA_SEGURO
-  CONTRATO_SERVICIOS
-  OPINION_SAT
-  OTHER
-}
-
-enum SupplierDocStatus {
-  PENDING
-  UPLOADED
-  APPROVED
-  REJECTED
-  EXPIRED
-}
-
-model Supplier {
-  id               String               @id @default(cuid())
-  name             String
-  rfc              String?
-  address          String?
-  city             String?
-  state            String?
-  productsServices String               @db.Text
-  contactName      String?
-  phone            String?
-  email            String?
-  website          String?
-  status           SupplierStatus       @default(ACTIVE)
-  notes            String?              @db.Text
-  createdAt        DateTime             @default(now())
-  updatedAt        DateTime             @updatedAt
-  companyId        String
-  company          Company              @relation(fields: [companyId], references: [id])
-  accessToken      SupplierAccessToken?
-  documents        SupplierDocument[]
-}
-
-model SupplierAccessToken {
-  id         String    @id @default(cuid())
-  token      String    @unique @default(cuid())
-  isActive   Boolean   @default(true)
-  createdAt  DateTime  @default(now())
-  lastUsedAt DateTime?
-  supplierId String    @unique
-  supplier   Supplier  @relation(fields: [supplierId], references: [id])
-}
-
-model SupplierDocument {
-  id           String            @id @default(cuid())
-  docType      SupplierDocType
-  status       SupplierDocStatus @default(PENDING)
-  fileUrl      String?
-  publicId     String?
-  fileName     String?
-  uploadedAt   DateTime?
-  expiresAt    DateTime?
-  reviewedAt   DateTime?
-  reviewNotes  String?
-  period       String?
-  supplierId   String
-  supplier     Supplier          @relation(fields: [supplierId], references: [id], onDelete: Cascade)
-  reviewedById String?
-  reviewedBy   User?             @relation(fields: [reviewedById], references: [id])
-  createdAt    DateTime          @default(now())
-  updatedAt    DateTime          @updatedAt
 }
 
 // ── EPP ───────────────────────────────────────────────────────────────────────

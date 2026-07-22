@@ -15,7 +15,7 @@ const uploadEvidence = async (req, res, next) => {
   try {
     if (!req.file) return res.status(400).json({ error: true, message: 'No se recibió ningún archivo', code: 'NO_FILE' });
 
-    const { requirementId, activityId, incidentId, drillId, fiveSId, auditId, description } = req.body;
+    const { incidentId, drillId, fiveSId, description } = req.body;
 
     const result = await uploadToCloudinary(req.file.buffer, req.file.originalname, req.file.mimetype);
 
@@ -27,12 +27,9 @@ const uploadEvidence = async (req, res, next) => {
         fileType: getEvidenceType(req.file.mimetype),
         fileSizeKb: Math.round(req.file.size / 1024),
         description,
-        requirementId: requirementId || null,
-        activityId: activityId || null,
         incidentId: incidentId || null,
         drillId: drillId || null,
         fiveSId: fiveSId || null,
-        auditId: auditId || null,
       },
     });
 

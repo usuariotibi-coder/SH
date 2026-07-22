@@ -1,13 +1,8 @@
 import { useTranslation } from 'react-i18next';
 
 const TYPES = [
-  { key: 'requirement', labelKey: 'calendar.modules.requirement', color: '#1a4a6b' },
-  { key: 'activity',    labelKey: 'calendar.modules.activity',    color: '#2563a8' },
   { key: 'training',    labelKey: 'calendar.modules.training',    color: '#16a34a' },
   { key: 'drill',       labelKey: 'calendar.modules.drill',       color: '#d97706' },
-  { key: 'maintenance', labelKey: 'calendar.modules.maintenance', color: '#e8622a' },
-  { key: 'risk',        labelKey: 'calendar.modules.risk',        color: '#dc2626' },
-  { key: 'audit',       labelKey: 'calendar.modules.audit',       color: '#7c3aed' },
   { key: 'cmsh',        labelKey: 'calendar.modules.cmsh',        color: '#4d7c0f' },
 ];
 

@@ -1,10 +1,11 @@
 import { useState } from 'react';
 import {
-  LayoutDashboard, FileText, AlertTriangle, Users2, GraduationCap,
-  Siren, FlaskConical, Wrench, ShieldAlert, ClipboardCheck, BookOpen,
+  LayoutDashboard, AlertTriangle, Users2, GraduationCap,
+  Siren, FlaskConical,
   ChevronDown, ChevronRight, ArrowRight, Info, CheckCircle2, AlertCircle,
   Users, Building2, Shield, Bell, Upload, Search, Filter, PlusCircle,
-  Eye, Edit2, Trash2, Lock, Star, Zap, GitBranch
+  Eye, Edit2, Trash2, Lock, Star, Zap, GitBranch,
+  CalendarDays, UsersRound, HardHat
 } from 'lucide-react';
 
 /* ─── Datos de la guía ─────────────────────────────────── */
@@ -43,13 +44,13 @@ const MODULES = [
     steps: [
       {
         title: '¿Qué muestra el Dashboard?',
-        desc: 'Consolida los KPI más importantes: % cumplimiento normativo, incidentes del mes/año, capacitaciones activas, simulacros realizados, puntaje 5S promedio y alertas activas.',
-        tips: ['El % de cumplimiento = requerimientos COMPLETED / total', 'Los incidentes se cuentan por año calendario']
+        desc: 'Consolida los KPI más importantes: incidentes del mes/año, capacitaciones activas, simulacros realizados, puntaje 5S promedio, inventario EPP y alertas activas.',
+        tips: ['Los incidentes se cuentan por año calendario', 'Las alertas en rojo requieren atención inmediata']
       },
       {
         title: 'Gráficas disponibles',
-        desc: '4 gráficas principales: Distribución de requerimientos por estatus (dona), Incidentes por mes (barras), Cumplimiento por área (barras horizontales) y Tendencia 5S (líneas).',
-        tips: ['Hover sobre las gráficas para ver valores exactos', 'La tendencia 5S muestra los últimos 6 registros por área']
+        desc: '2 gráficas principales: Incidentes por mes (barras) y Tendencia 5S (líneas).',
+        tips: ['Hover sobre las gráficas para ver valores exactos', 'La tendencia 5S muestra los últimos registros por área']
       },
       {
         title: 'Panel de alertas',
@@ -60,34 +61,29 @@ const MODULES = [
     flow: null,
   },
   {
-    id: 'requirements',
-    icon: FileText,
-    color: '#2563eb',
-    title: 'Requerimientos Legales',
-    subtitle: 'Gestión de cumplimiento normativo (NOMs)',
+    id: 'calendar',
+    icon: CalendarDays,
+    color: '#0369a1',
+    title: 'Calendario',
+    subtitle: 'Vista unificada de todos los vencimientos',
     steps: [
       {
-        title: 'Crear un requerimiento',
-        desc: 'Clic en "+ Nuevo requerimiento". Llena: código NOM/norma, nombre, descripción, fuente legal, área responsable y fecha compromiso. Guarda para activarlo.',
-        tips: ['El código es único por empresa', 'La fuente legal puede ser NOM, STPS, IMSS, Reglamento o Interna']
+        title: '¿Qué muestra el calendario?',
+        desc: 'Consolida en una sola vista los eventos con fecha de vencimiento de los demás módulos: capacitaciones, simulacros, reuniones CMSH y certificaciones de brigadistas.',
+        tips: ['Cada tipo de evento tiene un color distinto, visible en la leyenda superior', 'Haz clic en cualquier evento para ver el detalle y saltar directo al módulo correspondiente']
       },
       {
-        title: 'Actualizar el estatus',
-        desc: 'El estatus avanza manualmente: PENDIENTE → EN_PROGRESO → COMPLETADO. Al marcar COMPLETADO se registra automáticamente la fecha de cierre.',
-        tips: ['VENCIDO se asigna automáticamente si la fecha compromiso pasa sin completarse', 'Puedes filtrar por estatus desde la barra de búsqueda']
+        title: 'Severidad de los eventos',
+        desc: 'Cada evento se clasifica automáticamente según qué tan cerca está su fecha: Vencido (ya pasó y sigue sin resolverse), Urgente (≤7 días), Próximo (≤30 días) o Normal.',
+        tips: ['Los eventos vencidos se muestran siempre, sin importar el mes que estés viendo, hasta que se resuelvan', 'Las tarjetas de resumen arriba del calendario cuentan el total de eventos por severidad']
       },
       {
-        title: 'Agregar actividades',
-        desc: 'Desde el detalle del requerimiento (clic en el nombre), agrega actividades de seguimiento con fecha y responsable.',
-        tips: ['Las actividades son el historial de acciones tomadas', 'Aparecen cronológicamente en el detalle']
-      },
-      {
-        title: 'Subir evidencias',
-        desc: 'En el detalle puedes adjuntar archivos (PDF, imágenes, Excel). Se almacenan en Cloudinary con tipo: PHOTO, DOCUMENT, VIDEO o OTHER.',
-        tips: ['Máximo 10 MB por archivo', 'Las evidencias son la prueba documental ante una auditoría']
+        title: 'Capacitaciones sin fecha de vencimiento',
+        desc: 'Si un curso no tiene fecha de expiración registrada, el calendario calcula una automáticamente: un año después de la fecha en que se impartió.',
+        tips: ['Esta regla solo aplica para graficar el evento; no modifica el registro original de la capacitación']
       },
     ],
-    flow: ['Crear NOM/norma', 'Asignar área y fecha', 'Registrar actividades', 'Subir evidencias', 'Marcar COMPLETADO'],
+    flow: ['Se acerca un vencimiento', 'Aparece en el calendario', 'Severidad se actualiza sola', 'Clic para ir al módulo', 'Resolver el pendiente'],
   },
   {
     id: 'incidents',
@@ -135,6 +131,26 @@ const MODULES = [
     flow: ['Registrar miembros', 'Agendar reunión mensual', 'Registrar acta', 'Documentar acuerdos'],
   },
   {
+    id: 'brigades',
+    icon: UsersRound,
+    color: '#be123c',
+    title: 'Brigadas de Emergencia',
+    subtitle: 'Primeros auxilios, evacuación y contra incendios',
+    steps: [
+      {
+        title: 'Integrantes por brigada',
+        desc: 'Cada empresa cuenta con brigadas fijas (Primeros auxilios, Evacuación, Contra incendios). Agrega integrantes con su rol — jefe, suplente o brigadista — y sus datos de certificación.',
+        tips: ['Solo puede haber un jefe de brigada activo por tipo', 'Un mismo colaborador puede pertenecer a más de una brigada']
+      },
+      {
+        title: 'Vigencia de certificaciones',
+        desc: 'Registra la fecha de certificación y su vencimiento. El sistema marca en el listado y en el calendario cuando una certificación está por vencer o ya venció.',
+        tips: ['Recertifica antes de que la certificación expire para no perder cobertura', 'El estatus de certificación se muestra con un badge de color por integrante']
+      },
+    ],
+    flow: ['Asignar integrantes', 'Registrar certificación', 'Monitorear vigencia', 'Recertificar antes del vencimiento'],
+  },
+  {
     id: 'training',
     icon: GraduationCap,
     color: '#059669',
@@ -178,7 +194,7 @@ const MODULES = [
     id: 'fiveS',
     icon: FlaskConical,
     color: '#0891b2',
-    title: 'Metodología 5S',
+    title: 'Auditorías 5S',
     subtitle: 'Auditorías de orden y limpieza',
     steps: [
       {
@@ -189,116 +205,56 @@ const MODULES = [
       {
         title: 'Las 5 dimensiones',
         desc: 'Seiri (Clasificar), Seiton (Ordenar), Seiso (Limpiar), Seiketsu (Estandarizar), Shitsuke (Disciplina). Cada una se evalúa del 1 al 5.',
-        tips: ['La gráfica RadarChart muestra visualmente las áreas de oportunidad', 'Registra una auditoría mensual por área para ver la tendencia']
+        tips: ['Registra una auditoría mensual por área para ver la tendencia']
+      },
+      {
+        title: 'Revisar el detalle de una auditoría',
+        desc: 'Selecciona una auditoría de la tabla: a la izquierda, debajo de la tabla, aparece la gráfica de radar con las 5 dimensiones; a la derecha se muestra el Plan de acción.',
+        tips: ['El Plan de acción incluye, por cada S, el Hallazgo, las Acciones inmediatas y la Mejora', 'Estos tres campos son editables directamente ahí, sin abrir otro formulario, salvo que la dimensión ya tenga calificación 5/5']
       },
     ],
-    flow: ['Seleccionar área', 'Evaluar 5 dimensiones (1-5)', 'Puntaje automático', 'Agregar observaciones', 'Ver tendencia'],
+    flow: ['Seleccionar área', 'Evaluar 5 dimensiones (1-5)', 'Puntaje automático', 'Documentar hallazgo y acciones', 'Ver tendencia'],
   },
   {
-    id: 'maintenance',
-    icon: Wrench,
-    color: '#9333ea',
-    title: 'Mantenimiento',
-    subtitle: 'Programa de mantenimiento preventivo/correctivo',
+    id: 'epp',
+    icon: HardHat,
+    color: '#c2410c',
+    title: 'EPP — Equipo de Protección Personal',
+    subtitle: 'Inventario, matriz de requerimientos y préstamos',
     steps: [
       {
-        title: 'Registrar un equipo',
-        desc: 'Crea el registro del equipo: nombre, tipo (PREVENTIVO, CORRECTIVO, PREDICTIVO), área, responsable, fecha de mantenimiento y próxima fecha programada.',
-        tips: ['La próxima fecha determina cuándo se genera la alerta', 'Los equipos VENCIDOS aparecen en rojo en el listado']
+        title: 'Inventario',
+        desc: 'Administra el catálogo de artículos de EPP: stock actual, mínimos y máximos, y su valor mediante costeo FIFO. Los artículos bajo el mínimo se marcan automáticamente como "Bajo stock".',
+        tips: ['Registra entradas y salidas desde el detalle de cada artículo', 'También puedes cargar movimientos masivos por CSV']
       },
       {
-        title: 'Actualizar estatus',
-        desc: 'Cambia el estatus a COMPLETADO cuando se realice el mantenimiento. El sistema recalcula automáticamente la alerta para la próxima fecha.',
-        tips: ['PENDIENTE = programado pero no ejecutado', 'VENCIDO = la fecha pasó sin completarse', 'Adjunta el reporte técnico como evidencia']
+        title: 'Matriz EPP',
+        desc: 'Define qué equipo de protección corresponde a cada puesto o área, como referencia para auditorías y entregas.',
+      },
+      {
+        title: 'Préstamos',
+        desc: 'Registra la entrega de EPP a un colaborador y su devolución posterior.',
+        tips: ['El botón "+" de la parte superior cambia según la pestaña activa: Inventario, Matriz o Préstamo', 'Solo Admin, Especialista SH y Responsable de área pueden registrar préstamos y movimientos']
       },
     ],
-    flow: ['Registrar equipo', 'Programar fecha', 'Alerta automática', 'Ejecutar mantenimiento', 'Actualizar a COMPLETADO'],
-  },
-  {
-    id: 'risks',
-    icon: ShieldAlert,
-    color: '#e8622a',
-    title: 'Gestión de Riesgos',
-    subtitle: 'Identificación y control de riesgos laborales',
-    steps: [
-      {
-        title: 'Identificar un riesgo',
-        desc: 'Registra: área, descripción del riesgo, probabilidad (1-5) y severidad (1-5). El nivel de riesgo se calcula automáticamente: BAJO, MEDIO, ALTO o CRÍTICO.',
-        tips: ['Probabilidad × Severidad = Puntuación', '≥17 = CRÍTICO (rojo), 10-16 = ALTO (naranja), 5-9 = MEDIO (amarillo), 1-4 = BAJO (verde)']
-      },
-      {
-        title: 'Definir controles',
-        desc: 'Documenta las medidas de control implementadas y marca "¿Controlado?" cuando el riesgo tenga controles activos. Asigna un responsable.',
-        tips: ['Los riesgos no controlados de nivel ALTO/CRÍTICO deben atenderse de inmediato', 'Revisa y actualiza los riesgos al menos trimestralmente']
-      },
-    ],
-    flow: ['Identificar riesgo', 'Evaluar probabilidad × severidad', 'Definir controles', 'Asignar responsable', 'Marcar como controlado'],
-  },
-  {
-    id: 'audits',
-    icon: ClipboardCheck,
-    color: '#0f766e',
-    title: 'Auditorías Internas',
-    subtitle: 'Auditorías formales del sistema SH',
-    steps: [
-      {
-        title: 'Planear una auditoría',
-        desc: 'Crea la auditoría con tipo (INTERNA, EXTERNA, CERTIFICACIÓN), alcance y fecha programada. Queda en estatus PLANIFICADA.',
-        tips: ['Define claramente el alcance: ¿qué áreas/procesos se auditarán?', 'Asigna un auditor líder responsable']
-      },
-      {
-        title: 'Construir el checklist',
-        desc: 'Agrega las preguntas del checklist con categoría y pregunta. Durante la auditoría, marca cada punto como CONFORME, NO_CONFORME u OBSERVACIÓN.',
-        tips: ['Las no conformidades deben tener un hallazgo documentado', 'El % de conformidad se calcula automáticamente']
-      },
-      {
-        title: 'Cerrar la auditoría',
-        desc: 'Cuando completes el checklist, agrega la puntuación total, hallazgos generales y conclusiones. Cambia el estatus a COMPLETADA.',
-        tips: ['Las no conformidades deben generar acciones correctivas (vinculadas con el módulo de Requerimientos)', 'Guarda el reporte final como evidencia']
-      },
-    ],
-    flow: ['Planear alcance', 'Crear checklist', 'Ejecutar auditoría', 'Registrar hallazgos', 'Generar informe final'],
-  },
-  {
-    id: 'program',
-    icon: BookOpen,
-    color: '#1a4a6b',
-    title: 'Programa Anual SH',
-    subtitle: 'Programa de Seguridad e Higiene del año',
-    steps: [
-      {
-        title: '¿Qué es el Programa SH?',
-        desc: 'Es el documento maestro anual que define objetivos, metas, actividades planeadas, presupuesto y responsables del sistema de SH. Obligatorio por NOM-030-STPS.',
-        tips: ['Debe elaborarse antes de iniciar el año o al inicio del mismo', 'Es el documento que integra todos los demás módulos']
-      },
-      {
-        title: 'Crear el programa',
-        desc: 'Define el año, objetivos generales, metas medibles, actividades con fechas y presupuesto asignado. Puedes adjuntar el documento formal en PDF.',
-        tips: ['El % de avance se actualiza manualmente conforme se van cumpliendo las actividades', 'Vincula las actividades con los requerimientos normativos']
-      },
-    ],
-    flow: ['Definir objetivos', 'Establecer metas', 'Asignar presupuesto', 'Registrar actividades', 'Monitorear avance'],
+    flow: ['Definir matriz por puesto', 'Registrar entrada a inventario', 'Prestar a colaborador', 'Registrar devolución', 'Reabastecer bajo mínimo'],
   },
 ];
 
 const ROLES = [
   { role: 'ADMIN', color: '#7c3aed', desc: 'Acceso total. Gestiona empresas y usuarios. Puede ver y editar todos los módulos de todas las empresas.' },
   { role: 'SH_SPECIALIST', color: '#2563eb', desc: 'Acceso completo a todos los módulos de su empresa. Crea, edita y elimina registros.' },
-  { role: 'AREA_MANAGER', color: '#059669', desc: 'Puede ver todos los módulos y crear/editar registros. No puede eliminar ni acceder a administración.' },
-  { role: 'AUDITOR', color: '#d97706', desc: 'Solo lectura en todos los módulos. Puede crear y llenar checklists de Auditorías.' },
+  { role: 'AREA_MANAGER', color: '#059669', desc: 'Puede ver todos los módulos y crear/editar registros — incluyendo Simulacros, 5S y EPP. No puede eliminar registros ni acceder a administración.' },
+  { role: 'AUDITOR', color: '#d97706', desc: 'Solo lectura en todos los módulos.' },
   { role: 'EXECUTIVE', color: '#9333ea', desc: 'Solo lectura. Acceso al Dashboard y reportes consolidados.' },
 ];
 
 const INFO_FLOW = [
-  { from: 'Requerimientos', to: 'Dashboard', desc: '% cumplimiento' },
   { from: 'Incidentes', to: 'Dashboard', desc: 'KPIs incidentes' },
   { from: 'Capacitación', to: 'Dashboard', desc: 'Alertas vencimiento' },
   { from: 'Simulacros', to: 'Dashboard', desc: 'Tasa simulacros' },
   { from: '5S', to: 'Dashboard', desc: 'Puntaje promedio' },
-  { from: 'Mantenimiento', to: 'Alertas', desc: 'Equipos vencidos' },
   { from: 'CMSH', to: 'Alertas', desc: 'Reuniones faltantes' },
-  { from: 'Riesgos', to: 'Auditorías', desc: 'Hallazgos → riesgos' },
-  { from: 'Auditorías', to: 'Requerimientos', desc: 'No conformidades' },
 ];
 
 /* ─── Componente principal ─────────────────────────────── */
@@ -466,14 +422,12 @@ export default function GuidePage() {
                   </div>
 
                   {/* Módulos que alimentan al dashboard */}
-                  <div className="grid grid-cols-3 gap-3 w-full mb-6">
+                  <div className="grid grid-cols-2 gap-3 w-full mb-6">
                     {[
-                      { label: 'Requerimientos', desc: '% cumplimiento', color: '#2563eb', Icon: FileText },
                       { label: 'Incidentes', desc: 'KPIs y días perdidos', color: '#dc2626', Icon: AlertTriangle },
                       { label: 'Capacitación', desc: 'Cursos y vencimientos', color: '#059669', Icon: GraduationCap },
                       { label: 'Simulacros', desc: 'Tasa de ejecución', color: '#d97706', Icon: Siren },
                       { label: '5S', desc: 'Puntaje y tendencia', color: '#0891b2', Icon: FlaskConical },
-                      { label: 'Mantenimiento', desc: 'Equipos vencidos', color: '#9333ea', Icon: Wrench },
                     ].map(({ label, desc, color, Icon }) => (
                       <div
                         key={label}
@@ -524,14 +478,14 @@ export default function GuidePage() {
                   <div>
                     <p className="font-semibold text-green-800 text-sm">Orden recomendado de configuración inicial</p>
                     <div className="mt-2 flex flex-wrap gap-2">
-                      {['1. Empresa', '2. Usuarios', '3. Requerimientos', '4. CMSH', '5. Riesgos', '6. Programa SH', '7. Capacitación', '8. Mantenimiento'].map(s => (
+                      {['1. Empresa', '2. Usuarios', '3. CMSH', '4. Capacitación', '5. Simulacros', '6. 5S y EPP'].map(s => (
                         <span key={s} className="text-xs px-2 py-1 rounded-md font-medium text-green-800" style={{ background: '#bbf7d0' }}>
                           {s}
                         </span>
                       ))}
                     </div>
                     <p className="text-xs text-green-700 mt-2">
-                      Los módulos de Simulacros, 5S y Auditorías se alimentan durante la operación normal del sistema.
+                      Los módulos de Brigadas, Simulacros y 5S se alimentan durante la operación normal del sistema.
                     </p>
                   </div>
                 </div>

@@ -44,32 +44,8 @@ const getCalendarEvents = async (req, res, next) => {
     const rangeStart = req.query.start ? new Date(req.query.start) : subDays(now, 30);
     const rangeEnd   = req.query.end   ? new Date(req.query.end)   : addDays(now, 90);
 
-    const [requirements, activities, trainings, drills, maintenances, risks, audits, cmshMeetings, brigadeMembers, supplierDocs] =
+    const [trainings, drills, cmshMeetings, brigadeMembers] =
       await Promise.all([
-        prisma.requirement.findMany({
-          where: {
-            companyId,
-            status: { not: 'COMPLETED' },
-            OR: [{ dueDate: { gte: rangeStart, lte: rangeEnd } }, { dueDate: { lt: now } }],
-          },
-          select: { id: true, code: true, name: true, dueDate: true, status: true, responsibleArea: true },
-        }),
-
-        prisma.activity.findMany({
-          where: {
-            requirement: { companyId },
-            activityStatus: { not: 'COMPLETED' },
-            OR: [{ dueDate: { gte: rangeStart, lte: rangeEnd } }, { dueDate: { lt: now } }],
-          },
-          select: {
-            id: true,
-            description: true,
-            responsible: true,
-            dueDate: true,
-            requirement: { select: { id: true, code: true, responsibleArea: true } },
-          },
-        }),
-
         prisma.training.findMany({
           where: { companyId },
           select: { id: true, name: true, expirationDate: true, trainingDate: true, instructor: true },
@@ -82,33 +58,6 @@ const getCalendarEvents = async (req, res, next) => {
             OR: [{ plannedDate: { gte: rangeStart, lte: rangeEnd } }, { plannedDate: { lt: now } }],
           },
           select: { id: true, type: true, plannedDate: true },
-        }),
-
-        prisma.maintenance.findMany({
-          where: {
-            companyId,
-            status: { not: 'COMPLETED' },
-            OR: [{ nextDate: { gte: rangeStart, lte: rangeEnd } }, { nextDate: { lt: now } }],
-          },
-          select: { id: true, name: true, nextDate: true, responsible: true, status: true },
-        }),
-
-        prisma.risk.findMany({
-          where: {
-            companyId,
-            isControlled: false,
-            OR: [{ targetDate: { gte: rangeStart, lte: rangeEnd } }, { targetDate: { lt: now } }],
-          },
-          select: { id: true, hazard: true, targetDate: true, area: true, responsible: true, riskLevel: true },
-        }),
-
-        prisma.audit.findMany({
-          where: {
-            companyId,
-            status: { in: ['PLANNED', 'IN_PROGRESS'] },
-            OR: [{ auditDate: { gte: rangeStart, lte: rangeEnd } }, { auditDate: { lt: now } }],
-          },
-          select: { id: true, title: true, auditDate: true, status: true },
         }),
 
         prisma.cMSHMeeting.findMany({
@@ -132,51 +81,9 @@ const getCalendarEvents = async (req, res, next) => {
             brigade: { select: { type: true } },
           },
         }),
-
-        prisma.supplierDocument.findMany({
-          where: {
-            supplier: { companyId },
-            status: { in: ['UPLOADED', 'APPROVED'] },
-            OR: [{ expiresAt: { gte: rangeStart, lte: rangeEnd } }, { expiresAt: { lt: now } }],
-          },
-          select: {
-            id: true,
-            docType: true,
-            expiresAt: true,
-            supplier: { select: { id: true, name: true } },
-          },
-        }),
       ]);
 
     const events = [
-      ...requirements.map(r => ({
-        id: `req-${r.id}`,
-        title: `${r.code} — ${truncate(r.name, 30)}`,
-        date: r.dueDate,
-        type: 'requirement',
-        status: r.status,
-        severity: getSeverity(r.dueDate),
-        module: 'Requerimientos',
-        area: r.responsibleArea || '',
-        sourceId: r.id,
-        url: `/requirements/${r.id}`,
-      })),
-
-      ...activities.map(a => ({
-        id: `act-${a.id}`,
-        title: `Actividad: ${truncate(a.description, 40)}`,
-        date: a.dueDate,
-        type: 'activity',
-        status: 'PENDING',
-        severity: getSeverity(a.dueDate),
-        module: 'Actividades',
-        area: a.requirement?.responsibleArea || '',
-        responsible: a.responsible || '',
-        parentCode: a.requirement?.code || '',
-        sourceId: a.requirement?.id || a.id,
-        url: `/requirements/${a.requirement?.id}`,
-      })),
-
       ...trainings
         .map(t => ({ ...t, effectiveExpiration: t.expirationDate || addYears(t.trainingDate, 1) }))
         .filter(t => (t.effectiveExpiration >= rangeStart && t.effectiveExpiration <= rangeEnd) || t.effectiveExpiration < now)
@@ -206,45 +113,6 @@ const getCalendarEvents = async (req, res, next) => {
         url: `/drills`,
       })),
 
-      ...maintenances.map(m => ({
-        id: `maint-${m.id}`,
-        title: `Mantenimiento: ${truncate(m.name, 35)}`,
-        date: m.nextDate,
-        type: 'maintenance',
-        status: m.status,
-        severity: getSeverity(m.nextDate),
-        module: 'Mantenimiento',
-        area: '',
-        sourceId: m.id,
-        url: `/maintenance`,
-      })),
-
-      ...risks.map(r => ({
-        id: `risk-${r.id}`,
-        title: `Control de riesgo: ${truncate(r.hazard, 35)}`,
-        date: r.targetDate,
-        type: 'risk',
-        status: r.riskLevel,
-        severity: getSeverity(r.targetDate),
-        module: 'Gestión de Riesgos',
-        area: r.area || '',
-        sourceId: r.id,
-        url: `/risks`,
-      })),
-
-      ...audits.map(a => ({
-        id: `audit-${a.id}`,
-        title: `Auditoría: ${truncate(a.title, 35)}`,
-        date: a.auditDate,
-        type: 'audit',
-        status: a.status,
-        severity: getSeverity(a.auditDate),
-        module: 'Auditorías',
-        area: '',
-        sourceId: a.id,
-        url: `/audits`,
-      })),
-
       ...cmshMeetings.map(m => ({
         id: `cmsh-${m.id}`,
         title: 'Reunión CMSH',
@@ -269,19 +137,6 @@ const getCalendarEvents = async (req, res, next) => {
         area: 'Seguridad e Higiene',
         sourceId: b.id,
         url: `/brigades`,
-      })),
-
-      ...supplierDocs.map(d => ({
-        id: `supdoc-${d.id}`,
-        title: `Doc. proveedor: ${d.docType} — ${truncate(d.supplier?.name, 25)}`,
-        date: d.expiresAt,
-        type: 'supplier',
-        status: 'EXPIRING',
-        severity: getSeverity(d.expiresAt),
-        module: 'Proveedores',
-        area: '',
-        sourceId: d.supplier?.id || d.id,
-        url: `/suppliers/${d.supplier?.id}`,
       })),
     ].sort((a, b) => new Date(a.date) - new Date(b.date));
 

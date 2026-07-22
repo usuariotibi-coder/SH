@@ -1,28 +1,22 @@
 import { NavLink } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import {
-  LayoutDashboard, FileText, AlertTriangle, Users2, GraduationCap,
-  Siren, FlaskConical, Wrench, ShieldAlert, ClipboardCheck, BookOpen,
+  LayoutDashboard, AlertTriangle, Users2, GraduationCap,
+  Siren, FlaskConical,
   Users, Building2, Shield, HelpCircle, CalendarDays,
-  PanelLeftClose, PanelLeftOpen, UsersRound, Truck, HardHat,
+  PanelLeftClose, PanelLeftOpen, UsersRound, HardHat,
 } from 'lucide-react';
 import usePermissions from '../../hooks/usePermissions';
 
 const NAV_ITEMS = [
   { path: '/dashboard', icon: LayoutDashboard, key: 'dashboard' },
   { path: '/calendar', icon: CalendarDays, key: 'calendar' },
-  { path: '/requirements', icon: FileText, key: 'requirements' },
   { path: '/incidents', icon: AlertTriangle, key: 'incidents' },
   { path: '/cmsh', icon: Users2, key: 'cmsh' },
   { path: '/brigades', icon: UsersRound, key: 'brigades' },
   { path: '/training', icon: GraduationCap, key: 'training' },
   { path: '/drills', icon: Siren, key: 'drills' },
   { path: '/five-s', icon: FlaskConical, key: 'fiveS' },
-  { path: '/maintenance', icon: Wrench, key: 'maintenance' },
-  { path: '/risks', icon: ShieldAlert, key: 'risks' },
-  { path: '/audits', icon: ClipboardCheck, key: 'audits' },
-  { path: '/program', icon: BookOpen, key: 'program' },
-  { path: '/suppliers', icon: Truck, key: 'suppliers' },
   { path: '/epp', icon: HardHat, key: 'epp' },
   { path: '/guide', icon: HelpCircle, key: 'guide' },
 ];

@@ -29,28 +29,21 @@ const nextFolio = () => `INC-${year}-${String(++incidentCounter).padStart(3, '0'
 // ─── Limpieza en orden inverso de FK ─────────────────────────────────────────
 
 async function cleanDB() {
-  await prisma.alert.deleteMany();
   await prisma.evidence.deleteMany();
-  await prisma.activity.deleteMany();
-  await prisma.requirement.deleteMany();
   await prisma.incident.deleteMany();
   await prisma.cMSHMeeting.deleteMany();
   await prisma.cMSHMember.deleteMany();
   await prisma.training.deleteMany();
   await prisma.drill.deleteMany();
   await prisma.fiveS.deleteMany();
-  await prisma.maintenance.deleteMany();
-  await prisma.risk.deleteMany();
-  await prisma.audit.deleteMany();
-  await prisma.sHProgram.deleteMany();
   await prisma.brigadeMember.deleteMany();
   await prisma.brigade.deleteMany();
   await prisma.eppMovement.deleteMany();
   await prisma.eppAreaRequirement.deleteMany();
+  await prisma.eppLoanItem.deleteMany();
+  await prisma.eppLoan.deleteMany();
+  await prisma.eppLot.deleteMany();
   await prisma.eppItem.deleteMany();
-  await prisma.supplierDocument.deleteMany();
-  await prisma.supplierAccessToken.deleteMany();
-  await prisma.supplier.deleteMany();
   await prisma.user.deleteMany();
   await prisma.company.deleteMany();
   console.log('🗑  Base de datos limpiada');
@@ -647,28 +640,6 @@ async function createProgramC1(companyId) {
 // ─── Datos reducidos para empresas 2 y 3 ─────────────────────────────────────
 
 async function createDataForCompany(companyId, userId, companyIndex) {
-  // 5 requerimientos
-  const reqsData = [
-    { code: `NOM-017-STPS-2008`, name: 'Equipo de Protección Personal', status: 'COMPLETED', daysOffset: -30 },
-    { code: `NOM-002-STPS-2010`, name: 'Prevención y protección contra incendios', status: 'IN_PROGRESS', daysOffset: 45 },
-    { code: `NOM-019-STPS-2011`, name: 'Comisión Mixta de Seguridad e Higiene', status: 'PENDING', daysOffset: 60 },
-    { code: `NOM-035-STPS-2018`, name: 'Factores de riesgo psicosocial', status: 'OVERDUE', daysOffset: -10 },
-    { code: `NOM-025-STPS-2008`, name: 'Condiciones de iluminación', status: 'NOT_APPLICABLE', daysOffset: null },
-  ];
-
-  for (const r of reqsData) {
-    await prisma.requirement.create({
-      data: {
-        code: r.code, name: r.name,
-        specificRequirement: `Cumplimiento de ${r.code}: ${r.name}.`,
-        legalSource: 'NOM', status: r.status,
-        dueDate: r.daysOffset !== null ? (r.daysOffset < 0 ? daysAgo(Math.abs(r.daysOffset)) : daysFrom(r.daysOffset)) : null,
-        completedAt: r.status === 'COMPLETED' ? daysAgo(25) : null,
-        companyId, createdById: userId,
-      },
-    });
-  }
-
   // 2 incidentes
   for (let i = 0; i < 2; i++) {
     await prisma.incident.create({
@@ -703,44 +674,6 @@ async function createDataForCompany(companyId, userId, companyIndex) {
       },
     });
   }
-
-  // 2 riesgos
-  const riskDefs = [
-    { area: 'Producción', hazard: 'Caída al mismo nivel', prob: 3, sev: 2, level: 'MEDIUM' },
-    { area: 'General', hazard: 'Incendio en área eléctrica', prob: 1, sev: 5, level: 'MEDIUM' },
-  ];
-  for (const r of riskDefs) {
-    await prisma.risk.create({
-      data: {
-        area: r.area, hazard: r.hazard,
-        riskDescription: faker.lorem.sentences(2),
-        probability: r.prob, severity: r.sev, riskLevel: r.level,
-        currentControls: 'Señalización básica.',
-        proposedControls: 'Implementar controles administrativos y de ingeniería.',
-        companyId,
-      },
-    });
-  }
-
-  // 1 auditoría COMPLETED
-  await prisma.audit.create({
-    data: {
-      title: `Auditoría SH General — ${companyIndex === 2 ? 'Constructora Edificar' : 'Servicios Nexo'}`,
-      auditDate: daysAgo(45),
-      area: 'General',
-      auditorName: faker.person.fullName(),
-      status: 'COMPLETED',
-      checklist: JSON.stringify([
-        { question: '¿Se cuenta con señalización de seguridad?', answer: 'yes', weight: 1, observations: '' },
-        { question: '¿El personal usa EPP correctamente?', answer: 'partial', weight: 2, observations: 'Se detectaron incumplimientos en área de trabajo.' },
-        { question: '¿Los extintores están vigentes?', answer: 'yes', weight: 2, observations: '' },
-      ]),
-      score: Math.round((2 / 3) * 100 * 10) / 10,
-      findings: 'Cumplimiento general aceptable. Se requiere reforzar el uso de EPP.',
-      correctives: 'Campaña de concientización sobre uso de EPP.',
-      companyId,
-    },
-  });
 }
 
 // ─── Brigadas ─────────────────────────────────────────────────────────────────
@@ -903,48 +836,7 @@ async function createBrigadesC1(companyId) {
   });
 }
 
-// ─── v1.6: Suppliers, EPP, Chemicals ────────────────────────────────────────
-
-async function createSuppliersC1(companyId, userId) {
-  const crypto = require('crypto');
-
-  const suppliers = await Promise.all([
-    prisma.supplier.create({ data: { name: 'Grupo Seguridad Industrial SA de CV', rfc: 'GSI201501ABC', address: 'Av. Revolución 1234', city: 'Monterrey', state: 'Nuevo León', productsServices: 'EPP, señalización de seguridad, extintores', contactName: 'Ing. Roberto Garza', phone: '81 1234 5678', email: 'rgarza@gruposi.mx', status: 'ACTIVE', companyId } }),
-    prisma.supplier.create({ data: { name: 'Químicos del Norte SA de CV', rfc: 'QNO180312DEF', address: 'Blvd. Industrial 567', city: 'Apodaca', state: 'Nuevo León', productsServices: 'Sustancias químicas industriales, solventes, lubricantes', contactName: 'Lic. Sandra Moreno', phone: '81 2345 6789', email: 'smoreno@quinor.mx', status: 'ACTIVE', companyId } }),
-    prisma.supplier.create({ data: { name: 'Transportes Especializados MX SA de CV', rfc: 'TEM200607GHI', address: 'Carretera Nacional km 12', city: 'Guadalupe', state: 'Nuevo León', productsServices: 'Transporte y disposición de residuos peligrosos', contactName: 'Sr. Carlos Vásquez', phone: '81 3456 7890', email: 'cvasquez@temx.mx', status: 'ACTIVE', companyId } }),
-    prisma.supplier.create({ data: { name: 'Consultores SH & Normatividad AC', rfc: 'CSN190823JKL', address: 'Torre Cibeles piso 8', city: 'San Pedro Garza García', state: 'Nuevo León', productsServices: 'Consultoría en seguridad, auditorías NOM, capacitación', contactName: 'Dr. Marco Hernández', phone: '81 4567 8901', email: 'mhernandez@consultoressh.mx', status: 'ACTIVE', companyId } }),
-    prisma.supplier.create({ data: { name: 'Mantenimiento Industrial del Norte SA de CV', rfc: 'MIN170415MNO', address: 'Parque Industrial Escobedo L-12', city: 'General Escobedo', state: 'Nuevo León', productsServices: 'Mantenimiento preventivo y correctivo, instalaciones eléctricas', contactName: 'Ing. Patricia Luna', phone: '81 5678 9012', email: 'pluna@mdin.mx', status: 'INACTIVE', companyId } }),
-  ]);
-
-  // Create access token for first supplier
-  await prisma.supplierAccessToken.create({
-    data: {
-      supplierId: suppliers[0].id,
-      token: crypto.randomBytes(24).toString('hex'),
-      isActive: true,
-    },
-  });
-
-  // Add some documents for supplier 1
-  await prisma.supplierDocument.createMany({
-    data: [
-      { supplierId: suppliers[0].id, docType: 'SUA', status: 'APPROVED', fileName: 'SUA_Oct2025.pdf', uploadedAt: daysAgo(20), expiresAt: daysFrom(10), period: 'Oct-2025', reviewedById: userId, reviewedAt: daysAgo(15) },
-      { supplierId: suppliers[0].id, docType: 'REPSE', status: 'APPROVED', fileName: 'REPSE_2025.pdf', uploadedAt: daysAgo(90), expiresAt: daysFrom(275) },
-      { supplierId: suppliers[0].id, docType: 'OPINION_SAT', status: 'UPLOADED', fileName: 'SAT_Nov2025.pdf', uploadedAt: daysAgo(2) },
-    ],
-  });
-
-  // Add documents for supplier 2
-  await prisma.supplierDocument.createMany({
-    data: [
-      { supplierId: suppliers[1].id, docType: 'SUA', status: 'PENDING' },
-      { supplierId: suppliers[1].id, docType: 'REPSE', status: 'UPLOADED', fileName: 'REPSE_Quinor.pdf', uploadedAt: daysAgo(5) },
-    ],
-  });
-
-  console.log(`  ✅ ${suppliers.length} proveedores creados`);
-  return suppliers;
-}
+// ─── EPP ────────────────────────────────────────────────────────────────────
 
 async function createEppC1(companyId, userId) {
   const items = await Promise.all([
@@ -1006,9 +898,6 @@ async function main() {
   console.log('👤 Usuarios creados: 10');
 
   // Empresa 1 — datos principales
-  const reqs = await createRequirementsC1(c1.id, esp1.id);
-  console.log(`📋 Requerimientos empresa 1: ${reqs.length}`);
-
   await createIncidentsC1(c1.id, esp1.id);
   console.log('⚠️  Incidentes empresa 1: 12');
 
@@ -1024,24 +913,8 @@ async function main() {
   await createFiveSC1(c1.id);
   console.log('⭐ Auditorías 5S empresa 1: 8');
 
-  await createMaintenanceC1(c1.id);
-  console.log('🔧 Mantenimientos empresa 1: 10');
-
-  await createRisksC1(c1.id);
-  console.log('⚡ Riesgos empresa 1: 10');
-
-  await createAuditsC1(c1.id);
-  console.log('📊 Auditorías empresa 1: 3');
-
-  await createProgramC1(c1.id);
-  console.log('📖 Programa SH empresa 1: 1');
-
   await createBrigadesC1(c1.id);
   console.log('🚒 Brigadas empresa 1: 4 brigadas, 23 integrantes');
-
-  // v1.6: Suppliers, EPP
-  const suppliers = await createSuppliersC1(c1.id, esp1.id);
-  console.log(`🚛 Proveedores empresa 1: ${suppliers.length}`);
 
   await createEppC1(c1.id, esp1.id);
   console.log('🪖 EPP empresa 1: 5 artículos, movimientos y matriz');
@@ -1054,27 +927,20 @@ async function main() {
   console.log('📦 Datos empresa 3 creados');
 
   // Conteos finales
-  const [totalReqs, totalInc, totalTrainings, totalDrills, total5S, totalMaint, totalRisks, totalAudits, totalUsers, totalMembers, totalMeetings] =
+  const [totalInc, totalTrainings, totalDrills, total5S, totalUsers, totalMembers, totalMeetings] =
     await Promise.all([
-      prisma.requirement.count(),
       prisma.incident.count(),
       prisma.training.count(),
       prisma.drill.count(),
       prisma.fiveS.count(),
-      prisma.maintenance.count(),
-      prisma.risk.count(),
-      prisma.audit.count(),
       prisma.user.count(),
       prisma.cMSHMember.count(),
       prisma.cMSHMeeting.count(),
     ]);
 
-  const [totalActivities, totalEvidences, totalBrigades, totalBrigadeMembers, totalSuppliers, totalEppItems] = await Promise.all([
-    prisma.activity.count(),
-    prisma.evidence.count(),
+  const [totalBrigades, totalBrigadeMembers, totalEppItems] = await Promise.all([
     prisma.brigade.count(),
     prisma.brigadeMember.count(),
-    prisma.supplier.count(),
     prisma.eppItem.count(),
   ]);
 
@@ -1082,23 +948,15 @@ async function main() {
   console.log('───────────────────────────────────────────');
   console.log(`Empresas creadas:           3`);
   console.log(`Usuarios creados:           ${totalUsers}`);
-  console.log(`Requerimientos:             ${totalReqs}  (20 empresa 1, 5 empresa 2, 5 empresa 3)`);
-  console.log(`Actividades:                ${totalActivities}`);
-  console.log(`Evidencias (placeholder):   ${totalEvidences}`);
   console.log(`Incidentes:                 ${totalInc}`);
   console.log(`Miembros CMSH:              ${totalMembers}`);
   console.log(`Actas CMSH:                 ${totalMeetings}`);
   console.log(`Capacitaciones:             ${totalTrainings}`);
   console.log(`Simulacros:                 ${totalDrills}`);
   console.log(`Auditorías 5S:              ${total5S}`);
-  console.log(`Mantenimientos:             ${totalMaint}`);
-  console.log(`Riesgos:                    ${totalRisks}`);
-  console.log(`Auditorías internas:        ${totalAudits}`);
   console.log(`Brigadas:                   ${totalBrigades}`);
   console.log(`Integrantes brigadas:       ${totalBrigadeMembers}`);
-  console.log(`Proveedores:                ${totalSuppliers}`);
   console.log(`Artículos EPP:              ${totalEppItems}`);
-  console.log(`PSH:                        1`);
   console.log('───────────────────────────────────────────');
   console.log('🔑 Credenciales de acceso:');
   console.log('   Admin:        admin@sh-app.mx / Admin1234!');

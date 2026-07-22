@@ -1,30 +1,20 @@
 import { useNavigate } from 'react-router-dom';
 import { X, Calendar, MapPin, User, Layers, ArrowRight,
   FileText, AlertTriangle, Users2, GraduationCap, Siren,
-  FlaskConical, Wrench, ShieldAlert, ClipboardCheck } from 'lucide-react';
+  FlaskConical } from 'lucide-react';
 import { format } from 'date-fns';
 import { es } from 'date-fns/locale';
 import { useTranslation } from 'react-i18next';
 
 const MODULE_ICONS = {
-  requirement: FileText,
-  activity:    FileText,
   training:    GraduationCap,
   drill:       Siren,
-  maintenance: Wrench,
-  risk:        ShieldAlert,
-  audit:       ClipboardCheck,
   cmsh:        Users2,
 };
 
 const TYPE_COLORS = {
-  requirement: '#1a4a6b',
-  activity:    '#2563a8',
   training:    '#16a34a',
   drill:       '#d97706',
-  maintenance: '#e8622a',
-  risk:        '#dc2626',
-  audit:       '#7c3aed',
   cmsh:        '#4d7c0f',
 };
 

@@ -29,13 +29,8 @@ const localizer = dateFnsLocalizer({
 
 /* ── Colores por tipo ───────────────────────────────────── */
 const TYPE_COLORS = {
-  requirement: '#1a4a6b',
-  activity:    '#2563a8',
   training:    '#16a34a',
   drill:       '#d97706',
-  maintenance: '#e8622a',
-  risk:        '#dc2626',
-  audit:       '#7c3aed',
   cmsh:        '#4d7c0f',
 };
 
