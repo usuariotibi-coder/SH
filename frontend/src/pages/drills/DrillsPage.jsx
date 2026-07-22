@@ -9,6 +9,7 @@ import Modal from '../../components/ui/Modal';
 import { Input, Select, Textarea } from '../../components/ui/DatePicker';
 import { formatDate, formatEvacTime } from '../../utils/formatDate';
 import usePermissions from '../../hooks/usePermissions';
+import usePageHeader from '../../hooks/usePageHeader';
 import api from '../../api/axios.config';
 
 const TYPES = ['FIRE', 'EARTHQUAKE', 'CHEMICAL_SPILL', 'MEDICAL_EMERGENCY', 'EVACUATION', 'OTHER'];
@@ -67,12 +68,12 @@ export default function DrillsPage() {
     )},
   ];
 
+  usePageHeader(t('drills.title'), canWrite() && (
+    <Button size="sm" onClick={openCreate}><Plus className="w-4 h-4" /> {t('drills.new')}</Button>
+  ));
+
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold font-display">{t('drills.title')}</h1>
-        {canWrite() && <Button onClick={openCreate}><Plus className="w-4 h-4" /> {t('drills.new')}</Button>}
-      </div>
       <Card padding={false}>
         <Table columns={columns} data={data.data} isLoading={loading} emptyMessage={t('common.noData')} />
         {data.totalPages > 1 && (

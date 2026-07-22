@@ -14,6 +14,7 @@ import { Input, Select, Textarea } from '../../components/ui/DatePicker';
 import { formatDate, daysUntil } from '../../utils/formatDate';
 import { computeRequirementStatus } from '../../utils/computeRequirementStatus';
 import usePermissions from '../../hooks/usePermissions';
+import usePageHeader from '../../hooks/usePageHeader';
 import api from '../../api/axios.config';
 
 const STATUSES = ['PENDING', 'IN_PROGRESS', 'COMPLETED', 'OVERDUE', 'NOT_APPLICABLE'];
@@ -275,13 +276,12 @@ export default function RequirementsPage() {
     )},
   ];
 
+  usePageHeader(t('requirements.title'), canWrite() && (
+    <Button size="sm" onClick={openCreate}><Plus className="w-4 h-4" /> {t('requirements.new')}</Button>
+  ));
+
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold font-display">{t('requirements.title')}</h1>
-        {canWrite() && <Button onClick={openCreate}><Plus className="w-4 h-4" /> {t('requirements.new')}</Button>}
-      </div>
-
       {/* Filters */}
       <Card padding={false}>
         <div className="p-4 flex flex-wrap gap-3 items-center border-b border-[var(--color-border)]">
@@ -331,7 +331,7 @@ export default function RequirementsPage() {
 
           {/* Datos principales */}
           <div className="grid grid-cols-2 gap-4">
-            <Input label={t('requirements.code')} required value={form.code} onChange={(e) => setForm(f => ({ ...f, code: e.target.value }))} placeholder="NOM-017-STPS-2008" />
+            <Input label={t('requirements.code')} required value={form.code} onChange={(e) => setForm(f => ({ ...f, code: e.target.value }))} />
             <Select label={t('requirements.legalSource')} required value={form.legalSource} onChange={(e) => setForm(f => ({ ...f, legalSource: e.target.value }))}>
               {SOURCES.map(s => <option key={s} value={s}>{t(`requirements.legalSources.${s}`)}</option>)}
             </Select>
@@ -381,7 +381,7 @@ export default function RequirementsPage() {
                         type="text"
                         value={form.normName || ''}
                         onChange={e => setForm(f => ({ ...f, normName: e.target.value }))}
-                        placeholder="Nombre oficial completo de la norma o disposición legal"
+                        placeholder={t('requirements.normInfo.normNamePlaceholder')}
                         className="w-full px-3 py-2 border rounded-[var(--radius-sm)] text-sm"
                         style={{ borderColor: 'var(--color-border)' }}
                       />
@@ -392,7 +392,7 @@ export default function RequirementsPage() {
                         rows={3}
                         value={form.normObjective || ''}
                         onChange={e => setForm(f => ({ ...f, normObjective: e.target.value }))}
-                        placeholder="¿Qué busca prevenir o regular esta norma?"
+                        placeholder={t('requirements.normInfo.normObjectivePlaceholder')}
                         className="w-full px-3 py-2 border rounded-[var(--radius-sm)] text-sm resize-y"
                         style={{ borderColor: 'var(--color-border)' }}
                       />
@@ -403,7 +403,7 @@ export default function RequirementsPage() {
                         rows={3}
                         value={form.applicabilityJustification || ''}
                         onChange={e => setForm(f => ({ ...f, applicabilityJustification: e.target.value }))}
-                        placeholder="¿Por qué aplica esta norma a la empresa?"
+                        placeholder={t('requirements.normInfo.applicabilityJustificationPlaceholder')}
                         className="w-full px-3 py-2 border rounded-[var(--radius-sm)] text-sm resize-y"
                         style={{ borderColor: 'var(--color-border)' }}
                       />
@@ -414,7 +414,7 @@ export default function RequirementsPage() {
                         rows={3}
                         value={form.applicabilityScope || ''}
                         onChange={e => setForm(f => ({ ...f, applicabilityScope: e.target.value }))}
-                        placeholder="Áreas, puestos o procesos a los que aplica"
+                        placeholder={t('requirements.normInfo.applicabilityScopePlaceholder')}
                         className="w-full px-3 py-2 border rounded-[var(--radius-sm)] text-sm resize-y"
                         style={{ borderColor: 'var(--color-border)' }}
                       />
@@ -426,7 +426,7 @@ export default function RequirementsPage() {
           })()}
 
           <div className="grid grid-cols-2 gap-4">
-            <Input label={t('requirements.legalBasis')} value={form.legalBasis} onChange={(e) => setForm(f => ({ ...f, legalBasis: e.target.value }))} placeholder="Art. 5, Fracc. II" />
+            <Input label={t('requirements.legalBasis')} value={form.legalBasis} onChange={(e) => setForm(f => ({ ...f, legalBasis: e.target.value }))} />
             <Input label={t('common.area')} value={form.area} onChange={(e) => setForm(f => ({ ...f, area: e.target.value }))} />
           </div>
 

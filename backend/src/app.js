@@ -41,8 +41,6 @@ app.use('/api/calendar', require('./routes/calendar.routes'));
 app.use('/api/brigades', require('./routes/brigade.routes'));
 app.use('/api/suppliers', require('./routes/supplier.routes'));
 app.use('/api/epp', require('./routes/epp.routes'));
-app.use('/api/chemicals', require('./routes/chemical.routes'));
-app.use('/api/hazmat', require('./routes/hazmat.routes'));
 app.use('/api/portal', require('./routes/portal.routes'));
 
 // Error handler

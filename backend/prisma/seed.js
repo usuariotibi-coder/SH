@@ -45,11 +45,6 @@ async function cleanDB() {
   await prisma.sHProgram.deleteMany();
   await prisma.brigadeMember.deleteMany();
   await prisma.brigade.deleteMany();
-  // v1.6 new models
-  await prisma.hazmatEvidence.deleteMany();
-  await prisma.hazmatDisposal.deleteMany();
-  await prisma.chemicalFile.deleteMany();
-  await prisma.chemicalProduct.deleteMany();
   await prisma.eppMovement.deleteMany();
   await prisma.eppAreaRequirement.deleteMany();
   await prisma.eppItem.deleteMany();
@@ -995,50 +990,6 @@ async function createEppC1(companyId, userId) {
   return items;
 }
 
-async function createChemicalsC1(companyId, supplierId, userId) {
-  const products = await Promise.all([
-    prisma.chemicalProduct.create({ data: { tradeName: 'Hexano técnico', chemicalName: 'n-Hexano', casNumber: '110-54-3', manufacturer: 'BASF', supplierId, ghsHazardClasses: ['Inflamable', 'Nocivo', 'Peligro ambiental'], physicalState: 'Líquido', storageLocation: 'Bodega 3 – área inflamables', maxStockKg: 500, companyId } }),
-    prisma.chemicalProduct.create({ data: { tradeName: 'Ácido sulfúrico industrial', chemicalName: 'Ácido sulfúrico H₂SO₄', casNumber: '7664-93-9', manufacturer: 'Químicos del Norte', supplierId, ghsHazardClasses: ['Corrosivo', 'Tóxico'], physicalState: 'Líquido', storageLocation: 'Bodega 4 – área ácidos', maxStockKg: 200, companyId } }),
-    prisma.chemicalProduct.create({ data: { tradeName: 'Aceite hidráulico ISO 46', chemicalName: 'Aceite mineral parafínico', casNumber: '64742-54-7', manufacturer: 'Pemex Lubricantes', ghsHazardClasses: [], physicalState: 'Líquido', storageLocation: 'Almacén general estante B4', maxStockKg: 1000, companyId } }),
-    prisma.chemicalProduct.create({ data: { tradeName: 'Sosa cáustica pellets', chemicalName: 'Hidróxido de sodio NaOH', casNumber: '1310-73-2', manufacturer: 'Chem-Mex SA de CV', ghsHazardClasses: ['Corrosivo'], physicalState: 'Sólido', storageLocation: 'Bodega 2 – área básicos', maxStockKg: 300, companyId } }),
-  ]);
-
-  // Hazmat disposal
-  await prisma.hazmatDisposal.create({
-    data: {
-      folio: `HM-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2,'0')}-0001`,
-      disposalDate: daysAgo(45),
-      wasteType: 'Solventes orgánicos usados',
-      wasteState: 'LIQUID',
-      quantityKg: 85.5,
-      manifestNumber: 'MNF-2025-00123',
-      transportCompany: 'Transportes Especializados MX SA de CV',
-      disposalMethod: 'Incineración en horno de alta temperatura',
-      productId: products[0].id,
-      companyId,
-      createdById: userId,
-    },
-  });
-
-  await prisma.hazmatDisposal.create({
-    data: {
-      folio: `HM-${new Date().getFullYear()}${String(new Date().getMonth()+1).padStart(2,'0')}-0002`,
-      disposalDate: daysAgo(10),
-      wasteType: 'Ácidos inorgánicos residuales',
-      wasteState: 'LIQUID',
-      quantityKg: 42.0,
-      transportCompany: 'Transportes Especializados MX SA de CV',
-      disposalMethod: 'Neutralización y confinamiento',
-      productId: products[1].id,
-      companyId,
-      createdById: userId,
-    },
-  });
-
-  console.log(`  ✅ ${products.length} sustancias químicas creadas y 2 disposiciones de residuos`);
-  return products;
-}
-
 // ─── Main ─────────────────────────────────────────────────────────────────────
 
 async function main() {
@@ -1088,15 +1039,12 @@ async function main() {
   await createBrigadesC1(c1.id);
   console.log('🚒 Brigadas empresa 1: 4 brigadas, 23 integrantes');
 
-  // v1.6: Suppliers, EPP, Chemicals
+  // v1.6: Suppliers, EPP
   const suppliers = await createSuppliersC1(c1.id, esp1.id);
   console.log(`🚛 Proveedores empresa 1: ${suppliers.length}`);
 
   await createEppC1(c1.id, esp1.id);
   console.log('🪖 EPP empresa 1: 5 artículos, movimientos y matriz');
-
-  await createChemicalsC1(c1.id, suppliers[1].id, esp1.id);
-  console.log('⚗️  Químicos empresa 1: 4 sustancias, 2 disposiciones');
 
   // Empresas 2 y 3
   await createDataForCompany(c2.id, esp2.id, 2);
@@ -1121,15 +1069,13 @@ async function main() {
       prisma.cMSHMeeting.count(),
     ]);
 
-  const [totalActivities, totalEvidences, totalBrigades, totalBrigadeMembers, totalSuppliers, totalEppItems, totalChemicals, totalDisposals] = await Promise.all([
+  const [totalActivities, totalEvidences, totalBrigades, totalBrigadeMembers, totalSuppliers, totalEppItems] = await Promise.all([
     prisma.activity.count(),
     prisma.evidence.count(),
     prisma.brigade.count(),
     prisma.brigadeMember.count(),
     prisma.supplier.count(),
     prisma.eppItem.count(),
-    prisma.chemicalProduct.count(),
-    prisma.hazmatDisposal.count(),
   ]);
 
   console.log('\n✅ Seed completado exitosamente');
@@ -1152,8 +1098,6 @@ async function main() {
   console.log(`Integrantes brigadas:       ${totalBrigadeMembers}`);
   console.log(`Proveedores:                ${totalSuppliers}`);
   console.log(`Artículos EPP:              ${totalEppItems}`);
-  console.log(`Sustancias químicas:        ${totalChemicals}`);
-  console.log(`Disposiciones residuos:     ${totalDisposals}`);
   console.log(`PSH:                        1`);
   console.log('───────────────────────────────────────────');
   console.log('🔑 Credenciales de acceso:');

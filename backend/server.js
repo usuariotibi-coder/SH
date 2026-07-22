@@ -5,7 +5,7 @@ const { generateAlerts } = require('./src/services/notification.service');
 const PORT = process.env.PORT || 3001;
 
 app.listen(PORT, () => {
-  console.log(`Servidor SH México corriendo en puerto ${PORT}`);
+  console.log(`Servidor MXQ-Safety corriendo en puerto ${PORT}`);
   console.log(`Ambiente: ${process.env.NODE_ENV || 'development'}`);
 
   // Generar alertas al iniciar y cada 6 horas

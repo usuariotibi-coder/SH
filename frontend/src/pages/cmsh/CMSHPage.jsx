@@ -9,6 +9,7 @@ import Modal from '../../components/ui/Modal';
 import { Input, Select, Textarea } from '../../components/ui/DatePicker';
 import { formatDate } from '../../utils/formatDate';
 import usePermissions from '../../hooks/usePermissions';
+import usePageHeader from '../../hooks/usePageHeader';
 import api from '../../api/axios.config';
 
 const ROLES = ['PRESIDENT', 'SECRETARY', 'WORKER_REP', 'EMPLOYER_REP'];
@@ -63,9 +64,9 @@ export default function CMSHPage() {
 
   const memberColumns = [
     { header: t('common.name'), accessor: 'name' },
-    { header: 'Puesto', accessor: 'position' },
-    { header: t('cmsh.members'), accessor: 'cmshRole', render: (v) => t(`cmsh.roles.${v}`) },
-    { header: 'Vigencia', accessor: 'startDate', render: (v, row) => `${formatDate(v)} — ${row.endDate ? formatDate(row.endDate) : 'Vigente'}` },
+    { header: t('cmsh.position'), accessor: 'position' },
+    { header: t('cmsh.roleLabel'), accessor: 'cmshRole', render: (v) => t(`cmsh.roles.${v}`) },
+    { header: t('cmsh.validity'), accessor: 'startDate', render: (v, row) => `${formatDate(v)} — ${row.endDate ? formatDate(row.endDate) : t('cmsh.active')}` },
     { header: t('users.isActive'), accessor: 'isActive', render: (v) => v ? <span className="text-green-600 text-xs font-medium">{t('common.yes')}</span> : <span className="text-gray-400 text-xs">{t('common.no')}</span> },
     { header: '', accessor: 'id', render: (v, row) => canWrite() && (
       <div className="flex gap-2">
@@ -77,8 +78,8 @@ export default function CMSHPage() {
 
   const meetingColumns = [
     { header: t('common.date'), accessor: 'meetingDate', render: (v) => formatDate(v) },
-    { header: 'Lugar', accessor: 'location' },
-    { header: 'Próxima reunión', accessor: 'nextMeeting', render: (v) => formatDate(v) },
+    { header: t('cmsh.location'), accessor: 'location' },
+    { header: t('cmsh.nextMeeting'), accessor: 'nextMeeting', render: (v) => formatDate(v) },
     { header: '', accessor: 'id', render: (v, row) => canWrite() && (
       <div className="flex gap-2">
         <button onClick={() => { setMeetingForm({ ...row, meetingDate: row.meetingDate?.slice(0, 10), nextMeeting: row.nextMeeting?.slice(0, 10) || '' }); setEditMeetingId(v); setShowMeetingModal(true); }} className="text-xs text-blue-600 hover:underline">{t('common.edit')}</button>
@@ -90,10 +91,16 @@ export default function CMSHPage() {
   const mf = (k, v) => setMemberForm(p => ({ ...p, [k]: v }));
   const mef = (k, v) => setMeetingForm(p => ({ ...p, [k]: v }));
 
+  usePageHeader(t('cmsh.title'), canWrite() && (
+    tab === 'members' ? (
+      <Button size="sm" onClick={() => { setMemberForm(EMPTY_MEMBER); setEditMemberId(null); setShowMemberModal(true); }}><Plus className="w-3.5 h-3.5" /> {t('cmsh.newMember')}</Button>
+    ) : (
+      <Button size="sm" onClick={() => { setMeetingForm(EMPTY_MEETING); setEditMeetingId(null); setShowMeetingModal(true); }}><Plus className="w-3.5 h-3.5" /> {t('cmsh.newMeeting')}</Button>
+    )
+  ));
+
   return (
     <div className="space-y-5">
-      <h1 className="text-2xl font-bold font-display">{t('cmsh.title')}</h1>
-
       {/* Tabs */}
       <div className="flex gap-1 p-1 bg-gray-100 rounded-lg w-fit">
         {[{ key: 'members', label: t('cmsh.members'), icon: Users2 }, { key: 'meetings', label: t('cmsh.meetings'), icon: FileText }].map(({ key, label, icon: Icon }) => (
@@ -106,18 +113,12 @@ export default function CMSHPage() {
 
       {tab === 'members' && (
         <Card padding={false}>
-          <div className="p-4 flex justify-end border-b border-[var(--color-border)]">
-            {canWrite() && <Button size="sm" onClick={() => { setMemberForm(EMPTY_MEMBER); setEditMemberId(null); setShowMemberModal(true); }}><Plus className="w-3.5 h-3.5" /> {t('cmsh.newMember')}</Button>}
-          </div>
           <Table columns={memberColumns} data={members} emptyMessage={t('common.noData')} />
         </Card>
       )}
 
       {tab === 'meetings' && (
         <Card padding={false}>
-          <div className="p-4 flex justify-end border-b border-[var(--color-border)]">
-            {canWrite() && <Button size="sm" onClick={() => { setMeetingForm(EMPTY_MEETING); setEditMeetingId(null); setShowMeetingModal(true); }}><Plus className="w-3.5 h-3.5" /> {t('cmsh.newMeeting')}</Button>}
-          </div>
           <Table columns={meetingColumns} data={meetings} emptyMessage={t('common.noData')} />
         </Card>
       )}
@@ -127,19 +128,19 @@ export default function CMSHPage() {
         <form onSubmit={saveMember} className="space-y-4">
           <Input label={t('common.name')} required value={memberForm.name} onChange={(e) => mf('name', e.target.value)} />
           <div className="grid grid-cols-2 gap-4">
-            <Input label="Puesto en empresa" required value={memberForm.position} onChange={(e) => mf('position', e.target.value)} />
-            <Select label="Rol en CMSH" required value={memberForm.cmshRole} onChange={(e) => mf('cmshRole', e.target.value)}>
+            <Input label={t('cmsh.position')} required value={memberForm.position} onChange={(e) => mf('position', e.target.value)} />
+            <Select label={t('cmsh.roleLabel')} required value={memberForm.cmshRole} onChange={(e) => mf('cmshRole', e.target.value)}>
               {ROLES.map(r => <option key={r} value={r}>{t(`cmsh.roles.${r}`)}</option>)}
             </Select>
           </div>
           <div className="grid grid-cols-2 gap-4">
             <Input label={t('users.email')} type="email" value={memberForm.email} onChange={(e) => mf('email', e.target.value)} />
-            <Input label="Teléfono" value={memberForm.phone} onChange={(e) => mf('phone', e.target.value)} />
+            <Input label={t('cmsh.phone')} value={memberForm.phone} onChange={(e) => mf('phone', e.target.value)} />
           </div>
           <div className="grid grid-cols-2 gap-4">
-            <div className="space-y-1"><label className="text-sm font-medium block">Inicio vigencia <span className="text-red-500">*</span></label>
+            <div className="space-y-1"><label className="text-sm font-medium block">{t('cmsh.startDate')} <span className="text-red-500">*</span></label>
               <input type="date" value={memberForm.startDate} onChange={(e) => mf('startDate', e.target.value)} className="w-full px-3 py-2 border border-[var(--color-border)] rounded-[var(--radius-sm)] text-sm" /></div>
-            <div className="space-y-1"><label className="text-sm font-medium block">Fin vigencia</label>
+            <div className="space-y-1"><label className="text-sm font-medium block">{t('cmsh.endDate')}</label>
               <input type="date" value={memberForm.endDate} onChange={(e) => mf('endDate', e.target.value)} className="w-full px-3 py-2 border border-[var(--color-border)] rounded-[var(--radius-sm)] text-sm" /></div>
           </div>
           <div className="flex justify-end gap-3"><Button variant="secondary" type="button" onClick={() => setShowMemberModal(false)}>{t('common.cancel')}</Button><Button type="submit" isLoading={saving}>{t('common.save')}</Button></div>
@@ -152,12 +153,12 @@ export default function CMSHPage() {
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1"><label className="text-sm font-medium block">{t('common.date')} <span className="text-red-500">*</span></label>
               <input type="date" value={meetingForm.meetingDate} onChange={(e) => mef('meetingDate', e.target.value)} className="w-full px-3 py-2 border border-[var(--color-border)] rounded-[var(--radius-sm)] text-sm" /></div>
-            <Input label="Lugar" required value={meetingForm.location} onChange={(e) => mef('location', e.target.value)} />
+            <Input label={t('cmsh.location')} required value={meetingForm.location} onChange={(e) => mef('location', e.target.value)} />
           </div>
-          <Textarea label="Orden del día" required value={meetingForm.agenda} onChange={(e) => mef('agenda', e.target.value)} rows={4} />
-          <Textarea label="Acuerdos y compromisos" value={meetingForm.agreements} onChange={(e) => mef('agreements', e.target.value)} rows={3} />
-          <Textarea label="Asistentes" value={meetingForm.attendees} onChange={(e) => mef('attendees', e.target.value)} rows={2} />
-          <div className="space-y-1"><label className="text-sm font-medium block">Próxima reunión</label>
+          <Textarea label={t('cmsh.agenda')} required value={meetingForm.agenda} onChange={(e) => mef('agenda', e.target.value)} rows={4} />
+          <Textarea label={t('cmsh.agreements')} value={meetingForm.agreements} onChange={(e) => mef('agreements', e.target.value)} rows={3} />
+          <Textarea label={t('cmsh.attendees')} value={meetingForm.attendees} onChange={(e) => mef('attendees', e.target.value)} rows={2} />
+          <div className="space-y-1"><label className="text-sm font-medium block">{t('cmsh.nextMeeting')}</label>
             <input type="date" value={meetingForm.nextMeeting} onChange={(e) => mef('nextMeeting', e.target.value)} className="w-full px-3 py-2 border border-[var(--color-border)] rounded-[var(--radius-sm)] text-sm" /></div>
           <div className="flex justify-end gap-3"><Button variant="secondary" type="button" onClick={() => setShowMeetingModal(false)}>{t('common.cancel')}</Button><Button type="submit" isLoading={saving}>{t('common.save')}</Button></div>
         </form>

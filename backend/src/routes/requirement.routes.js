@@ -16,9 +16,9 @@ router.delete('/:id', requireRole('ADMIN', 'SH_SPECIALIST'), ctrl.deleteRequirem
 router.patch('/:id', requireRole('ADMIN', 'SH_SPECIALIST'), ctrl.patchRequirement);
 
 // Activities
-router.post('/:requirementId/activities', ctrl.createActivity);
-router.put('/:requirementId/activities/:activityId', ctrl.updateActivity);
-router.delete('/:requirementId/activities/:activityId', ctrl.deleteActivity);
+router.post('/:requirementId/activities', requireRole('ADMIN', 'SH_SPECIALIST', 'AREA_MANAGER'), ctrl.createActivity);
+router.put('/:requirementId/activities/:activityId', requireRole('ADMIN', 'SH_SPECIALIST', 'AREA_MANAGER'), ctrl.updateActivity);
+router.delete('/:requirementId/activities/:activityId', requireRole('ADMIN', 'SH_SPECIALIST', 'AREA_MANAGER'), ctrl.deleteActivity);
 
 // Evidences
 router.post('/evidences/upload', requireRole('ADMIN', 'SH_SPECIALIST', 'AREA_MANAGER'), upload.single('file'), uploadEvidence);

@@ -1,5 +1,5 @@
 {
-  "app": { "name": "SH México", "tagline": "Safety & Hygiene" },
+  "app": { "name": "MXQ-Safety", "tagline": "Safety & Hygiene" },
   "common": {
     "save": "Save", "cancel": "Cancel", "edit": "Edit", "delete": "Delete",
     "add": "Add", "close": "Close", "search": "Search", "filter": "Filter",
@@ -13,14 +13,17 @@
     "completed": "Completed", "pending": "Pending", "inProgress": "In progress",
     "overdue": "Overdue", "notApplicable": "Not applicable",
     "page": "Page", "records": "records", "new": "New", "register": "Register",
-    "activate": "Activate", "deactivate": "Deactivate"
+    "activate": "Activate", "deactivate": "Deactivate",
+    "saving": "Saving...",
+    "view": "View",
+    "create": "Create"
   },
   "nav": {
     "dashboard": "Dashboard", "requirements": "Requirements", "incidents": "Incidents",
     "cmsh": "Joint Committee (CMSH)", "brigades": "Emergency Brigades", "training": "Training",
-    "drills": "Drills", "fiveS": "5S Methodology", "maintenance": "Maintenance",
+    "drills": "Drills", "fiveS": "5S Audits", "maintenance": "Maintenance",
     "risks": "Risk Management", "audits": "Internal Audits", "program": "SH Program",
-    "calendar": "Calendar", "guide": "Guide", "suppliers": "Suppliers", "epp": "PPE", "chemicals": "Chemicals",
+    "calendar": "Calendar", "guide": "Guide", "suppliers": "Suppliers", "epp": "PPE",
     "users": "Users", "companies": "Companies",
     "collapse": "Collapse menu", "expand": "Expand menu"
   },
@@ -58,8 +61,13 @@
     },
     "normInfo": {
       "sectionTitle": "Norm information", "completed": "Completed", "normName": "Norm name",
-      "normObjective": "Norm objective", "applicabilityJustification": "Applicability justification",
-      "applicabilityScope": "Application scope"
+      "normNamePlaceholder": "Full official name of the norm or legal provision",
+      "normObjective": "Norm objective",
+      "normObjectivePlaceholder": "What does this norm seek to prevent or regulate?",
+      "applicabilityJustification": "Applicability justification",
+      "applicabilityJustificationPlaceholder": "Why does this norm apply to the company?",
+      "applicabilityScope": "Application scope",
+      "applicabilityScopePlaceholder": "Areas, positions or processes to which it applies"
     },
     "activities": {
       "title": "Compliance activities", "add": "+ Add activity", "description": "Description",
@@ -84,7 +92,8 @@
     "severity": "Severity",
     "severities": { "MINOR": "Minor", "MODERATE": "Moderate", "SERIOUS": "Serious", "FATAL": "Fatal" },
     "occurredAt": "Occurred at", "rootCause": "Root cause", "correctiveAction": "Corrective action",
-    "lostDays": "Lost days", "imssReport": "IMSS report", "isClosed": "Closed"
+    "lostDays": "Lost days", "imssReport": "IMSS report", "isClosed": "Closed",
+    "injuredName": "Injured person's name", "injuredPosition": "Injured person's position"
   },
   "cmsh": {
     "title": "Joint Safety & Health Committee", "members": "Members", "meetings": "Meeting minutes",
@@ -92,7 +101,19 @@
     "roles": {
       "PRESIDENT": "President", "SECRETARY": "Secretary",
       "WORKER_REP": "Worker representative", "EMPLOYER_REP": "Employer representative"
-    }
+    },
+    "position": "Company position",
+    "roleLabel": "CMSH role",
+    "phone": "Phone",
+    "startDate": "Effective start",
+    "endDate": "Effective end",
+    "location": "Location",
+    "validity": "Validity",
+    "active": "Active",
+    "agenda": "Agenda",
+    "agreements": "Agreements & commitments",
+    "attendees": "Attendees",
+    "nextMeeting": "Next meeting"
   },
   "brigades": {
     "title": "Emergency Brigades", "subtitle": "Operational response teams",
@@ -109,10 +130,14 @@
     "membersCount": "members", "addMember": "Add member", "editMember": "Edit member",
     "noMembers": "No members registered",
     "coordinatorExists": "This brigade already has a leader assigned",
-    "alsoBelongsTo": "This member also belongs to"
+    "alsoBelongsTo": "This member also belongs to",
+    "noMeetingPoint": "No meeting point assigned",
+    "descriptionLabel": "Description",
+    "noDescription": "No description"
   },
   "training": {
-    "title": "Training", "new": "Register training", "instructor": "Instructor",
+    "title": "Training", "new": "Register training", "name": "Course/lecture name",
+    "instructor": "Instructor", "location": "Location",
     "durationHours": "Duration (hours)", "participants": "Participants",
     "participantCount": "Number of participants", "normReference": "Reference norm",
     "expirationDate": "Expiration date", "isCompleted": "Completed"
@@ -128,10 +153,15 @@
     "observations": "Observations", "correctives": "Corrective actions", "isCompleted": "Executed"
   },
   "fiveS": {
-    "title": "5S Methodology", "new": "New 5S audit",
+    "title": "5S Audits", "new": "New 5S audit",
     "seiri": "Seiri (Sort)", "seiton": "Seiton (Set in order)", "seiso": "Seiso (Shine)",
     "seiketsu": "Seiketsu (Standardize)", "shitsuke": "Shitsuke (Sustain)",
-    "totalScore": "Total score", "auditorName": "Auditor", "actionPlan": "Action plan"
+    "selectToView": "Select a record from the table to view the radar and actions.",
+    "totalScore": "Total score", "auditorName": "Auditor", "actionPlan": "Action plan",
+    "score": "Score",
+    "finding": "Finding",
+    "immediate": "Immediate actions",
+    "improvement": "Improvement"
   },
   "maintenance": {
     "title": "Preventive Maintenance", "new": "Register maintenance",
@@ -144,20 +174,34 @@
       "SCHEDULED": "Scheduled", "IN_PROGRESS": "In progress",
       "COMPLETED": "Completed", "OVERDUE": "Overdue"
     },
-    "frequency": "Frequency", "lastDate": "Last maintenance",
+    "frequency": "Frequency",
+    "frequencies": {
+      "semanal": "Weekly",
+      "mensual": "Monthly",
+      "trimestral": "Quarterly",
+      "semestral": "Biannual",
+      "anual": "Annual"
+    },
+    "lastDate": "Last maintenance",
     "nextDate": "Next maintenance", "responsible": "Responsible"
   },
   "risks": {
     "title": "Risk Management", "new": "Register risk", "hazard": "Identified hazard",
     "probability": "Probability", "severity": "Severity", "riskLevel": "Risk level",
     "levels": { "LOW": "Low", "MEDIUM": "Medium", "HIGH": "High", "CRITICAL": "Critical" },
+    "veryLow": "Very low",
+    "veryHigh": "Very high",
+    "insignificant": "Insignificant",
+    "catastrophic": "Catastrophic",
+    "scoreLabel": "Score:",
     "currentControls": "Existing controls", "proposedControls": "Proposed controls",
     "isControlled": "Controlled", "targetDate": "Control target date"
   },
   "audits": {
     "title": "Internal Audits", "new": "New audit", "auditorName": "Auditor", "auditDate": "Audit date",
     "statuses": { "PLANNED": "Planned", "IN_PROGRESS": "In progress", "COMPLETED": "Completed" },
-    "score": "Score", "findings": "Findings", "correctives": "Corrective actions", "checklist": "Checklist"
+    "score": "Score", "findings": "Findings", "correctives": "Corrective actions", "checklist": "Checklist",
+    "formTitle": "Title", "addQuestion": "Question", "questionPlaceholder": "Audit question", "partial": "Partial"
   },
   "program": {
     "title": "SH Program", "year": "Year", "objectives": "Objectives", "scope": "Scope",
@@ -184,13 +228,17 @@
       "AREA_MANAGER": "Area manager", "AUDITOR": "Auditor", "EXECUTIVE": "Executive"
     },
     "isActive": "Active", "activate": "Activate", "deactivate": "Deactivate",
-    "changePassword": "Change password"
+    "changePassword": "Change password",
+    "passwordPlaceholder": "Minimum 8 characters",
+    "areaPlaceholder": "Production, HR..."
   },
   "companies": {
     "title": "Companies", "new": "New company", "rfc": "Tax ID",
     "industry": "Industry", "address": "Address", "isActive": "Active"
   },
   "errors": {
+    "loadError": "Error loading data",
+    "saveError": "Error saving",
     "generic": "An error occurred. Please try again.",
     "notFound": "Record not found",
     "unauthorized": "You do not have permission to perform this action",
@@ -223,18 +271,23 @@
     "movType": "Type", "quantity": "Quantity", "employeeName": "Employee", "employeeArea": "Employee area", "reason": "Reason",
     "tabs": { "inventory": "Inventory", "matrix": "PPE Matrix" },
     "movTypes": { "ENTRY": "Entry", "EXIT": "Exit", "ADJUSTMENT": "Adjustment", "RETURN": "Return" },
-    "fields": { "name": "Name", "category": "Category", "unit": "Unit", "minStock": "Min stock", "currentStock": "Initial stock", "brand": "Brand", "partNumber": "Part number", "eppItem": "PPE item" }
-  },
-  "chemicals": {
-    "title": "Chemical Products", "subtitle": "SDS, labels and hazmat waste management",
-    "newProduct": "New substance", "newProductTitle": "New chemical substance", "editProduct": "Edit substance",
-    "productCreated": "Substance created", "productUpdated": "Substance updated",
-    "emptyProducts": "No substances registered", "emptyDisposals": "No disposals registered",
-    "noSdsAlert": "{{count}} substance(s) missing SDS", "noSds": "No SDS", "label": "Label", "fileUploaded": "File uploaded",
-    "newDisposal": "New disposal", "newDisposalTitle": "New waste disposal", "editDisposal": "Edit disposal",
-    "disposalCreated": "Disposal registered", "disposalUpdated": "Disposal updated",
-    "tabs": { "products": "Substances", "hazmat": "Waste disposal" },
-    "wasteStates": { "SOLID": "Solid", "LIQUID": "Liquid", "SLUDGE": "Sludge", "GAS": "Gas" },
-    "fields": { "tradeName": "Trade name", "chemicalName": "Chemical name", "casNumber": "CAS number", "manufacturer": "Manufacturer", "physicalState": "Physical state", "storageLocation": "Storage location", "maxStockKg": "Max stock (kg)", "ghsHazardClasses": "GHS hazard classes", "disposalDate": "Disposal date", "wasteType": "Waste type", "wasteState": "Waste state", "quantityKg": "Quantity (kg)", "manifestNumber": "Manifest number", "transportCompany": "Transport company", "disposalMethod": "Disposal method", "product": "Related substance", "disposalSupplier": "Disposal company" }
+    "registerEntry": "Register entry",
+    "registerExit": "Register exit",
+    "fields": { "name": "Name", "category": "Category", "unit": "Unit", "minStock": "Min stock", "currentStock": "Initial stock", "brand": "Brand", "partNumber": "Part number", "eppItem": "PPE item" },
+    "loan": {
+      "title": "New PPE loan",
+      "employeeName": "Name",
+      "employeeNamePlaceholder": "Full name",
+      "area": "Area / Position",
+      "areaPlaceholder": "Area or position",
+      "itemsLabel": "Items on loan",
+      "addItem": "Add item",
+      "selectItem": "Select item...",
+      "notes": "Notes",
+      "notesPlaceholder": "Notes (optional)",
+      "alertMessage": "An alert will be generated indicating the items on loan and the return date.",
+      "register": "Register loan",
+      "saving": "Saving..."
+    }
   }
 }

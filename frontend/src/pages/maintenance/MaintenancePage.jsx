@@ -10,6 +10,7 @@ import Modal from '../../components/ui/Modal';
 import { Input, Select, Textarea } from '../../components/ui/DatePicker';
 import { formatDate } from '../../utils/formatDate';
 import usePermissions from '../../hooks/usePermissions';
+import usePageHeader from '../../hooks/usePageHeader';
 import api from '../../api/axios.config';
 
 const TYPES = ['EPP', 'EXTINGUISHER', 'FIRST_AID_KIT', 'ELECTRICAL', 'EQUIPMENT', 'VEHICLE', 'OTHER'];
@@ -69,12 +70,12 @@ export default function MaintenancePage() {
     )},
   ];
 
+  usePageHeader(t('maintenance.title'), canWrite() && (
+    <Button size="sm" onClick={openCreate}><Plus className="w-4 h-4" /> {t('maintenance.new')}</Button>
+  ));
+
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold font-display">{t('maintenance.title')}</h1>
-        {canWrite() && <Button onClick={openCreate}><Plus className="w-4 h-4" /> {t('maintenance.new')}</Button>}
-      </div>
       <Card padding={false}>
         <Table columns={columns} data={data.data} isLoading={loading} emptyMessage={t('common.noData')} />
         {data.totalPages > 1 && (
@@ -98,7 +99,7 @@ export default function MaintenancePage() {
           </div>
           <div className="grid grid-cols-2 gap-4">
             <Select label={t('maintenance.frequency')} value={form.frequency} onChange={(e) => f('frequency', e.target.value)}>
-              {['semanal', 'mensual', 'trimestral', 'semestral', 'anual'].map(fr => <option key={fr} value={fr}>{fr}</option>)}
+              {['semanal', 'mensual', 'trimestral', 'semestral', 'anual'].map(fr => <option key={fr} value={fr}>{t(`maintenance.frequencies.${fr}`)}</option>)}
             </Select>
             <Select label={t('common.status')} value={form.status} onChange={(e) => f('status', e.target.value)}>
               {STATUSES.map(s => <option key={s} value={s}>{t(`maintenance.statuses.${s}`)}</option>)}

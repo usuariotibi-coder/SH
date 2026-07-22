@@ -9,6 +9,7 @@ import Modal from '../../components/ui/Modal';
 import { Input, Textarea } from '../../components/ui/DatePicker';
 import { formatDate } from '../../utils/formatDate';
 import usePermissions from '../../hooks/usePermissions';
+import usePageHeader from '../../hooks/usePageHeader';
 import api from '../../api/axios.config';
 
 const EMPTY = { name: '', description: '', instructor: '', trainingDate: '', durationHours: '', location: '', normReference: '', participants: '', expirationDate: '' };
@@ -78,13 +79,12 @@ export default function TrainingPage() {
     )},
   ];
 
+  usePageHeader(t('training.title'), canWrite() && (
+    <Button size="sm" onClick={openCreate}><Plus className="w-4 h-4" /> {t('training.new')}</Button>
+  ));
+
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold font-display">{t('training.title')}</h1>
-        {canWrite() && <Button onClick={openCreate}><Plus className="w-4 h-4" /> {t('training.new')}</Button>}
-      </div>
-
       <Card padding={false}>
         <Table columns={columns} data={data.data} isLoading={loading} emptyMessage={t('common.noData')} />
         {data.totalPages > 1 && (
@@ -100,10 +100,10 @@ export default function TrainingPage() {
 
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={editId ? t('common.edit') + ' ' + t('training.title') : t('training.new')} size="lg">
         <form onSubmit={handleSave} className="space-y-4">
-          <Input label="Nombre del curso/plática" required value={form.name} onChange={(e) => f('name', e.target.value)} />
+          <Input label={t('training.name')} required value={form.name} onChange={(e) => f('name', e.target.value)} />
           <div className="grid grid-cols-2 gap-4">
             <Input label={t('training.instructor')} required value={form.instructor} onChange={(e) => f('instructor', e.target.value)} />
-            <Input label="Lugar" value={form.location} onChange={(e) => f('location', e.target.value)} />
+            <Input label={t('training.location')} value={form.location} onChange={(e) => f('location', e.target.value)} />
           </div>
           <div className="grid grid-cols-3 gap-4">
             <div className="space-y-1"><label className="text-sm font-medium block">{t('common.date')} <span className="text-red-500">*</span></label>

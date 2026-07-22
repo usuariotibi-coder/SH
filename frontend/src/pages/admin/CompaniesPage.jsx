@@ -7,6 +7,7 @@ import Button from '../../components/ui/Button';
 import Table from '../../components/ui/Table';
 import Modal from '../../components/ui/Modal';
 import { Input } from '../../components/ui/DatePicker';
+import usePageHeader from '../../hooks/usePageHeader';
 import api from '../../api/axios.config';
 
 const EMPTY = { name: '', rfc: '', address: '', industry: '' };
@@ -73,13 +74,12 @@ export default function CompaniesPage() {
     )},
   ];
 
+  usePageHeader(t('companies.title'), (
+    <Button size="sm" onClick={openCreate}><Plus className="w-4 h-4" /> {t('companies.new')}</Button>
+  ));
+
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold font-display">{t('companies.title')}</h1>
-        <Button onClick={openCreate}><Plus className="w-4 h-4" /> {t('companies.new')}</Button>
-      </div>
-
       <Card padding={false}>
         <Table columns={columns} data={data.data} isLoading={loading} emptyMessage={t('common.noData')} />
         {data.totalPages > 1 && (

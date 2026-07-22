@@ -24,6 +24,10 @@ export default function CalendarSummaryCards({ events, currentDate }) {
     return acc;
   }, {});
 
+  // Vencidos: siempre cuenta el total (no solo los del mes visible), ya que
+  // el backend ahora trae todas las actividades vencidas sin importar el rango.
+  counts.overdue = events.filter(e => e.severity === 'overdue').length;
+
   return (
     <div className="grid grid-cols-4 gap-3 mb-4">
       {CARDS.map(c => (

@@ -1,35 +1,18 @@
 import { useState, useRef, useEffect } from 'react';
-import { useLocation } from 'react-router-dom';
 import { Bell, User, LogOut, Menu } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import useAuthStore from '../../store/auth.store';
+import usePageHeaderStore from '../../store/pageHeader.store';
 import { roleLabels } from '../../utils/statusColors';
-
-const BREADCRUMBS = {
-  '/dashboard': 'Dashboard',
-  '/requirements': 'Requerimientos Legales',
-  '/incidents': 'Incidentes y Accidentes',
-  '/cmsh': 'Comisión Mixta SH',
-  '/training': 'Capacitación',
-  '/drills': 'Simulacros',
-  '/five-s': 'Metodología 5S',
-  '/maintenance': 'Mantenimiento Preventivo',
-  '/risks': 'Gestión de Riesgos',
-  '/audits': 'Auditorías Internas',
-  '/program': 'Programa SH',
-  '/admin/users': 'Administración / Usuarios',
-  '/admin/companies': 'Administración / Empresas',
-};
 
 export default function Topbar({ onMenuToggle, alertCount = 0 }) {
   const { t, i18n } = useTranslation();
-  const location = useLocation();
   const user = useAuthStore((s) => s.user);
   const logout = useAuthStore((s) => s.logout);
+  const title = usePageHeaderStore((s) => s.title);
+  const actions = usePageHeaderStore((s) => s.actions);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const menuRef = useRef();
-
-  const currentPage = BREADCRUMBS[location.pathname] || '';
 
   useEffect(() => {
     const handler = (e) => { if (menuRef.current && !menuRef.current.contains(e.target)) setShowUserMenu(false); };
@@ -45,14 +28,17 @@ export default function Topbar({ onMenuToggle, alertCount = 0 }) {
 
   return (
     <header className="h-14 bg-white border-b border-[var(--color-border)] flex items-center justify-between px-4 gap-4 sticky top-0 z-30">
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 min-w-0">
         <button onClick={onMenuToggle} className="p-2 rounded-md hover:bg-gray-100 text-[var(--color-text-muted)] md:hidden">
           <Menu className="w-5 h-5" />
         </button>
-        <span className="text-sm font-medium text-[var(--color-text)]">{currentPage}</span>
+        {title && <h1 className="text-base font-semibold font-display text-[var(--color-text)] truncate">{title}</h1>}
       </div>
 
       <div className="flex items-center gap-2">
+        {actions && <div className="flex items-center gap-2">{actions}</div>}
+        {actions && <div className="w-px h-6 bg-[var(--color-border)] mx-1" />}
+
         {/* Language */}
         <button
           onClick={toggleLang}

@@ -10,6 +10,7 @@ import Modal from '../../components/ui/Modal';
 import { Input, Select, Textarea } from '../../components/ui/DatePicker';
 import { formatDate } from '../../utils/formatDate';
 import usePermissions from '../../hooks/usePermissions';
+import usePageHeader from '../../hooks/usePageHeader';
 import api from '../../api/axios.config';
 
 const LEVELS = ['LOW', 'MEDIUM', 'HIGH', 'CRITICAL'];
@@ -64,7 +65,7 @@ export default function RisksPage() {
     { header: t('risks.hazard'), accessor: 'hazard' },
     { header: t('risks.probability').charAt(0), accessor: 'probability', render: (v) => <span className="font-mono">{v}</span> },
     { header: t('risks.severity').charAt(0), accessor: 'severity', render: (v) => <span className="font-mono">{v}</span> },
-    { header: 'Score', accessor: 'riskLevel', render: (v, row) => (
+    { header: t('audits.score'), accessor: 'riskLevel', render: (v, row) => (
       <div className="flex items-center gap-2">
         <span className="font-mono font-bold">{row.probability * row.severity}</span>
         <StatusPill status={v} />
@@ -81,13 +82,12 @@ export default function RisksPage() {
     )},
   ];
 
+  usePageHeader(t('risks.title'), canWrite() && (
+    <Button size="sm" onClick={openCreate}><Plus className="w-4 h-4" /> {t('risks.new')}</Button>
+  ));
+
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold font-display">{t('risks.title')}</h1>
-        {canWrite() && <Button onClick={openCreate}><Plus className="w-4 h-4" /> {t('risks.new')}</Button>}
-      </div>
-
       {/* Legend */}
       <div className="flex gap-3 flex-wrap">
         {[{ level: 'LOW', label: `${t('risks.levels.LOW')} 1–4`, color: 'bg-green-100 text-green-800' }, { level: 'MEDIUM', label: `${t('risks.levels.MEDIUM')} 5–9`, color: 'bg-yellow-100 text-yellow-800' }, { level: 'HIGH', label: `${t('risks.levels.HIGH')} 10–16`, color: 'bg-orange-100 text-orange-800' }, { level: 'CRITICAL', label: `${t('risks.levels.CRITICAL')} 17–25`, color: 'bg-red-100 text-red-800' }].map(item => (
@@ -122,16 +122,16 @@ export default function RisksPage() {
             <div className="space-y-1">
               <label className="text-sm font-medium block">{t('risks.probability')} ({form.probability})</label>
               <input type="range" min="1" max="5" step="1" value={form.probability} onChange={(e) => f('probability', parseInt(e.target.value))} className="w-full accent-[#1a4a6b]" />
-              <div className="flex justify-between text-xs text-[var(--color-text-muted)]"><span>Muy baja</span><span>Muy alta</span></div>
+              <div className="flex justify-between text-xs text-[var(--color-text-muted)]"><span>{t('risks.veryLow')}</span><span>{t('risks.veryHigh')}</span></div>
             </div>
             <div className="space-y-1">
               <label className="text-sm font-medium block">{t('risks.severity')} ({form.severity})</label>
               <input type="range" min="1" max="5" step="1" value={form.severity} onChange={(e) => f('severity', parseInt(e.target.value))} className="w-full accent-[#e8622a]" />
-              <div className="flex justify-between text-xs text-[var(--color-text-muted)]"><span>Insignificante</span><span>Catastrófico</span></div>
+              <div className="flex justify-between text-xs text-[var(--color-text-muted)]"><span>{t('risks.insignificant')}</span><span>{t('risks.catastrophic')}</span></div>
             </div>
           </div>
           <div className={`p-3 rounded-lg border text-center ${LEVEL_COLORS[['LOW','LOW','LOW','LOW','MEDIUM','MEDIUM','MEDIUM','MEDIUM','MEDIUM','HIGH','HIGH','HIGH','HIGH','HIGH','HIGH','HIGH','CRITICAL','CRITICAL','CRITICAL','CRITICAL','CRITICAL','CRITICAL','CRITICAL','CRITICAL','CRITICAL'][calcScore()-1]] || 'bg-gray-50 border-gray-200'}`}>
-            <span className="text-sm font-semibold">Score: {calcScore()} / 25</span>
+            <span className="text-sm font-semibold">{t('risks.scoreLabel')} {calcScore()} / 25</span>
           </div>
           <Textarea label={t('risks.currentControls')} value={form.currentControls} onChange={(e) => f('currentControls', e.target.value)} rows={2} />
           <Textarea label={t('risks.proposedControls')} value={form.proposedControls} onChange={(e) => f('proposedControls', e.target.value)} rows={2} />

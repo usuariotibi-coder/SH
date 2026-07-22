@@ -8,6 +8,7 @@ import InlineEditField from '../../components/ui/InlineEditField';
 import ResponsibleSelector from '../../components/ui/ResponsibleSelector';
 import { formatDate } from '../../utils/formatDate';
 import usePermissions from '../../hooks/usePermissions';
+import usePageHeader from '../../hooks/usePageHeader';
 import api from '../../api/axios.config';
 
 // ── Constantes ────────────────────────────────────────────────────────────────
@@ -164,19 +165,12 @@ export default function BrigadesPage() {
     return null;
   };
 
+  usePageHeader(t('brigades.title'));
+
   if (loading) return <div className="py-12 text-center text-[var(--color-text-muted)]">{t('common.loading')}</div>;
 
   return (
     <div className="space-y-6">
-      {/* Header */}
-      <div>
-        <h1 className="text-2xl font-bold font-display">{t('brigades.title')}</h1>
-        <p className="text-sm text-[var(--color-text-muted)] mt-0.5">
-          {t('brigades.subtitle')} —{' '}
-          <span className="font-mono text-xs">{t('brigades.normReference')}</span>
-        </p>
-      </div>
-
       {/* Tarjetas resumen */}
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         {brigades.map(brigade => {
@@ -263,7 +257,7 @@ export default function BrigadesPage() {
                       canEdit={canEdit}
                       label={t('brigades.meetingPoint')}
                       multiline={false}
-                      placeholder="Sin punto de reunión asignado"
+                      placeholder={t('brigades.noMeetingPoint')}
                     />
                   </div>
                   <div>
@@ -274,9 +268,9 @@ export default function BrigadesPage() {
                       value={brigade.description}
                       onSave={val => patchBrigade(brigade.type, { description: val })}
                       canEdit={canEdit}
-                      label="descripción"
+                      label={t('brigades.descriptionLabel')}
                       multiline={true}
-                      placeholder="Sin descripción"
+                      placeholder={t('brigades.noDescription')}
                     />
                   </div>
                 </div>

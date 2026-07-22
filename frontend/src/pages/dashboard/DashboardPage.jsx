@@ -8,6 +8,7 @@ import { FileText, AlertTriangle, GraduationCap, Siren, ShieldCheck, Bell, HardH
 import { KPICard } from '../../components/ui/Card';
 import Card from '../../components/ui/Card';
 import AlertsPanel from '../../components/shared/AlertsPanel';
+import usePageHeader from '../../hooks/usePageHeader';
 import api from '../../api/axios.config';
 import toast from 'react-hot-toast';
 
@@ -41,11 +42,12 @@ export default function DashboardPage() {
     load();
   }, []);
 
+  usePageHeader(t('dashboard.title'));
+
   if (loading) return <div className="flex items-center justify-center h-64 text-[var(--color-text-muted)]">Cargando dashboard...</div>;
 
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold font-display text-[var(--color-text)]">{t('dashboard.title')}</h1>
 
       {/* KPIs */}
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">

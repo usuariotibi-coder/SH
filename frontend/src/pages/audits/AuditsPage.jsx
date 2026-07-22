@@ -10,6 +10,7 @@ import Modal from '../../components/ui/Modal';
 import { Input, Select, Textarea } from '../../components/ui/DatePicker';
 import { formatDate } from '../../utils/formatDate';
 import usePermissions from '../../hooks/usePermissions';
+import usePageHeader from '../../hooks/usePageHeader';
 import api from '../../api/axios.config';
 
 const DEFAULT_CHECKLIST = [
@@ -83,7 +84,7 @@ export default function AuditsPage() {
   };
 
   const columns = [
-    { header: 'Título', accessor: 'title' },
+    { header: t('audits.formTitle'), accessor: 'title' },
     { header: t('common.area'), accessor: 'area' },
     { header: t('audits.auditorName'), accessor: 'auditorName' },
     { header: t('common.date'), accessor: 'auditDate', render: (v) => formatDate(v) },
@@ -94,7 +95,7 @@ export default function AuditsPage() {
     { header: '', accessor: 'id', render: (v, row) => (
       <div className="flex gap-2">
         <button onClick={() => loadDetail(v)} className="text-xs text-purple-600 hover:underline flex items-center gap-1">
-          {expandedId === v ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />} Ver
+          {expandedId === v ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />} {t('common.view')}
         </button>
         {canWrite() && <button onClick={() => openEdit(row)} className="text-xs text-blue-600 hover:underline">{t('common.edit')}</button>}
         {canWrite() && <button onClick={async () => { if (confirm('¿Eliminar?')) { await api.delete(`/audits/${v}`); load(); } }} className="text-xs text-red-600 hover:underline">{t('common.delete')}</button>}
@@ -102,13 +103,12 @@ export default function AuditsPage() {
     )},
   ];
 
+  usePageHeader(t('audits.title'), canWrite() && (
+    <Button size="sm" onClick={openCreate}><Plus className="w-4 h-4" /> {t('audits.new')}</Button>
+  ));
+
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold font-display">{t('audits.title')}</h1>
-        {canWrite() && <Button onClick={openCreate}><Plus className="w-4 h-4" /> {t('audits.new')}</Button>}
-      </div>
-
       <Card padding={false}>
         <Table columns={columns} data={data.data} isLoading={loading} emptyMessage={t('common.noData')} />
 
@@ -120,7 +120,7 @@ export default function AuditsPage() {
               {(Array.isArray(auditDetail.checklist) ? auditDetail.checklist : []).map((q, i) => (
                 <div key={i} className={`flex items-start gap-3 p-3 rounded-lg border text-sm ${q.answer === 'yes' ? 'bg-green-50 border-green-200' : q.answer === 'no' ? 'bg-red-50 border-red-200' : 'bg-yellow-50 border-yellow-200'}`}>
                   <span className="flex-1">{q.question}</span>
-                  <span className="font-medium capitalize">{q.answer === 'yes' ? t('common.yes') : q.answer === 'no' ? t('common.no') : q.answer === 'partial' ? 'Parcial' : '—'}</span>
+                  <span className="font-medium capitalize">{q.answer === 'yes' ? t('common.yes') : q.answer === 'no' ? t('common.no') : q.answer === 'partial' ? t('audits.partial') : '—'}</span>
                 </div>
               ))}
             </div>
@@ -142,7 +142,7 @@ export default function AuditsPage() {
 
       <Modal isOpen={showModal} onClose={() => setShowModal(false)} title={editId ? t('common.edit') + ' ' + t('audits.title') : t('audits.new')} size="xl">
         <form onSubmit={handleSave} className="space-y-4">
-          <Input label="Título" required value={form.title} onChange={(e) => f('title', e.target.value)} />
+          <Input label={t('audits.formTitle')} required value={form.title} onChange={(e) => f('title', e.target.value)} />
           <div className="grid grid-cols-2 gap-4">
             <Input label={t('common.area')} required value={form.area} onChange={(e) => f('area', e.target.value)} />
             <Input label={t('audits.auditorName')} required value={form.auditorName} onChange={(e) => f('auditorName', e.target.value)} />
@@ -161,18 +161,18 @@ export default function AuditsPage() {
           <div>
             <div className="flex items-center justify-between mb-2">
               <label className="text-sm font-medium">{t('audits.checklist')}</label>
-              <Button type="button" size="sm" variant="secondary" onClick={addQuestion}><Plus className="w-3 h-3" /> Pregunta</Button>
+              <Button type="button" size="sm" variant="secondary" onClick={addQuestion}><Plus className="w-3 h-3" /> {t('audits.addQuestion')}</Button>
             </div>
             <div className="space-y-2 max-h-64 overflow-y-auto">
               {form.checklist.map((q, i) => (
                 <div key={i} className="grid grid-cols-[1fr_auto] gap-2 p-2 border border-[var(--color-border)] rounded-lg">
                   <input value={q.question} onChange={(e) => updateChecklist(i, 'question', e.target.value)}
-                    placeholder="Pregunta de auditoría" className="text-sm px-2 py-1 border border-[var(--color-border)] rounded-[var(--radius-sm)] outline-none focus:ring-1 focus:ring-[var(--color-primary)]" />
+                    placeholder={t('audits.questionPlaceholder')} className="text-sm px-2 py-1 border border-[var(--color-border)] rounded-[var(--radius-sm)] outline-none focus:ring-1 focus:ring-[var(--color-primary)]" />
                   <select value={q.answer} onChange={(e) => updateChecklist(i, 'answer', e.target.value)}
                     className="text-sm px-2 py-1 border border-[var(--color-border)] rounded-[var(--radius-sm)]">
                     <option value="">—</option>
                     <option value="yes">{t('common.yes')}</option>
-                    <option value="partial">Parcial</option>
+                    <option value="partial">{t('audits.partial')}</option>
                     <option value="no">{t('common.no')}</option>
                   </select>
                 </div>

@@ -1,5 +1,5 @@
 {
-  "app": { "name": "SH México", "tagline": "Seguridad e Higiene" },
+  "app": { "name": "MXQ-Safety", "tagline": "Seguridad e Higiene" },
   "common": {
     "save": "Guardar",
     "cancel": "Cancelar",
@@ -44,7 +44,10 @@
     "new": "Nuevo",
     "register": "Registrar",
     "activate": "Activar",
-    "deactivate": "Desactivar"
+    "deactivate": "Desactivar",
+    "saving": "Guardando...",
+    "view": "Ver",
+    "create": "Crear"
   },
   "nav": {
     "dashboard": "Dashboard",
@@ -54,7 +57,7 @@
     "brigades": "Brigadas",
     "training": "Capacitación",
     "drills": "Simulacros",
-    "fiveS": "Metodología 5S",
+    "fiveS": "Auditorías 5S",
     "maintenance": "Mantenimiento",
     "risks": "Gestión de riesgos",
     "audits": "Auditorías internas",
@@ -63,7 +66,6 @@
     "guide": "Guía",
     "suppliers": "Proveedores",
     "epp": "EPP",
-    "chemicals": "Sustancias Químicas",
     "users": "Usuarios",
     "companies": "Empresas",
     "collapse": "Colapsar menú",
@@ -124,9 +126,13 @@
       "sectionTitle": "Información de la norma",
       "completed": "Completado",
       "normName": "Nombre de la norma",
+      "normNamePlaceholder": "Nombre oficial completo de la norma o disposición legal",
       "normObjective": "Objetivo de la norma",
+      "normObjectivePlaceholder": "Qué busca prevenir o regular esta norma?",
       "applicabilityJustification": "Justificación de aplicabilidad",
-      "applicabilityScope": "Alcance de aplicación"
+      "applicabilityJustificationPlaceholder": "Por qué aplica esta norma a la empresa?",
+      "applicabilityScope": "Alcance de aplicación",
+      "applicabilityScopePlaceholder": "Áreas, puestos o procesos a los que aplica"
     },
     "activities": {
       "title": "Actividades de cumplimiento",
@@ -166,7 +172,9 @@
     "correctiveAction": "Acción correctiva",
     "lostDays": "Días perdidos",
     "imssReport": "Aviso IMSS",
-    "isClosed": "Cerrado"
+    "isClosed": "Cerrado",
+    "injuredName": "Nombre del lesionado",
+    "injuredPosition": "Puesto del lesionado"
   },
   "cmsh": {
     "title": "Comisión Mixta de SH",
@@ -177,7 +185,19 @@
     "roles": {
       "PRESIDENT": "Presidente", "SECRETARY": "Secretario",
       "WORKER_REP": "Rep. trabajadores", "EMPLOYER_REP": "Rep. empresa"
-    }
+    },
+    "position": "Puesto en empresa",
+    "roleLabel": "Rol en CMSH",
+    "phone": "Teléfono",
+    "startDate": "Inicio vigencia",
+    "endDate": "Fin vigencia",
+    "location": "Lugar",
+    "validity": "Vigencia",
+    "active": "Vigente",
+    "agenda": "Orden del día",
+    "agreements": "Acuerdos y compromisos",
+    "attendees": "Asistentes",
+    "nextMeeting": "Próxima reunión"
   },
   "brigades": {
     "title": "Brigadas de emergencia",
@@ -207,12 +227,17 @@
     "editMember": "Editar integrante",
     "noMembers": "Sin integrantes registrados",
     "coordinatorExists": "Esta brigada ya tiene un Jefe asignado",
-    "alsoBelongsTo": "Este integrante también pertenece a"
+    "alsoBelongsTo": "Este integrante también pertenece a",
+    "noMeetingPoint": "Sin punto de reunión asignado",
+    "descriptionLabel": "Descripción",
+    "noDescription": "Sin descripción"
   },
   "training": {
     "title": "Capacitación",
     "new": "Registrar capacitación",
+    "name": "Nombre del curso/plática",
     "instructor": "Instructor",
+    "location": "Lugar",
     "durationHours": "Duración (horas)",
     "participants": "Participantes",
     "participantCount": "Número de participantes",
@@ -236,16 +261,21 @@
     "isCompleted": "Ejecutado"
   },
   "fiveS": {
-    "title": "Metodología 5S",
+    "title": "Auditorías 5S",
     "new": "Nueva auditoría 5S",
     "seiri": "Seiri (Clasificar)",
     "seiton": "Seiton (Ordenar)",
     "seiso": "Seiso (Limpiar)",
     "seiketsu": "Seiketsu (Estandarizar)",
     "shitsuke": "Shitsuke (Disciplina)",
+    "selectToView": "Selecciona un registro de la tabla para ver el radar y las acciones.",
     "totalScore": "Puntaje total",
     "auditorName": "Auditor",
-    "actionPlan": "Plan de acción"
+    "actionPlan": "Plan de acción",
+    "score": "Calificación",
+    "finding": "Hallazgo",
+    "immediate": "Acciones inmediatas",
+    "improvement": "Mejora"
   },
   "maintenance": {
     "title": "Mantenimiento preventivo",
@@ -260,6 +290,13 @@
       "COMPLETED": "Completado", "OVERDUE": "Vencido"
     },
     "frequency": "Frecuencia",
+    "frequencies": {
+      "semanal": "Semanal",
+      "mensual": "Mensual",
+      "trimestral": "Trimestral",
+      "semestral": "Semestral",
+      "anual": "Anual"
+    },
     "lastDate": "Último mantenimiento",
     "nextDate": "Próximo mantenimiento",
     "responsible": "Responsable"
@@ -272,6 +309,11 @@
     "severity": "Severidad",
     "riskLevel": "Nivel de riesgo",
     "levels": { "LOW": "Bajo", "MEDIUM": "Medio", "HIGH": "Alto", "CRITICAL": "Crítico" },
+    "veryLow": "Muy baja",
+    "veryHigh": "Muy alta",
+    "insignificant": "Insignificante",
+    "catastrophic": "Catastrófico",
+    "scoreLabel": "Score:",
     "currentControls": "Controles existentes",
     "proposedControls": "Controles propuestos",
     "isControlled": "Controlado",
@@ -286,7 +328,11 @@
     "score": "Puntuación",
     "findings": "Hallazgos",
     "correctives": "Acciones correctivas",
-    "checklist": "Lista de verificación"
+    "checklist": "Lista de verificación",
+    "formTitle": "Título",
+    "addQuestion": "Pregunta",
+    "questionPlaceholder": "Pregunta de auditoría",
+    "partial": "Parcial"
   },
   "program": {
     "title": "Programa de SH",
@@ -326,7 +372,9 @@
     "isActive": "Activo",
     "activate": "Activar",
     "deactivate": "Desactivar",
-    "changePassword": "Cambiar contraseña"
+    "changePassword": "Cambiar contraseña",
+    "passwordPlaceholder": "Mínimo 8 caracteres",
+    "areaPlaceholder": "Producción, RRHH..."
   },
   "companies": {
     "title": "Empresas",
@@ -337,6 +385,8 @@
     "isActive": "Activa"
   },
   "errors": {
+    "loadError": "Error al cargar",
+    "saveError": "Error al guardar",
     "generic": "Ocurrió un error. Intenta nuevamente.",
     "notFound": "Registro no encontrado",
     "unauthorized": "No tienes permiso para realizar esta acción",
@@ -445,6 +495,8 @@
       "ADJUSTMENT": "Ajuste",
       "RETURN": "Devolución"
     },
+    "registerEntry": "Registrar entrada",
+    "registerExit": "Registrar salida",
     "fields": {
       "name": "Nombre",
       "category": "Categoría",
@@ -454,55 +506,21 @@
       "brand": "Marca",
       "partNumber": "Núm. de parte",
       "eppItem": "Artículo EPP"
-    }
-  },
-  "chemicals": {
-    "title": "Sustancias Químicas",
-    "subtitle": "Gestión de SDS, etiquetas y disposición de residuos",
-    "newProduct": "Nueva sustancia",
-    "newProductTitle": "Nueva sustancia química",
-    "editProduct": "Editar sustancia",
-    "productCreated": "Sustancia creada",
-    "productUpdated": "Sustancia actualizada",
-    "emptyProducts": "No hay sustancias registradas",
-    "emptyDisposals": "No hay disposiciones registradas",
-    "noSdsAlert": "{{count}} sustancia(s) sin SDS cargado",
-    "noSds": "Sin SDS",
-    "label": "Etiqueta",
-    "fileUploaded": "Archivo cargado",
-    "newDisposal": "Nueva disposición",
-    "newDisposalTitle": "Nueva disposición de residuos",
-    "editDisposal": "Editar disposición",
-    "disposalCreated": "Disposición registrada",
-    "disposalUpdated": "Disposición actualizada",
-    "tabs": {
-      "products": "Sustancias",
-      "hazmat": "Disposición de residuos"
     },
-    "wasteStates": {
-      "SOLID": "Sólido",
-      "LIQUID": "Líquido",
-      "SLUDGE": "Lodo",
-      "GAS": "Gas"
-    },
-    "fields": {
-      "tradeName": "Nombre comercial",
-      "chemicalName": "Nombre químico",
-      "casNumber": "Número CAS",
-      "manufacturer": "Fabricante",
-      "physicalState": "Estado físico",
-      "storageLocation": "Ubicación de almacenamiento",
-      "maxStockKg": "Stock máximo (kg)",
-      "ghsHazardClasses": "Clases de peligro GHS",
-      "disposalDate": "Fecha de disposición",
-      "wasteType": "Tipo de residuo",
-      "wasteState": "Estado del residuo",
-      "quantityKg": "Cantidad (kg)",
-      "manifestNumber": "Núm. de manifiesto",
-      "transportCompany": "Empresa transportista",
-      "disposalMethod": "Método de disposición",
-      "product": "Sustancia relacionada",
-      "disposalSupplier": "Empresa de disposición"
+    "loan": {
+      "title": "Nuevo préstamo EPP",
+      "employeeName": "Nombre",
+      "employeeNamePlaceholder": "Nombre completo",
+      "area": "Área / Puesto",
+      "areaPlaceholder": "Área o puesto",
+      "itemsLabel": "Artículos en préstamo",
+      "addItem": "Agregar artículo",
+      "selectItem": "Selecciona artículo...",
+      "notes": "Notas",
+      "notesPlaceholder": "Observaciones (opcional)",
+      "alertMessage": "Se generará una alerta indicando los artículos en préstamo y la fecha de entrega.",
+      "register": "Registrar préstamo",
+      "saving": "Guardando..."
     }
   }
 }

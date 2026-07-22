@@ -1,4 +1,4 @@
-export default function Table({ columns, data, isLoading, emptyMessage = 'Sin datos' }) {
+export default function Table({ columns, data, isLoading, emptyMessage = 'Sin datos', onRowClick }) {
   if (isLoading) {
     return (
       <div className="py-12 text-center text-[var(--color-text-muted)]">
@@ -29,7 +29,7 @@ export default function Table({ columns, data, isLoading, emptyMessage = 'Sin da
             </tr>
           ) : (
             data.map((row, ri) => (
-              <tr key={ri} className="border-b border-[var(--color-border)] hover:bg-gray-50 transition-colors">
+              <tr key={ri} className={`border-b border-[var(--color-border)] hover:bg-gray-50 transition-colors ${onRowClick ? 'cursor-pointer' : ''}`} onClick={() => onRowClick?.(row)}>
                 {columns.map((col, ci) => (
                   <td key={ci} className="px-4 py-3 text-[var(--color-text)]">
                     {col.render ? col.render(row[col.accessor], row) : row[col.accessor] ?? '—'}

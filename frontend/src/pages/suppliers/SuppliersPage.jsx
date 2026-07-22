@@ -6,6 +6,7 @@ import { useTranslation } from 'react-i18next';
 import Card from '../../components/ui/Card';
 import Button from '../../components/ui/Button';
 import usePermissions from '../../hooks/usePermissions';
+import usePageHeader from '../../hooks/usePageHeader';
 import api from '../../api/axios.config';
 
 const STATUS_COLORS = {
@@ -80,20 +81,14 @@ export default function SuppliersPage() {
 
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
+  usePageHeader(t('suppliers.title'), canWrite() && (
+    <Button size="sm" onClick={() => setShowModal(true)} className="flex items-center gap-2">
+      <Plus size={16} />{t('suppliers.new')}
+    </Button>
+  ));
+
   return (
     <div className="p-6 space-y-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">{t('suppliers.title')}</h1>
-          <p className="text-sm text-gray-500 mt-1">{t('suppliers.subtitle')}</p>
-        </div>
-        {canWrite() && (
-          <Button onClick={() => setShowModal(true)} className="flex items-center gap-2">
-            <Plus size={16} />{t('suppliers.new')}
-          </Button>
-        )}
-      </div>
-
       {/* Filters */}
       <Card className="p-4 flex flex-wrap gap-3">
         <div className="relative flex-1 min-w-[200px]">

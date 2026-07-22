@@ -9,6 +9,7 @@ import Modal from '../../components/ui/Modal';
 import { Input, Select } from '../../components/ui/DatePicker';
 import Badge from '../../components/ui/Badge';
 import { roleLabels } from '../../utils/statusColors';
+import usePageHeader from '../../hooks/usePageHeader';
 import api from '../../api/axios.config';
 
 const ROLES = ['ADMIN', 'SH_SPECIALIST', 'AREA_MANAGER', 'AUDITOR', 'EXECUTIVE'];
@@ -80,13 +81,12 @@ export default function UsersPage() {
     )},
   ];
 
+  usePageHeader(t('users.title'), (
+    <Button size="sm" onClick={openCreate}><Plus className="w-4 h-4" /> {t('users.new')}</Button>
+  ));
+
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold font-display">{t('users.title')}</h1>
-        <Button onClick={openCreate}><Plus className="w-4 h-4" /> {t('users.new')}</Button>
-      </div>
-
       <Card padding={false}>
         <Table columns={columns} data={data.data} isLoading={loading} emptyMessage={t('common.noData')} />
         {data.totalPages > 1 && (
@@ -104,12 +104,12 @@ export default function UsersPage() {
         <form onSubmit={handleSave} className="space-y-4">
           <Input label={t('users.name')} required value={form.name} onChange={(e) => f('name', e.target.value)} />
           <Input label={t('users.email')} required type="email" value={form.email} onChange={(e) => f('email', e.target.value)} disabled={!!editId} />
-          {!editId && <Input label={t('auth.password')} required type="password" value={form.password} onChange={(e) => f('password', e.target.value)} placeholder="Mínimo 8 caracteres" />}
+          {!editId && <Input label={t('auth.password')} required type="password" value={form.password} onChange={(e) => f('password', e.target.value)} placeholder={t('users.passwordPlaceholder')} />}
           <div className="grid grid-cols-2 gap-4">
             <Select label={t('users.role')} value={form.role} onChange={(e) => f('role', e.target.value)}>
               {ROLES.map(r => <option key={r} value={r}>{t(`users.roles.${r}`)}</option>)}
             </Select>
-            <Input label={t('common.area')} value={form.area} onChange={(e) => f('area', e.target.value)} placeholder="Producción, RRHH..." />
+            <Input label={t('common.area')} value={form.area} onChange={(e) => f('area', e.target.value)} placeholder={t('users.areaPlaceholder')} />
           </div>
           <div className="flex justify-end gap-3"><Button variant="secondary" type="button" onClick={() => setShowModal(false)}>{t('common.cancel')}</Button><Button type="submit" isLoading={saving}>{t('common.save')}</Button></div>
         </form>

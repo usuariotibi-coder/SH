@@ -11,6 +11,7 @@ import Modal from '../../components/ui/Modal';
 import { Input, Select, Textarea } from '../../components/ui/DatePicker';
 import { formatDate } from '../../utils/formatDate';
 import usePermissions from '../../hooks/usePermissions';
+import usePageHeader from '../../hooks/usePageHeader';
 import api from '../../api/axios.config';
 
 const TYPES = ['ACCIDENT', 'INCIDENT', 'NEAR_MISS', 'OCCUPATIONAL_DISEASE'];
@@ -83,13 +84,12 @@ export default function IncidentsPage() {
     )},
   ];
 
+  usePageHeader(t('incidents.title'), canWrite() && (
+    <Button size="sm" onClick={openCreate}><Plus className="w-4 h-4" /> {t('incidents.new')}</Button>
+  ));
+
   return (
     <div className="space-y-5">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold font-display">{t('incidents.title')}</h1>
-        {canWrite() && <Button onClick={openCreate}><Plus className="w-4 h-4" /> {t('incidents.new')}</Button>}
-      </div>
-
       <Card padding={false}>
         <Table columns={columns} data={data.data} isLoading={loading} emptyMessage={t('common.noData')} />
         {data.totalPages > 1 && (
@@ -122,8 +122,8 @@ export default function IncidentsPage() {
           </div>
           <Textarea label={t('common.description')} required value={form.description} onChange={(e) => f('description', e.target.value)} />
           <div className="grid grid-cols-2 gap-4">
-            <Input label="Nombre del lesionado" value={form.injuredName} onChange={(e) => f('injuredName', e.target.value)} />
-            <Input label="Puesto del lesionado" value={form.injuredPosition} onChange={(e) => f('injuredPosition', e.target.value)} />
+            <Input label={t('incidents.injuredName')} value={form.injuredName} onChange={(e) => f('injuredName', e.target.value)} />
+            <Input label={t('incidents.injuredPosition')} value={form.injuredPosition} onChange={(e) => f('injuredPosition', e.target.value)} />
           </div>
           <Textarea label={t('incidents.rootCause')} value={form.rootCause} onChange={(e) => f('rootCause', e.target.value)} />
           <Textarea label={t('incidents.correctiveAction')} value={form.correctiveAction} onChange={(e) => f('correctiveAction', e.target.value)} />

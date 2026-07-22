@@ -4,7 +4,7 @@ import {
   LayoutDashboard, FileText, AlertTriangle, Users2, GraduationCap,
   Siren, FlaskConical, Wrench, ShieldAlert, ClipboardCheck, BookOpen,
   Users, Building2, Shield, HelpCircle, CalendarDays,
-  PanelLeftClose, PanelLeftOpen, UsersRound, Truck, HardHat, Beaker,
+  PanelLeftClose, PanelLeftOpen, UsersRound, Truck, HardHat,
 } from 'lucide-react';
 import usePermissions from '../../hooks/usePermissions';
 
@@ -24,7 +24,6 @@ const NAV_ITEMS = [
   { path: '/program', icon: BookOpen, key: 'program' },
   { path: '/suppliers', icon: Truck, key: 'suppliers' },
   { path: '/epp', icon: HardHat, key: 'epp' },
-  { path: '/chemicals', icon: Beaker, key: 'chemicals' },
   { path: '/guide', icon: HelpCircle, key: 'guide' },
 ];
 
@@ -62,7 +61,7 @@ export default function Sidebar({ collapsed, onToggle, onNavClick }) {
         </div>
         {!collapsed && (
           <div className="overflow-hidden">
-            <p className="text-white font-bold text-sm font-display leading-tight whitespace-nowrap">SH México</p>
+            <p className="text-white font-bold text-sm font-display leading-tight whitespace-nowrap">MXQ-Safety</p>
             <p className="text-white/50 text-xs whitespace-nowrap">Seguridad e Higiene</p>
           </div>
         )}

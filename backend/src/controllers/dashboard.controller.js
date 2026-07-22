@@ -16,7 +16,6 @@ const getKPIs = async (req, res, next) => {
       avgFiveS,
       suppliersTotal, suppliersActive,
       eppLowStock,
-      chemicalsNoSds,
       suppliersDocExpired,
     ] = await Promise.all([
       prisma.requirement.count({ where: { companyId } }),
@@ -32,10 +31,6 @@ const getKPIs = async (req, res, next) => {
       prisma.supplier.count({ where: { companyId, status: 'ACTIVE' } }),
       // EPP items where currentStock <= minStock
       prisma.eppItem.count({ where: { companyId, isActive: true, currentStock: { lte: 0 } } }),
-      // Chemicals without an SDS file
-      prisma.chemicalProduct.count({
-        where: { companyId, isActive: true, files: { none: { fileType: 'SDS' } } },
-      }),
       // Supplier documents expired
       prisma.supplierDocument.count({
         where: {
@@ -113,7 +108,6 @@ const getKPIs = async (req, res, next) => {
       suppliersActive,
       suppliersDocExpired,
       eppLowStock,
-      chemicalsNoSds,
       eppCurrentValue:  round2(eppCurrentValue),
       eppFullValue:     round2(eppFullValue),
       eppUnitsToBuy,

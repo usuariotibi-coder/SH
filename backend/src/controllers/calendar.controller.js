@@ -12,6 +12,12 @@ function subDays(date, days) {
   return addDays(date, -days);
 }
 
+function addYears(date, years) {
+  const d = new Date(date);
+  d.setFullYear(d.getFullYear() + years);
+  return d;
+}
+
 function getSeverity(date) {
   const now = new Date();
   const diff = (new Date(date) - now) / (1000 * 60 * 60 * 24);
@@ -43,8 +49,8 @@ const getCalendarEvents = async (req, res, next) => {
         prisma.requirement.findMany({
           where: {
             companyId,
-            dueDate: { not: null, gte: rangeStart, lte: rangeEnd },
             status: { not: 'COMPLETED' },
+            OR: [{ dueDate: { gte: rangeStart, lte: rangeEnd } }, { dueDate: { lt: now } }],
           },
           select: { id: true, code: true, name: true, dueDate: true, status: true, responsibleArea: true },
         }),
@@ -52,8 +58,8 @@ const getCalendarEvents = async (req, res, next) => {
         prisma.activity.findMany({
           where: {
             requirement: { companyId },
-            dueDate: { not: null, gte: rangeStart, lte: rangeEnd },
             activityStatus: { not: 'COMPLETED' },
+            OR: [{ dueDate: { gte: rangeStart, lte: rangeEnd } }, { dueDate: { lt: now } }],
           },
           select: {
             id: true,
@@ -65,36 +71,33 @@ const getCalendarEvents = async (req, res, next) => {
         }),
 
         prisma.training.findMany({
-          where: {
-            companyId,
-            expirationDate: { not: null, gte: rangeStart, lte: rangeEnd },
-          },
-          select: { id: true, name: true, expirationDate: true, instructor: true },
+          where: { companyId },
+          select: { id: true, name: true, expirationDate: true, trainingDate: true, instructor: true },
         }),
 
         prisma.drill.findMany({
           where: {
             companyId,
-            plannedDate: { not: null, gte: rangeStart, lte: rangeEnd },
             isCompleted: false,
+            OR: [{ plannedDate: { gte: rangeStart, lte: rangeEnd } }, { plannedDate: { lt: now } }],
           },
-          select: { id: true, type: true, plannedDate: true, area: true },
+          select: { id: true, type: true, plannedDate: true },
         }),
 
         prisma.maintenance.findMany({
           where: {
             companyId,
-            nextDate: { not: null, gte: rangeStart, lte: rangeEnd },
             status: { not: 'COMPLETED' },
+            OR: [{ nextDate: { gte: rangeStart, lte: rangeEnd } }, { nextDate: { lt: now } }],
           },
-          select: { id: true, name: true, nextDate: true, area: true, responsible: true, status: true },
+          select: { id: true, name: true, nextDate: true, responsible: true, status: true },
         }),
 
         prisma.risk.findMany({
           where: {
             companyId,
-            targetDate: { not: null, gte: rangeStart, lte: rangeEnd },
             isControlled: false,
+            OR: [{ targetDate: { gte: rangeStart, lte: rangeEnd } }, { targetDate: { lt: now } }],
           },
           select: { id: true, hazard: true, targetDate: true, area: true, responsible: true, riskLevel: true },
         }),
@@ -102,16 +105,16 @@ const getCalendarEvents = async (req, res, next) => {
         prisma.audit.findMany({
           where: {
             companyId,
-            auditDate: { not: null, gte: rangeStart, lte: rangeEnd },
             status: { in: ['PLANNED', 'IN_PROGRESS'] },
+            OR: [{ auditDate: { gte: rangeStart, lte: rangeEnd } }, { auditDate: { lt: now } }],
           },
-          select: { id: true, title: true, auditDate: true, auditor: true, status: true },
+          select: { id: true, title: true, auditDate: true, status: true },
         }),
 
         prisma.cMSHMeeting.findMany({
           where: {
             company: { id: companyId },
-            nextMeeting: { not: null, gte: rangeStart, lte: rangeEnd },
+            OR: [{ nextMeeting: { gte: rangeStart, lte: rangeEnd } }, { nextMeeting: { lt: now } }],
           },
           select: { id: true, nextMeeting: true, location: true },
         }),
@@ -120,7 +123,7 @@ const getCalendarEvents = async (req, res, next) => {
           where: {
             brigade: { companyId },
             isActive: true,
-            certificationExpiry: { not: null, gte: rangeStart, lte: rangeEnd },
+            OR: [{ certificationExpiry: { gte: rangeStart, lte: rangeEnd } }, { certificationExpiry: { lt: now } }],
           },
           select: {
             id: true,
@@ -133,8 +136,8 @@ const getCalendarEvents = async (req, res, next) => {
         prisma.supplierDocument.findMany({
           where: {
             supplier: { companyId },
-            expiresAt: { not: null, gte: rangeStart, lte: rangeEnd },
             status: { in: ['UPLOADED', 'APPROVED'] },
+            OR: [{ expiresAt: { gte: rangeStart, lte: rangeEnd } }, { expiresAt: { lt: now } }],
           },
           select: {
             id: true,
@@ -174,18 +177,21 @@ const getCalendarEvents = async (req, res, next) => {
         url: `/requirements/${a.requirement?.id}`,
       })),
 
-      ...trainings.map(t => ({
-        id: `train-${t.id}`,
-        title: `Capacitación vence: ${truncate(t.name, 35)}`,
-        date: t.expirationDate,
-        type: 'training',
-        status: 'ACTIVE',
-        severity: getSeverity(t.expirationDate),
-        module: 'Capacitación',
-        area: '',
-        sourceId: t.id,
-        url: `/training`,
-      })),
+      ...trainings
+        .map(t => ({ ...t, effectiveExpiration: t.expirationDate || addYears(t.trainingDate, 1) }))
+        .filter(t => (t.effectiveExpiration >= rangeStart && t.effectiveExpiration <= rangeEnd) || t.effectiveExpiration < now)
+        .map(t => ({
+          id: `train-${t.id}`,
+          title: `Capacitación vence: ${truncate(t.name, 35)}`,
+          date: t.effectiveExpiration,
+          type: 'training',
+          status: 'ACTIVE',
+          severity: getSeverity(t.effectiveExpiration),
+          module: 'Capacitación',
+          area: '',
+          sourceId: t.id,
+          url: `/training`,
+        })),
 
       ...drills.map(d => ({
         id: `drill-${d.id}`,
@@ -195,7 +201,7 @@ const getCalendarEvents = async (req, res, next) => {
         status: 'PLANNED',
         severity: getSeverity(d.plannedDate),
         module: 'Simulacros',
-        area: d.area || '',
+        area: '',
         sourceId: d.id,
         url: `/drills`,
       })),
@@ -208,7 +214,7 @@ const getCalendarEvents = async (req, res, next) => {
         status: m.status,
         severity: getSeverity(m.nextDate),
         module: 'Mantenimiento',
-        area: m.area || '',
+        area: '',
         sourceId: m.id,
         url: `/maintenance`,
       })),

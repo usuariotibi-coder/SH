@@ -8,15 +8,15 @@ router.use(authenticate);
 
 router.get('/', ctrl.getSuppliers);
 router.get('/:id', ctrl.getSupplier);
-router.post('/', requireRole('ADMIN', 'MANAGER'), ctrl.createSupplier);
-router.put('/:id', requireRole('ADMIN', 'MANAGER'), ctrl.updateSupplier);
+router.post('/', requireRole('ADMIN', 'AREA_MANAGER'), ctrl.createSupplier);
+router.put('/:id', requireRole('ADMIN', 'AREA_MANAGER'), ctrl.updateSupplier);
 router.delete('/:id', requireRole('ADMIN'), ctrl.deleteSupplier);
 
 // Access token management
-router.post('/:id/token', requireRole('ADMIN', 'MANAGER'), ctrl.generateToken);
-router.delete('/:id/token', requireRole('ADMIN', 'MANAGER'), ctrl.revokeToken);
+router.post('/:id/token', requireRole('ADMIN', 'AREA_MANAGER'), ctrl.generateToken);
+router.delete('/:id/token', requireRole('ADMIN', 'AREA_MANAGER'), ctrl.revokeToken);
 
 // Document review
-router.put('/documents/:docId/review', requireRole('ADMIN', 'MANAGER'), ctrl.reviewDocument);
+router.put('/documents/:docId/review', requireRole('ADMIN', 'AREA_MANAGER'), ctrl.reviewDocument);
 
 module.exports = router;

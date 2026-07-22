@@ -26,7 +26,7 @@ const getSuppliers = async (req, res, next) => {
           orderBy: { updatedAt: 'desc' },
         },
         accessToken: { select: { token: true, isActive: true } },
-        _count: { select: { chemicals: true } },
+        _count: { select: { documents: true } },
       },
       orderBy: { name: 'asc' },
     });
@@ -46,8 +46,6 @@ const getSupplier = async (req, res, next) => {
       include: {
         documents: { orderBy: { docType: 'asc' } },
         accessToken: true,
-        chemicals: { select: { id: true, tradeName: true, isActive: true } },
-        _count: { select: { hazmatDisposals: true } },
       },
     });
 

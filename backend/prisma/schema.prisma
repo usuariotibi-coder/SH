@@ -35,8 +35,6 @@ model Company {
   eppAreaRequirements EppAreaRequirement[]
   eppLots             EppLot[]
   eppLoans            EppLoan[]
-  chemicals           ChemicalProduct[]
-  hazmatDisposals     HazmatDisposal[]
 }
 
 model User {
@@ -58,7 +56,6 @@ model User {
   company             Company              @relation(fields: [companyId], references: [id])
   reviewedDocuments   SupplierDocument[]
   eppMovements        EppMovement[]
-  createdDisposals    HazmatDisposal[]
 }
 
 model Requirement {
@@ -218,22 +215,37 @@ model Drill {
 }
 
 model FiveS {
-  id            String     @id @default(cuid())
-  area          String
-  auditDate     DateTime
-  seiriScore    Int
-  seitonScore   Int
-  seisoScore    Int
-  seiketsuScore Int
-  shitsuke      Int
-  totalScore    Float      @default(0)
-  observations  String?
-  actionPlan    String?
-  auditorName   String
-  createdAt     DateTime   @default(now())
-  companyId     String
-  evidences     Evidence[]
-  company       Company    @relation(fields: [companyId], references: [id])
+  id                 String     @id @default(cuid())
+  area               String
+  auditDate          DateTime
+  seiriScore         Int
+  seitonScore        Int
+  seisoScore         Int
+  seiketsuScore      Int
+  shitsuke           Int
+  totalScore         Float      @default(0)
+  seiriFinding       String?
+  seiriImmediate     String?
+  seiriImprovement   String?
+  seitonFinding      String?
+  seitonImmediate    String?
+  seitonImprovement  String?
+  seisoFinding       String?
+  seisoImmediate     String?
+  seisoImprovement   String?
+  seiketsuFinding    String?
+  seiketsuImmediate  String?
+  seiketsuImprovement String?
+  shitsukeFinding    String?
+  shitsukeImmediate  String?
+  shitsukeImprovement String?
+  observations       String?
+  actionPlan         String?
+  auditorName        String
+  createdAt          DateTime   @default(now())
+  companyId          String
+  evidences          Evidence[]
+  company            Company    @relation(fields: [companyId], references: [id])
 }
 
 model Maintenance {
@@ -528,8 +540,6 @@ model Supplier {
   company          Company              @relation(fields: [companyId], references: [id])
   accessToken      SupplierAccessToken?
   documents        SupplierDocument[]
-  hazmatDisposals  HazmatDisposal[]
-  chemicals        ChemicalProduct[]
 }
 
 model SupplierAccessToken {
@@ -663,91 +673,4 @@ model EppLot {
   eppItem   EppItem  @relation(fields: [eppItemId], references: [id])
   companyId String
   company   Company  @relation(fields: [companyId], references: [id])
-}
-
-// ── Sustancias Químicas ───────────────────────────────────────────────────────
-
-enum ChemicalFileType {
-  SDS
-  LABEL
-}
-
-enum WasteState {
-  SOLID
-  LIQUID
-  SLUDGE
-  GAS
-}
-
-model ChemicalProduct {
-  id               String           @id @default(cuid())
-  tradeName        String
-  chemicalName     String?
-  casNumber        String?
-  manufacturer     String?
-  supplierId       String?
-  supplier         Supplier?        @relation(fields: [supplierId], references: [id])
-  ghsHazardClasses String[]
-  physicalState    String?
-  storageLocation  String?
-  maxStockKg       Float?
-  isActive         Boolean          @default(true)
-  notes            String?          @db.Text
-  sdsUpdatedAt     DateTime?
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
-  companyId        String
-  company          Company          @relation(fields: [companyId], references: [id])
-  files            ChemicalFile[]
-  hazmatDisposals  HazmatDisposal[]
-}
-
-model ChemicalFile {
-  id         String           @id @default(cuid())
-  fileType   ChemicalFileType
-  fileUrl    String
-  publicId   String
-  fileName   String
-  uploadedAt DateTime         @default(now())
-  version    String?
-  productId  String
-  product    ChemicalProduct  @relation(fields: [productId], references: [id], onDelete: Cascade)
-
-  @@unique([productId, fileType])
-}
-
-model HazmatDisposal {
-  id               String           @id @default(cuid())
-  folio            String           @unique
-  disposalDate     DateTime
-  wasteType        String
-  wasteState       WasteState
-  quantityKg       Float
-  manifestNumber   String?
-  transportCompany String?
-  disposalMethod   String?
-  notes            String?          @db.Text
-  supplierId       String?
-  supplier         Supplier?        @relation(fields: [supplierId], references: [id])
-  productId        String?
-  product          ChemicalProduct? @relation(fields: [productId], references: [id])
-  companyId        String
-  company          Company          @relation(fields: [companyId], references: [id])
-  createdById      String
-  createdBy        User             @relation(fields: [createdById], references: [id])
-  evidences        HazmatEvidence[]
-  createdAt        DateTime         @default(now())
-  updatedAt        DateTime         @updatedAt
-}
-
-model HazmatEvidence {
-  id          String         @id @default(cuid())
-  fileUrl     String
-  publicId    String
-  fileName    String
-  fileType    String
-  description String?
-  uploadedAt  DateTime       @default(now())
-  disposalId  String
-  disposal    HazmatDisposal @relation(fields: [disposalId], references: [id], onDelete: Cascade)
 }

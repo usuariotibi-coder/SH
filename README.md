@@ -1,4 +1,4 @@
-# SH México — App de Seguridad e Higiene
+# MXQ-Safety — App de Seguridad e Higiene
 
 Aplicación web fullstack para el seguimiento y cumplimiento de requerimientos legales de Seguridad e Higiene en México (NOMs, IMSS, STPS).
 

@@ -5,6 +5,7 @@ import { useTranslation } from 'react-i18next';
 import Button from '../../components/ui/Button';
 import { formatDate } from '../../utils/formatDate';
 import usePermissions from '../../hooks/usePermissions';
+import usePageHeader from '../../hooks/usePageHeader';
 import api from '../../api/axios.config';
 
 const FREQ_OPTIONS = [
@@ -312,33 +313,27 @@ export default function EppPage() {
 
   const lowStockCount = items.filter(i => i.isLowStock).length;
 
+  const headerAction =
+    (canWrite() && tab === 'inventory') ? (
+      <Button size="sm" onClick={() => { setEditItem(null); setItemForm(EMPTY_ITEM); setShowItemModal(true); }} className="flex items-center gap-2">
+        <Plus size={16} />{t('epp.newItem')}
+      </Button>
+    ) : (canWrite() && tab === 'matrix') ? (
+      <Button size="sm" onClick={openAddMatrix} className="flex items-center gap-2">
+        <Plus size={16} />{t('epp.addMatrixEntry')}
+      </Button>
+    ) : (tab === 'loans') ? (
+      <Button size="sm" onClick={() => setShowLoanModal(true)} className="flex items-center gap-2">
+        <Plus size={16} /> Nuevo préstamo
+      </Button>
+    ) : null;
+
+  usePageHeader(t('epp.title'), headerAction);
+
   // ── Render ────────────────────────────────────────────────────────────────────
 
   return (
     <div className="p-6 space-y-6">
-
-      {/* Header */}
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-2xl font-bold text-gray-900">{t('epp.title')}</h1>
-          <p className="text-sm text-gray-500 mt-1">{t('epp.subtitle')}</p>
-        </div>
-        {canWrite() && tab === 'inventory' && (
-          <Button onClick={() => { setEditItem(null); setItemForm(EMPTY_ITEM); setShowItemModal(true); }} className="flex items-center gap-2">
-            <Plus size={16} />{t('epp.newItem')}
-          </Button>
-        )}
-        {canWrite() && tab === 'matrix' && (
-          <Button onClick={openAddMatrix} className="flex items-center gap-2">
-            <Plus size={16} />{t('epp.addMatrixEntry')}
-          </Button>
-        )}
-        {tab === 'loans' && (
-          <Button onClick={() => setShowLoanModal(true)} className="flex items-center gap-2">
-            <Plus size={16} /> Nuevo préstamo
-          </Button>
-        )}
-      </div>
 
       {/* Low stock alert */}
       {lowStockCount > 0 && (
@@ -775,7 +770,7 @@ export default function EppPage() {
                     <button type="button" onClick={closeMovModal} className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50">{t('common.cancel')}</button>
                     <button type="submit" disabled={saving}
                       className={`px-4 py-2 text-sm text-white rounded-lg disabled:opacity-50 ${movModalType === 'ENTRY' ? 'bg-green-600 hover:bg-green-700' : 'bg-red-600 hover:bg-red-700'}`}>
-                      {saving ? t('common.saving') : movModalType === 'ENTRY' ? 'Registrar entrada' : 'Registrar salida'}
+                      {saving ? t('common.saving') : movModalType === 'ENTRY' ? t('epp.registerEntry') : t('epp.registerExit')}
                     </button>
                   </div>
                 </form>
@@ -960,7 +955,7 @@ export default function EppPage() {
             <div className="flex items-center justify-between p-5 border-b flex-shrink-0">
               <div className="flex items-center gap-2">
                 <PackageCheck size={18} className="text-blue-600" />
-                <h2 className="text-lg font-semibold">Nuevo préstamo EPP</h2>
+                <h2 className="text-lg font-semibold">{t('epp.loan.title')}</h2>
               </div>
               <button onClick={() => setShowLoanModal(false)} className="text-gray-400 hover:text-gray-600 text-xl">&times;</button>
             </div>
@@ -969,17 +964,17 @@ export default function EppPage() {
               {/* Solicitante */}
               <div className="grid grid-cols-2 gap-3">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Nombre *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('epp.loan.employeeName')} *</label>
                   <input
-                    required className={INP} placeholder="Nombre completo"
+                    required className={INP} placeholder={t('epp.loan.employeeNamePlaceholder')}
                     value={loanForm.employeeName}
                     onChange={e => setLoanForm(p => ({ ...p, employeeName: e.target.value }))}
                   />
                 </div>
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Área / Puesto</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">{t('epp.loan.area')}</label>
                   <input
-                    className={INP} placeholder="Área o puesto"
+                    className={INP} placeholder={t('epp.loan.areaPlaceholder')}
                     value={loanForm.employeeArea}
                     onChange={e => setLoanForm(p => ({ ...p, employeeArea: e.target.value }))}
                   />
@@ -989,12 +984,12 @@ export default function EppPage() {
               {/* Artículos */}
               <div>
                 <div className="flex items-center justify-between mb-2">
-                  <label className="block text-sm font-medium text-gray-700">Artículos en préstamo *</label>
+                  <label className="block text-sm font-medium text-gray-700">{t('epp.loan.itemsLabel')} *</label>
                   <button
                     type="button" onClick={addLoanItem}
                     className="text-xs text-blue-600 hover:underline flex items-center gap-1"
                   >
-                    <Plus size={12} /> Agregar artículo
+                    <Plus size={12} /> {t('epp.loan.addItem')}
                   </button>
                 </div>
                 <div className="space-y-2">
@@ -1005,7 +1000,7 @@ export default function EppPage() {
                         value={item.eppItemId}
                         onChange={e => updateLoanItem(idx, 'eppItemId', e.target.value)}
                       >
-                        <option value="">Selecciona artículo...</option>
+                        <option value="">{t('epp.loan.selectItem')}</option>
                         {items.map(i => (
                           <option key={i.id} value={i.id}>{i.name}</option>
                         ))}
@@ -1031,9 +1026,9 @@ export default function EppPage() {
 
               {/* Notas */}
               <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Notas</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1">{t('epp.loan.notes')}</label>
                 <input
-                  className={INP} placeholder="Observaciones (opcional)"
+                  className={INP} placeholder={t('epp.loan.notesPlaceholder')}
                   value={loanForm.notes}
                   onChange={e => setLoanForm(p => ({ ...p, notes: e.target.value }))}
                 />
@@ -1042,7 +1037,7 @@ export default function EppPage() {
               {/* Info alerta */}
               <div className="flex items-start gap-2 p-3 bg-blue-50 border border-blue-200 rounded-lg text-xs text-blue-700">
                 <AlertTriangle size={14} className="mt-0.5 flex-shrink-0" />
-                Se generará una alerta indicando los artículos en préstamo y la fecha de entrega.
+                {t('epp.loan.alertMessage')}
               </div>
 
               <div className="flex justify-end gap-3 pt-2 border-t">
@@ -1050,13 +1045,13 @@ export default function EppPage() {
                   type="button" onClick={() => setShowLoanModal(false)}
                   className="px-4 py-2 text-sm border border-gray-300 rounded-lg hover:bg-gray-50"
                 >
-                  Cancelar
+                  {t('common.cancel')}
                 </button>
                 <button
                   type="submit" disabled={loanSaving}
                   className="px-4 py-2 text-sm bg-blue-600 text-white rounded-lg hover:bg-blue-700 disabled:opacity-50"
                 >
-                  {loanSaving ? 'Guardando...' : 'Registrar préstamo'}
+                  {loanSaving ? t('epp.loan.saving') : t('epp.loan.register')}
                 </button>
               </div>
             </form>

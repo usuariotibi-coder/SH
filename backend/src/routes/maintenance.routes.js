@@ -6,8 +6,8 @@ const { requireRole } = require('../middleware/role.middleware');
 router.use(authenticate);
 
 router.get('/', ctrl.getMaintenances);
-router.post('/', requireRole('ADMIN', 'SH_SPECIALIST'), ctrl.createMaintenance);
-router.put('/:id', requireRole('ADMIN', 'SH_SPECIALIST'), ctrl.updateMaintenance);
+router.post('/', requireRole('ADMIN', 'SH_SPECIALIST', 'AREA_MANAGER'), ctrl.createMaintenance);
+router.put('/:id', requireRole('ADMIN', 'SH_SPECIALIST', 'AREA_MANAGER'), ctrl.updateMaintenance);
 router.delete('/:id', requireRole('ADMIN', 'SH_SPECIALIST'), ctrl.deleteMaintenance);
 
 module.exports = router;

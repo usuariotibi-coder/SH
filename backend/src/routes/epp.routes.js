@@ -9,23 +9,23 @@ router.use(authenticate);
 
 // Loan routes (before /:id to avoid conflicts)
 router.get('/loans',              loansCtrl.getLoans);
-router.post('/loans',             loansCtrl.createLoan);
-router.put('/loans/:id/return',   loansCtrl.returnLoan);
+router.post('/loans',             requireRole('ADMIN', 'SH_SPECIALIST', 'AREA_MANAGER'), loansCtrl.createLoan);
+router.put('/loans/:id/return',   requireRole('ADMIN', 'SH_SPECIALIST', 'AREA_MANAGER'), loansCtrl.returnLoan);
 
 // Matrix routes (before /:id to avoid conflicts)
 router.get('/matrix', ctrl.getMatrix);
-router.post('/matrix', requireRole('ADMIN', 'MANAGER'), ctrl.upsertMatrixEntry);
-router.delete('/matrix/:entryId', requireRole('ADMIN', 'MANAGER'), ctrl.deleteMatrixEntry);
+router.post('/matrix', requireRole('ADMIN', 'AREA_MANAGER'), ctrl.upsertMatrixEntry);
+router.delete('/matrix/:entryId', requireRole('ADMIN', 'AREA_MANAGER'), ctrl.deleteMatrixEntry);
 
 // Item routes
 router.get('/', ctrl.getItems);
 router.get('/:id', ctrl.getItem);
-router.post('/', requireRole('ADMIN', 'MANAGER'), ctrl.createItem);
-router.put('/:id', requireRole('ADMIN', 'MANAGER'), ctrl.updateItem);
+router.post('/', requireRole('ADMIN', 'AREA_MANAGER'), ctrl.createItem);
+router.put('/:id', requireRole('ADMIN', 'AREA_MANAGER'), ctrl.updateItem);
 router.delete('/:id', requireRole('ADMIN'), ctrl.deleteItem);
 
 // Movement routes
-router.post('/bulk-movements', ctrl.bulkMovements);
-router.post('/:id/movements', ctrl.createMovement);
+router.post('/bulk-movements', requireRole('ADMIN', 'SH_SPECIALIST', 'AREA_MANAGER'), ctrl.bulkMovements);
+router.post('/:id/movements', requireRole('ADMIN', 'SH_SPECIALIST', 'AREA_MANAGER'), ctrl.createMovement);
 
 module.exports = router;

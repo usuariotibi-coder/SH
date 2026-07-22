@@ -25,7 +25,13 @@ const getFiveS = async (req, res, next) => {
 
 const createFiveS = async (req, res, next) => {
   try {
-    const { area, auditDate, seiriScore, seitonScore, seisoScore, seiketsuScore, shitsuke, observations, actionPlan, auditorName } = req.body;
+    const { area, auditDate, seiriScore, seitonScore, seisoScore, seiketsuScore, shitsuke, observations, actionPlan, auditorName,
+      seiriFinding, seiriImmediate, seiriImprovement,
+      seitonFinding, seitonImmediate, seitonImprovement,
+      seisoFinding, seisoImmediate, seisoImprovement,
+      seiketsuFinding, seiketsuImmediate, seiketsuImprovement,
+      shitsukeFinding, shitsukeImmediate, shitsukeImprovement,
+    } = req.body;
     if (!area || !auditDate || !auditorName) {
       return res.status(400).json({ error: true, message: 'Área, fecha y auditor requeridos', code: 'MISSING_FIELDS' });
     }
@@ -39,6 +45,11 @@ const createFiveS = async (req, res, next) => {
         area, auditDate: new Date(auditDate),
         seiriScore: s1, seitonScore: s2, seisoScore: s3, seiketsuScore: s4, shitsuke: s5,
         totalScore, observations, actionPlan, auditorName,
+        seiriFinding, seiriImmediate, seiriImprovement,
+        seitonFinding, seitonImmediate, seitonImprovement,
+        seisoFinding, seisoImmediate, seisoImprovement,
+        seiketsuFinding, seiketsuImmediate, seiketsuImprovement,
+        shitsukeFinding, shitsukeImmediate, shitsukeImprovement,
         companyId: req.user.companyId,
       },
     });
@@ -49,7 +60,13 @@ const createFiveS = async (req, res, next) => {
 const updateFiveS = async (req, res, next) => {
   try {
     const { id } = req.params;
-    const { area, auditDate, seiriScore, seitonScore, seisoScore, seiketsuScore, shitsuke, observations, actionPlan, auditorName } = req.body;
+    const { area, auditDate, seiriScore, seitonScore, seisoScore, seiketsuScore, shitsuke, observations, actionPlan, auditorName,
+      seiriFinding, seiriImmediate, seiriImprovement,
+      seitonFinding, seitonImmediate, seitonImprovement,
+      seisoFinding, seisoImmediate, seisoImprovement,
+      seiketsuFinding, seiketsuImmediate, seiketsuImprovement,
+      shitsukeFinding, shitsukeImmediate, shitsukeImprovement,
+    } = req.body;
 
     const s1 = parseInt(seiriScore), s2 = parseInt(seitonScore), s3 = parseInt(seisoScore);
     const s4 = parseInt(seiketsuScore), s5 = parseInt(shitsuke);
@@ -61,6 +78,11 @@ const updateFiveS = async (req, res, next) => {
         area, auditDate: auditDate ? new Date(auditDate) : undefined,
         seiriScore: s1, seitonScore: s2, seisoScore: s3, seiketsuScore: s4, shitsuke: s5,
         totalScore, observations, actionPlan, auditorName,
+        seiriFinding, seiriImmediate, seiriImprovement,
+        seitonFinding, seitonImmediate, seitonImprovement,
+        seisoFinding, seisoImmediate, seisoImprovement,
+        seiketsuFinding, seiketsuImmediate, seiketsuImprovement,
+        shitsukeFinding, shitsukeImmediate, shitsukeImprovement,
       },
     });
     res.json(record);

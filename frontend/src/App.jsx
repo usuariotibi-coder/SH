@@ -26,7 +26,6 @@ import SuppliersPage from './pages/suppliers/SuppliersPage';
 import SupplierDetailPage from './pages/suppliers/SupplierDetailPage';
 import SupplierPortalPage from './pages/portal/SupplierPortalPage';
 import EppPage from './pages/epp/EppPage';
-import ChemicalsPage from './pages/chemicals/ChemicalsPage';
 import useAuthStore from './store/auth.store';
 
 export default function App() {
@@ -73,7 +72,6 @@ export default function App() {
           <Route path="suppliers" element={<SuppliersPage />} />
           <Route path="suppliers/:id" element={<SupplierDetailPage />} />
           <Route path="epp" element={<EppPage />} />
-          <Route path="chemicals" element={<ChemicalsPage />} />
           <Route path="admin/users" element={
             <ProtectedRoute roles={['ADMIN']}>
               <UsersPage />

@@ -8,6 +8,7 @@ import Modal from '../../components/ui/Modal';
 import { Input, Textarea } from '../../components/ui/DatePicker';
 import { formatDate } from '../../utils/formatDate';
 import usePermissions from '../../hooks/usePermissions';
+import usePageHeader from '../../hooks/usePageHeader';
 import api from '../../api/axios.config';
 
 const EMPTY = { year: new Date().getFullYear(), objectives: '', scope: '', budget: '', responsible: '', approvedBy: '', approvedAt: '', notes: '' };
@@ -47,14 +48,14 @@ export default function ProgramPage() {
 
   const f = (k, v) => setForm(p => ({ ...p, [k]: v }));
 
+  usePageHeader(t('program.title'), canWrite() && (
+    <Button size="sm" onClick={openEdit}><Edit3 className="w-4 h-4" /> {program ? t('common.edit') : t('common.new')}</Button>
+  ));
+
   if (loading) return <div className="py-12 text-center text-[var(--color-text-muted)]">{t('common.loading')}</div>;
 
   return (
     <div className="space-y-5 max-w-3xl">
-      <div className="flex items-center justify-between">
-        <h1 className="text-2xl font-bold font-display">{t('program.title')}</h1>
-        {canWrite() && <Button onClick={openEdit}><Edit3 className="w-4 h-4" /> {program ? t('common.edit') : t('common.new')}</Button>}
-      </div>
 
       {!program ? (
         <Card>

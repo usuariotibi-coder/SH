@@ -15,6 +15,7 @@ import CalendarEventItem from './CalendarEventItem';
 import CalendarLegend, { TYPES } from './CalendarLegend';
 import CalendarSummaryCards from './CalendarSummaryCards';
 import EventDetailDrawer from './EventDetailDrawer';
+import usePageHeader from '../../hooks/usePageHeader';
 
 /* ── date-fns localizer ─────────────────────────────────── */
 const locales = { es };
@@ -127,19 +128,11 @@ export default function CalendarPage() {
     };
   }, []);
 
+  usePageHeader(t('calendar.title'));
+
   /* ── Render ───────────────────────────────────────────── */
   return (
     <div className="p-6 h-full flex flex-col" style={{ minHeight: 0 }}>
-      {/* Header */}
-      <div className="mb-5">
-        <h1 className="text-2xl font-bold font-display" style={{ color: 'var(--color-text-primary)' }}>
-          {t('calendar.title')}
-        </h1>
-        <p className="text-sm mt-0.5" style={{ color: 'var(--color-text-muted)' }}>
-          Todos los vencimientos y fechas clave en una sola vista
-        </p>
-      </div>
-
       {/* Summary cards */}
       <CalendarSummaryCards events={events} currentDate={currentDate} />
 
